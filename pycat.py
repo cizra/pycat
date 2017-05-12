@@ -18,12 +18,14 @@ def log(*args):
 
 
 class Session(object):
-    def __init__(self, world_name, host, port):
+    def __init__(self, world_module):
         self.gmcp = {}
-        self.telnet = self.connect(host, port)
-        self.world = importlib.import_module(world_name) if world_name else None
+        world_class = world_module.get_class()
+        host_port = world_class.get_host_port()
+        self.telnet = self.connect(*host_port)
+        self.world_module = world_module
+        self.world = world_class(self)
         self.gmcp = {}
-        self.debugGMCP = False
 
     def join(self):
         self.thr.join()
@@ -57,7 +59,7 @@ class Session(object):
             current[nest] = {}
             current = current[nest]
         current[nesting[-1]] = json.loads(data[space_idx + 1:])
-        self.world.gmcp(self, whole_key)
+        self.world.gmcp(whole_key)
 
     def connect(self, host, port):
         t = telnetlib.Telnet()
@@ -74,14 +76,13 @@ class Session(object):
         if not data:
             _ = self.telnet.read_sb_data()
         for line in data.strip().split('\n'):
-            if self.world:
-                replacement = None
-                try:
-                    replacement = self.world.trigger(self, line.strip())
-                except Exception as e:
-                    traceback.print_exc()
-                if replacement is not None:
-                    line = replacement
+            replacement = None
+            try:
+                replacement = self.world.trigger(line.strip())
+            except Exception as e:
+                traceback.print_exc()
+            if replacement is not None:
+                line = replacement
             print(line)
 
 
@@ -90,14 +91,15 @@ class Session(object):
         if data == '#reload' and self.world:
             log('Reloading world')
             try:
-                self.world = importlib.reload(self.world)
+                self.world_module = importlib.reload(self.world_module)
+                self.world = self.world_module.get_class()(self)
             except Exception:
                 traceback.print_exc()
             return
         else:
             handled = False
             try:
-                handled = self.world.alias(self, data)
+                handled = self.world.alias(data)
             except Exception as e:
                 traceback.print_exc()
             else:
@@ -122,13 +124,14 @@ class Session(object):
 
 
 def main():
-    if len(sys.argv) != 4:
-        print("Usage: {} world host port".format(sys.argv[0]))
+    if len(sys.argv) != 2:
+        print("Usage: {} worldmodule (without .py)".format(sys.argv[0]))
         exit(1)
 
-    ses = Session(sys.argv[1], sys.argv[2], sys.argv[3])
+    world_module = importlib.import_module(sys.argv[1])
+    ses = Session(world_module)
     ses.run()
 
 
-if __name__ == '__main__':
-    main()
+assert(__name__ == '__main__')
+main()
