@@ -87,7 +87,7 @@ class Session(object):
 
 
     def handle_output(self):
-        data = input().strip()
+        data = input()
         if data == '#reload' and self.world:
             log('Reloading world')
             try:
