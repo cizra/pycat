@@ -24,6 +24,7 @@ class BaseClient(object):
         self.aliases = ALIASES
         self.triggers = TRIGGERS
         self.notifications = NOTIFICATIONS
+        self.logfile = open('session.log', 'a', buffering=1)
     
     def get_host_port():
         return input("Hostname: "), input("Port: ")
@@ -43,7 +44,9 @@ class BaseClient(object):
             self.mud.send(line)
             return True
 
-        if line.startswith('#py '):
+        if not line:
+            return send('!')
+        elif line.startswith('#py '):
             rest = line[3:]
             self.log(repr(eval(rest)))
             return True
@@ -60,6 +63,12 @@ class BaseClient(object):
             match = re.match(r'#(\d)+ (.+)', line)
             times, cmd = match.groups()
             return send('\n'.join([cmd] * int(times)))
+        elif line.startswith('#grep '):
+            arg = line[len('#grep '):]
+            grep = subprocess.Popen(['grep', arg, 'session.log'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, err = grep.communicate(timeout=5)
+            self.log('\n' + out.decode('utf-8'))
+            return True
         elif line in self.aliases:
             self.send(self.aliases[line])
             return True
@@ -67,6 +76,7 @@ class BaseClient(object):
         return send(line)
 
     def trigger(self, line):
+        self.logfile.write(line + '\n')
         line = self.mud.strip_ansi(line).strip()
         if line in self.notifications:
             notify(self.notifications[line])
