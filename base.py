@@ -43,12 +43,15 @@ class BaseClient(object):
             self.state['outlog'].append(line)
             self.mud.send(line)
             return True
-
         if not line:
             return send('!')
         elif line.startswith('#py '):
-            rest = line[3:]
+            rest = line[4:]
             self.log(repr(eval(rest)))
+            return True
+        elif line.startswith('#pye '):
+            rest = line[5:]
+            exec(rest)
             return True
         elif line == '#record':
             self.log("Started recording. Send #recordoff to end.")
