@@ -84,8 +84,9 @@ class BaseClient(object):
         if line in self.notifications:
             notify(self.notifications[line])
         # fallthrough, allow both notification and trigger
-        if line in self.triggers:
-            self.send(self.triggers[line])
+        for trigger, response in self.triggers.items():
+            if re.match(trigger, line):
+                self.send(response)
         # fallthrough, allow subclass to add reaction
         return self.trigger2(line)
 
