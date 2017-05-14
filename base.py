@@ -96,7 +96,8 @@ class BaseClient(object):
             self.log('\n' + out.decode('utf-8'))
             return True
         elif line in self.aliases:
-            self.send(self.aliases[line])
+            for subline in stack(self.aliases[line]):
+                self.send(subline)
             return True
 
         return send(line)
