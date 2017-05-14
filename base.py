@@ -16,6 +16,19 @@ NOTIFICATIONS = {
         'You are thirsty.': 'thr',
         }
 
+
+def stack(line):
+    assert('\n' not in line)
+    out = []
+    startmatch = 0
+    for i in range(1, len(line) - 1):
+        if line[i] == ';' and line[i-1] != ';' and line[i+1] != ';':
+            out.append(line[startmatch:i])
+            startmatch = i + 1
+    out.append(line[startmatch:])
+    return out
+
+
 class BaseClient(object):
     def __init__(self, mud):
         self.mud = mud
@@ -37,6 +50,12 @@ class BaseClient(object):
         self.mud.send(line)
 
     def alias(self, line):
+        sublines = stack(line)
+        if len(sublines) > 1:
+            for subline in sublines:
+                self.alias(subline)
+            return True
+
         def send(line):
             if 'record' in self.state:
                 self.state['record'].append(line)
