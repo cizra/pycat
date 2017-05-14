@@ -73,14 +73,17 @@ class BaseClient(object):
             rest = line[5:]
             exec(rest)
             return True
-        elif line == '#record':
-            self.log("Started recording. Send #recordoff to end.")
-            STATE['record'] = []
+        elif line == '#record on':
+            self.log("Started recording. Send #record off to end, or #record undo to undo.")
+            self.state['record'] = []
             return True
-        elif line == '#recordoff' and 'record' in self.state:
+        elif line == '#record off' and 'record' in self.state:
             self.log("Recorded steps:")
-            self.log(STATE['record'])
+            self.log(self.state['record'])
             del self.state['record']
+            return True
+        elif line == '#record undo' and 'record' in self.state:
+            self.state['record'].pop()
             return True
         elif re.match(r'#\d+ .+', line):
             match = re.match(r'#(\d)+ (.+)', line)
