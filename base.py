@@ -12,8 +12,9 @@ ALIASES = {
 TRIGGERS = {
         }
 NOTIFICATIONS = {
-        'You are hungry.': 'hgr',
-        'You are thirsty.': 'thr',
+        'You are hungry\.': 'hgr',
+        'You are thirsty\.': 'thr',
+        '.* is DEAD!!!': 'dd',
         }
 
 
@@ -100,8 +101,9 @@ class BaseClient(object):
     def trigger(self, line):
         self.logfile.write(line + '\n')
         line = self.mud.strip_ansi(line).strip()
-        if line in self.notifications:
-            notify(self.notifications[line])
+        for match, result in self.notifications.items():
+            if re.match(match, line):
+                notify(result)
         # fallthrough, allow both notification and trigger
         for trigger, response in self.triggers.items():
             if re.match(trigger, line):
