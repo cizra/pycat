@@ -113,7 +113,7 @@ class Session(object):
                 try:
                     fds, _, _ = select([self.telnet.get_socket(), sys.stdin], [], [])
                 except KeyboardInterrupt:
-                    break
+                    pass
                 for fd in fds:
                     if fd == self.telnet.get_socket():
                         self.handle_input()
