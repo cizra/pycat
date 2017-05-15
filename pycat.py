@@ -58,7 +58,11 @@ class Session(object):
         for nest in nesting[:-1]:
             current[nest] = {}
             current = current[nest]
-        current[nesting[-1]] = json.loads(data[space_idx + 1:])
+        self.log("GMCP {}: {}".format(whole_key, data[space_idx + 1:]))
+        try:
+            current[nesting[-1]] = json.loads(data[space_idx + 1:])
+        except json.decoder.JSONDecodeError:
+            current[nesting[-1]] = data[space_idx + 1:]
         self.world.gmcp(whole_key)
 
     def connect(self, host, port):
