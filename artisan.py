@@ -27,19 +27,21 @@ class Artisan(coffee.Coffee):
             return
 
     def speculate(self, line):
-        desirables_re = '(coal|wood|mithril)'
+        # desirables = {'masterchop': ['wood', 'redwood', 'willow', 'oak'], 'mastermine': {'mithril', iro
+        desirables_re = '(coal|wood|mithril|oak|redwood|willow|hickory)'
         if 'speculate' not in self.state:
             self.state['speculate'] = None
         if (
-                re.match('^You think this spot would be good for {}\.'.format(desirables_re), line) or
+                re.match('^You think this spot would be good for mithril\.', line) or
+                re.match('^You think this spot would be good for (oak|wood|willow|redwood|hickory)\.', line) or
                 re.match(r'^You manage to mine \d+ pounds of {}\.$'.format(desirables_re), line)
                 ):
             return self.send('mastermine')
-        elif re.match('^You manage to chop up \d+ pounds of wood\.$', line):
+        elif re.match('^You manage to chop up \d+ pounds of {}\.$'.format(desirables_re), line):
             return self.send('masterchop')
         elif self.state['speculate'] != 'mining' and re.match(r'There looks like {} to the (.+)\.'.format(desirables_re), line):
             self.state['speculate'] = 'mining'
-            direction = re.match(r'There looks like {} to the (.+)\.'.format(desirables_re), line).group(1)
+            direction = re.match(r'There looks like {} to the (.+)\.'.format(desirables_re), line).group(2)
             return self.send(direction + '\nmastermine')
         elif line == 'Your speculate attempt failed.':
             return self.send('speculate')
@@ -47,8 +49,11 @@ class Artisan(coffee.Coffee):
                 line == 'You can\'t seem to find any trees worth cutting around here.'):
             self.state['speculate'] = 'checking exits'
             return self.send('exits brief')
-        elif self.state['speculate'] == 'checking exits' and re.match('^\[Exits: \w+ \w+\]$', line):
-            direction = re.match('^\[Exits: \w+ (\w+)\]$', line).group(1)
+        elif self.state['speculate'] == 'checking exits':
+            match = re.match('^\[Exits: (\w+)\]$', line) 
+            if not match:
+                match = re.match('^\[Exits: \w+ (\w+)\]$', line)
+            direction = match.group(1)
             return self.send(direction + '\nspeculate')
         elif self.state['speculate'] == 'checking exits' and re.match('^\[Exits: \w+ \w+ .*\]$', line):
             self.state['speculate'] = 'speculating'
