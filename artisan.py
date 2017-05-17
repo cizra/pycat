@@ -9,6 +9,23 @@ import subprocess
 ALIASES = {
         }
 TRIGGERS = {
+        'You are hungry.': 'eat bread',
+        'You are thirsty.': 'drink sink',
+        "You don't see 'bread' here.": 'quit;y',
+
+        # pierce -> remove pierce -> cup -> tattoo -> remove tattoo -> carve
+
+        'You are done piercing Basso on the nose.': 'bodypierce remove basso nose',
+        'That location is already decorated.': 'bodypierce remove basso nose',
+        'There is no piercing there to heal.': 'blacksm cup',
+        "You heal the piercing on Basso's nose.": 'blacksm cup',
+        'You are done smithing a dragonscales cup.': 'tattoo basso arms a skull',
+        'You are done tattooing Basso on the arms.': 'tattoo basso arms remove',
+        "You remove the tattoo on Basso's arms.": 'carve pipe',
+        "There is no tattoo there to remove.": 'carve pipe',
+        'You are done carving .*': 's\nlight fire',
+        'You are done building a fire.': 'chop',
+        'You are done chopping.': 'n\nbodypierce basso nose',
         }
 NOTIFICATIONS = {
         }
@@ -23,8 +40,8 @@ class Artisan(coffee.Coffee):
 
     def trigger2(self, line):
         super().trigger2(line)
-        if self.speculate(line):
-            return
+        # if self.speculate(line):
+        #     return
 
     def speculate(self, line):
         # desirables = {'masterchop': ['wood', 'redwood', 'willow', 'oak'], 'mastermine': {'mithril', iro
