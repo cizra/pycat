@@ -18,7 +18,7 @@ NOTIFICATIONS = {
         }
 
 
-class Drone(coffee.Coffee):
+class Bard(coffee.Coffee):
     def __init__(self, mud):
         super().__init__(mud)
         self.aliases.update(ALIASES)
@@ -27,4 +27,4 @@ class Drone(coffee.Coffee):
 
 
 def get_class():
-    return Drone
+    return Bard
