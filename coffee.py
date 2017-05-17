@@ -19,6 +19,10 @@ TRIGGERS = {
         'You feel a little cleaner; almost perfect.': 'bathe',
         'You are no longer hungry.': '!',
         'You are no longer thirsty.': '!',
+        'You are starved, and near death.  EAT SOMETHING!': 'quit;y',
+        'You are dehydrated, and near death.  DRINK SOMETHING!': 'quit;y',
+        'YOU ARE DYING OF THIRST!': 'quit;y',
+        'YOU ARE DYING OF HUNGER!': 'quit;y',
         }
 NOTIFICATIONS = {
         }
