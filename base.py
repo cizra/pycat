@@ -124,8 +124,8 @@ class BaseClient(object):
     def trigger2(self, line):
         pass
 
-    def handleGmcp(self, cmd):
-        self.log('Got GMCP', cmd)
+    def handleGmcp(self, cmd, value):
+        # self.log('Got GMCP', cmd, value)
         pass
 
 

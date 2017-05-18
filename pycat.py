@@ -65,7 +65,7 @@ class Session(object):
         # this.that {JSON blob}
         space_idx = data.find(' ')
         whole_key = data[:space_idx]
-        value = data[space_idx + 1:]
+        value_json = data[space_idx + 1:]
         nesting = whole_key.split('.')
         current = self.world.gmcp
         for nest in nesting[:-1]:
@@ -74,12 +74,13 @@ class Session(object):
             current = current[nest]
         lastkey = nesting[-1]
         try:
-            if lastkey not in current:
-                current[lastkey] = {}
-            current[lastkey].update(json.loads(value))
+            val = json.loads(value_json)
         except json.decoder.JSONDecodeError:
-            current[lastkey] = value
-        self.world.handleGmcp(whole_key)
+            val = {"string": value}
+        if lastkey not in current:
+            current[lastkey] = {}
+        current[lastkey] = val
+        self.world.handleGmcp(whole_key, val)
 
     def connect(self, host, port):
         t = telnetlib.Telnet()
