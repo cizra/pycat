@@ -2,30 +2,47 @@ import importlib
 import coffee
 importlib.reload(coffee)
 import collections
+import random
 import re
 import subprocess
+
+
+def startForaging(mud, _):
+    mud.state['forage'] = 'started'
+    return 'forage'
+
+
+def forageResults(mud, matches):
+    mud.state['forage'] = 'found'
+    return 'put {} drum\nfoodprep drum'.format(matches[0]),
+
+
+def forageDone(mud, _):
+    if mud.state['forage'] != 'found':
+        return 'light fire'
+
+def nothingToMine(mud, _):
+    dirs = list(mud.mud.gmcp['room']['info']['exits'].keys())
+    return random.choice(dirs) + '\n' + 'mastermine'
 
 
 ALIASES = {
         }
 TRIGGERS = {
         'You are hungry.': 'eat bread',
-        'You are thirsty.': 'drink sink',
+        'You are thirsty.': 'drink barrel',
         "You don't see 'bread' here.": 'quit;y',
 
         # pierce -> remove pierce -> cup -> tattoo -> remove tattoo -> carve
 
-        'You are done piercing Basso on the nose.': 'bodypierce remove basso nose',
-        'That location is already decorated.': 'bodypierce remove basso nose',
-        'There is no piercing there to heal.': 'blacksm cup',
-        "You heal the piercing on Basso's nose.": 'blacksm cup',
-        'You are done smithing a dragonscales cup.': 'tattoo basso arms a skull',
-        'You are done tattooing Basso on the arms.': 'tattoo basso arms remove',
-        "You remove the tattoo on Basso's arms.": 'carve pipe',
-        "There is no tattoo there to remove.": 'carve pipe',
-        'You are done carving .*': 's\nlight fire',
-        'You are done building a fire.': 'chop',
-        'You are done chopping.': 'n\nbodypierce basso nose',
+        'You are done building a fire.': startForaging,
+        # 'You manage to gather .* pounds? of (.*)\.': forageResults,
+        'You are done foraging.': 'light fire', # forageDone,
+        'You are done making .* preserves.': 'get all drum\ndrop all preserves',
+        'You are done making .* preserves.': 'get all drum\nforage',
+        
+        "You can't seem to find anything worth mining here.": nothingToMine,
+        'You manage to mine .* pounds of .*\.': 'mastermine',
         }
 NOTIFICATIONS = {
         }
