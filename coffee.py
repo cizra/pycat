@@ -36,7 +36,7 @@ class Coffee(base.BaseClient):
         self.notifications.update(NOTIFICATIONS)
 
     def get_host_port():
-        return 'coffeemud.net', 23
+        return '::1', 4000
 
     def trigger2(self, line):
         if re.match('^You start .+', line):
