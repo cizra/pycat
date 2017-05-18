@@ -37,33 +37,49 @@ class Session(object):
     def strip_ansi(self, line):
         return re.sub(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', '', line)
 
+    def gmcpOut(self, msg):
+        self.telnet.sock.sendall(telnetlib.IAC + telnetlib.SB + telnetlib.GMCP + msg.encode('utf-8') + telnetlib.IAC + telnetlib.SE)
+
     def iac(self, sock, cmd, option):
         if cmd == telnetlib.WILL:
             if option == telnetlib.GMCP:
                 log("Enabling GMCP")
                 sock.sendall(telnetlib.IAC + telnetlib.DO + option)
+                self.gmcpOut('Core.Hello { "client": "Cizra", "version": "1" }')
+                supportables = ['char 1', 'char.base 1', 'char.maxstats 1', 'char.status 1', 'char.statusvars 1', 'char.vitals 1', 'char.worth 1', 'comm 1', 'comm.tick 1', 'group 1', 'room 1', 'room.info 1']
+                self.log('Core.Supports.Set ' + str(supportables).replace("'", '"'))
+                self.gmcpOut('Core.Supports.Set ' + str(supportables).replace("'", '"'))
+            elif option == telnetlib.TTYPE:
+                log("Sending terminal type 'Cizra'")
+                sock.sendall(telnetlib.IAC + telnetlib.DO + option +
+                        telnetlib.IAC + telnetlib.SB + telnetlib.TTYPE + telnetlib.BINARY + b'Cizra' + telnetlib.IAC + telnetlib.SE)
+
             else:
                 sock.sendall(telnetlib.IAC + telnetlib.DONT + option)
         elif cmd == telnetlib.SE:
             data = self.telnet.read_sb_data()
             if data[0] == ord(telnetlib.GMCP):
-                self.handleGMCP(data[1:].decode('utf-8'))
+                self.handleGmcp(data[1:].decode('utf-8'))
 
-    def handleGMCP(self, data):
+    def handleGmcp(self, data):
         # this.that {JSON blob}
         space_idx = data.find(' ')
         whole_key = data[:space_idx]
+        value = data[space_idx + 1:]
         nesting = whole_key.split('.')
-        current = self.gmcp
+        current = self.world.gmcp
         for nest in nesting[:-1]:
-            current[nest] = {}
+            if nest not in current:
+                current[nest] = {}
             current = current[nest]
-        self.log("GMCP {}: {}".format(whole_key, data[space_idx + 1:]))
+        lastkey = nesting[-1]
         try:
-            current[nesting[-1]] = json.loads(data[space_idx + 1:])
+            if lastkey not in current:
+                current[lastkey] = {}
+            current[lastkey].update(json.loads(value))
         except json.decoder.JSONDecodeError:
-            current[nesting[-1]] = data[space_idx + 1:]
-        self.world.gmcp(whole_key)
+            current[lastkey] = value
+        self.world.handleGmcp(whole_key)
 
     def connect(self, host, port):
         t = telnetlib.Telnet()

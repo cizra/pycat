@@ -34,6 +34,7 @@ class BaseClient(object):
     def __init__(self, mud):
         self.mud = mud
         self.state = {}
+        self.gmcp = {}
         self.state['outlog'] = collections.deque(maxlen=20)
         self.aliases = ALIASES
         self.triggers = TRIGGERS
@@ -118,8 +119,8 @@ class BaseClient(object):
     def trigger2(self, line):
         pass
 
-    def gmcp(self, cmd):
-        # self.log('Got GMCP', cmd)
+    def handleGmcp(self, cmd):
+        self.log('Got GMCP', cmd)
         pass
 
 
