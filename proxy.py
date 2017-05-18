@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import queue
 import random
 import socket
@@ -5,8 +7,8 @@ import socketserver
 import threading
 import time
 
-TGT_HOST = '127.0.0.1'
-TGT_PORT = 4010
+TGT_HOST = 'coffeemud.net'
+TGT_PORT = 2323
 LISTEN_HOST = '::1'
 LISTEN_PORT = 4000
 
