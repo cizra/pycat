@@ -97,14 +97,15 @@ class Session(object):
         if not data:
             _ = self.telnet.read_sb_data()
         for line in data.strip().split('\n'):
-            replacement = None
-            try:
-                replacement = self.world.trigger(line.strip())
-            except Exception as e:
-                traceback.print_exc()
-            if replacement is not None:
-                line = replacement
-            print(line)
+            if line:
+                replacement = None
+                try:
+                    replacement = self.world.trigger(line.strip())
+                except Exception as e:
+                    traceback.print_exc()
+                if replacement is not None:
+                    line = replacement
+                print(line)
 
 
     def handle_output(self):
