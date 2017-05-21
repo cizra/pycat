@@ -76,7 +76,7 @@ class Session(object):
         try:
             val = json.loads(value_json)
         except json.decoder.JSONDecodeError:
-            val = {"string": value}
+            val = {"string": value_json}
         if lastkey not in current:
             current[lastkey] = {}
         current[lastkey] = val
