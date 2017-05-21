@@ -24,9 +24,9 @@ def stack(line):
     startmatch = 0
     for i in range(1, len(line) - 1):
         if line[i] == ';' and line[i-1] != ';' and line[i+1] != ';':
-            out.append(line[startmatch:i])
+            out.append(line[startmatch:i].replace(';;', ';'))
             startmatch = i + 1
-    out.append(line[startmatch:])
+    out.append(line[startmatch:].replace(';;', ';'))
     return out
 
 
