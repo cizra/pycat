@@ -29,6 +29,9 @@ def stack(line):
     out.append(line[startmatch:].replace(';;', ';'))
     return out
 
+def reverse(exit):
+    exits = dict(n='s', e='w', s='n', w='e', u='d', d='u', ne='sw', se='nw', sw='ne', nw='se')
+    return exits[exit.lower()]
 
 class BaseClient(object):
     def __init__(self, mud):

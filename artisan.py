@@ -1,4 +1,5 @@
 import importlib
+import base
 import coffee
 importlib.reload(coffee)
 import collections
@@ -22,9 +23,21 @@ def forageDone(mud, _):
         return 'light fire'
 
 def nothingToMine(mud, _):
-    dirs = list(mud.mud.gmcp['room']['info']['exits'].keys())
-    return random.choice(dirs) + '\n' + 'mastermine'
+    dirs = list(mud.gmcp['room']['info']['exits'].keys())
+    return random.choice(dirs) + '\n' + 'warrants\nmastermine'
 
+def nothingToDig(mud, _):
+    dirs = list(mud.gmcp['room']['info']['exits'].keys())
+    return random.choice(dirs) + '\n' + 'gemdig'
+
+def debundle(mud, _):
+    exits = list(mud.gmcp['room']['info']['exits'].keys())
+    if len(exits) == 6:
+        exit = 'u'
+    else:
+        exit = exits[0]
+    rexit = base.reverse(exit)
+    return 'drag bundle {}\n{}'.format(exit, rexit)
 
 ALIASES = {
         }
@@ -42,7 +55,13 @@ TRIGGERS = {
         'You are done making .* preserves.': 'get all drum\nforage',
         
         "You can't seem to find anything worth mining here.": nothingToMine,
-        'You manage to mine .* pounds of .*\.': 'mastermine',
+        "You can't seem to find anything worth digging up here.": nothingToDig,
+        'You manage to mine .* pounds of (.*)\.': lambda mud, matches: 'mastermine bundle all {}\nmastermine'.format(matches[0]),
+        'You manage to dig out .* .*\.': 'gemdig',
+
+        # '.*Some (.*) sits here\.': lambda mud, matches: 'mastermine bundle all ' + matches[0],
+
+        # 'A \d+# .* bundle is here.': debundle,
         }
 NOTIFICATIONS = {
         }
