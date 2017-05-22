@@ -1,0 +1,6 @@
+INCLUDEPATH += -isystem /home/elmo/boost_1_64_0
+CXX = g++
+LDFLAGS = -Wl,-rpath=/home/elmo/boost_1_64_0/stage/lib -L/home/elmo/boost_1_64_0/stage/lib -lboost_unit_test_framework -lboost_serialization
+
+
+include Makefile.common

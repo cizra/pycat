@@ -1,0 +1,25 @@
+OPTFLAGS ?= -O0
+CXXFLAGS += $(INCLUDEPATH) -c -std=c++14 -fPIC -Wall -Wextra -g $(OPTFLAGS)
+
+.PHONY: all
+all: libmapper.so test
+
+mapper.o: mapper.cpp mapper.hpp
+	$(CXX) $(CXXFLAGS) -o $@ mapper.cpp
+
+test.o: test.cpp mapper.hpp
+	$(CXX) $(CXXFLAGS) -o $@ test.cpp
+
+libmapper.so: mapper.o
+	$(CXX) -shared -o $@ $^
+
+unittest: test.o libmapper.so
+	$(CXX) test.o -Wl,-rpath=`pwd` -L`pwd` -lmapper $(LDFLAGS) -o $@
+
+.PHONY: test
+test: unittest
+	./unittest
+
+.PHONY: clean
+clean:
+	rm -f libmapper.so mapper.o test.o unittest

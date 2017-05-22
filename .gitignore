@@ -1,3 +1,7 @@
 *.swp
 /__pycache__
 /session.log
+/mapper/*.o
+/mapper/unittest
+/mapper/libmapper.so
+/mapper/Makefile
