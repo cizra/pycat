@@ -60,6 +60,8 @@ class BaseClient(object):
             for subline in sublines:
                 self.alias(subline)
             return True
+        else:
+            line = sublines[0]  # ;; -> ;
 
         def send(line):
             if 'record' in self.state:
