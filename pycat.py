@@ -96,7 +96,8 @@ class Session(object):
         data = self.telnet.read_very_eager().decode('utf-8')
         if not data:
             _ = self.telnet.read_sb_data()
-        for line in data.strip().split('\n'):
+        prn = []
+        for line in data.split('\n'):
             if line:
                 replacement = None
                 try:
@@ -105,7 +106,8 @@ class Session(object):
                     traceback.print_exc()
                 if replacement is not None:
                     line = replacement
-                print(line)
+            prn.append(line)
+        sys.stdout.write('\n'.join(prn))
 
 
     def handle_output(self):
