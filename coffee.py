@@ -4,6 +4,7 @@ importlib.reload(base)
 import collections
 import re
 import subprocess
+import threading
 import time
 
 
@@ -34,6 +35,46 @@ class Coffee(base.BaseClient):
         self.aliases.update(ALIASES)
         self.triggers.update(TRIGGERS)
         self.notifications.update(NOTIFICATIONS)
+        self.stopflag = threading.Event()
+        self.timer_thread = threading.Thread(target=self.timer)
+        self.timer_thread.start()
+
+    def quit(self):
+        super().quit()
+        self.stopflag.set()
+        self.timer_thread.join()
+
+    def timer(self):
+        over_minute = 0.0
+        over_hour = 0.0
+        while not self.stopflag.is_set():
+            time.sleep(1)
+            now = time.time()
+            new_over_minute = now % 60
+            new_over_hour = now % 3600
+            if new_over_minute < over_minute:  # remainder was large, now is small, therefore we rolled over a minute boundary
+                self.minutely()
+            if new_over_hour < over_hour:
+                self.hourly()
+            over_minute = new_over_minute
+            over_hour = new_over_hour
+        self.log("Exiting timer thread")
+
+    def minutely(self):
+        self.expGain('exp_snapshot_minute')
+
+    def hourly(self):
+        self.expGain('exp_snapshot_hour')
+
+    def expGain(self, key):
+        now = time.time()
+        now_tnl = self.gmcp['char']['status']['tnl']
+        if key in self.state:
+            dx = self.state[key]['tnl'] - now_tnl
+            if dx > 0:  # leveling ruins it
+                dt = now - self.state[key]['time']
+                self.log("Exp gained in last {} seconds: {}".format(dt, dx))
+        self.state[key] = {'time': now, 'tnl': now_tnl}
 
     def get_host_port():
         return '::1', 4000

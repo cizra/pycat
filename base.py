@@ -131,6 +131,8 @@ class BaseClient(object):
 
     def handleGmcp(self, cmd, value):
         # self.log('Got GMCP', cmd, value)
+
+    def quit(self):
         pass
 
 
