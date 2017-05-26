@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include <map>
 #include <string>
 
@@ -12,9 +11,9 @@ class Map {
 		using mudId_t = int; // my favorite MUD uses large, sometimes negative integers as room IDs
 
 		Map();
-		Map(std::istream& serialized);
 		~Map();
-		void serialize(std::ostream& out) const;
+		Map(std::string const& serialized);
+		std::string serialize() const;
 
 		// if room exists, updates its properties
 		void addRoom(

@@ -218,9 +218,10 @@ Map::Map()
 	: d(new MapPimpl)
 {}
 
-Map::Map(std::istream& in)
+Map::Map(std::string const& serialized)
 	: d(new MapPimpl)
 {
+	std::istringstream in(serialized);
 	boost::archive::text_iarchive saved(in);
 	saved >> d->graph;
 
@@ -234,10 +235,12 @@ Map::~Map()
 	delete d;
 }
 
-void Map::serialize(std::ostream& out) const
+std::string Map::serialize() const
 {
+	std::ostringstream out;
 	boost::archive::text_oarchive saved(out);
 	saved << d->graph;
+	return out.str();
 }
 
 void Map::addRoom(Map::mudId_t room, const char* name, const char* zone_str, const char* terrain_str,

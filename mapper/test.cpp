@@ -5,6 +5,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <chrono>
+#include <iostream>
 #include <random>
 #include <sstream>
 #include <stack>
@@ -55,7 +56,7 @@ BOOST_AUTO_TEST_CASE(insert_retrieve_retainsProperties)
 
 BOOST_AUTO_TEST_CASE(serialize_deserialize_retainsProperties)
 {
-	std::stringstream saved;
+	std::string saved;
 	std::map<std::string, int> exits_12345_expected = {{"n", 123}};
 	std::map<std::string, int> exits_123_expected = {{"s", 12345}};
 	std::tuple<int, int, int> xyz = std::make_tuple(0, 0, 0);
@@ -65,7 +66,7 @@ BOOST_AUTO_TEST_CASE(serialize_deserialize_retainsProperties)
 		m.addRoom(12345, "My Room", "MyArea", "desert", {{"n", 123}});
 		m.addRoom(123, "room2", "area2", "trn", {{"s", 12345}});
 
-		m.serialize(saved);
+		saved = m.serialize();
 	}
 	Map n(saved);
 
