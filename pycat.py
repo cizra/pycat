@@ -114,7 +114,12 @@ class Session(object):
 
 
     def handle_output(self):
-        data = input()
+        try:
+            data = input()
+        except EOFError:
+            self.world.quit()
+            raise
+
         if data == '#reload' and self.world:
             log('Reloading world')
             try:
