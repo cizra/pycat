@@ -59,7 +59,10 @@ class Session(object):
         elif cmd == telnetlib.SE:
             data = self.telnet.read_sb_data()
             if data[0] == ord(telnetlib.GMCP):
-                self.handleGmcp(data[1:].decode('utf-8'))
+                try:
+                    self.handleGmcp(data[1:].decode('utf-8'))
+                except Exception as e:
+                    traceback.print_exc()
 
     def handleGmcp(self, data):
         # this.that {JSON blob}
