@@ -12,7 +12,7 @@ telnetlib.GMCP = b'\xc9'
 
 
 def log(*args):
-    sys.stdout.write("     -----")
+    sys.stdout.write("     ----- ")
     print(*args)
     pass
 
