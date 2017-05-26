@@ -123,8 +123,11 @@ class Session(object):
         if data == '#reload' and self.world:
             log('Reloading world')
             try:
+                state = self.world.state
+                self.world.quit()
                 self.world_module = importlib.reload(self.world_module)
                 self.world = self.world_module.get_class()(self)
+                self.world.state = state
             except Exception:
                 traceback.print_exc()
             return
