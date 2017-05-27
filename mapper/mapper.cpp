@@ -214,13 +214,12 @@ class MapPimpl {
 };
 
 
-Map::Map()
-	: d(new MapPimpl)
-{}
-
 Map::Map(std::string const& serialized)
 	: d(new MapPimpl)
 {
+	if (serialized.empty())
+		return;
+
 	std::istringstream in(serialized);
 	boost::archive::text_iarchive saved(in);
 	saved >> d->graph;

@@ -10,9 +10,9 @@ class Map {
 	public:
 		using mudId_t = int; // my favorite MUD uses large, sometimes negative integers as room IDs
 
-		Map();
-		~Map();
+		Map() : Map("") {}
 		Map(std::string const& serialized);
+		~Map();
 		std::string serialize() const;
 
 		// if room exists, updates its properties
@@ -23,9 +23,6 @@ class Map {
 				const char* terrain,
 				std::map<std::string, mudId_t> const& exits
 				);
-
-		// If targetRoom doesn't exist, creates it
-		void addExit(mudId_t room, const char* dir, mudId_t targetRoom);
 
 		// TODO: delete room
 
