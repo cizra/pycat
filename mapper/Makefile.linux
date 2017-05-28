@@ -1,6 +1,6 @@
-INCLUDEPATH += -isystem /home/elmo/boost_1_64_0 -isystem /usr/include/python3.5
+INCLUDEPATH += -isystem /usr/include/python3.5
 CXX = g++
-LDFLAGS = -Wl,-rpath=/home/elmo/boost_1_64_0/stage/lib -L/home/elmo/boost_1_64_0/stage/lib -lboost_unit_test_framework -lboost_serialization -lboost_python3 -lpython3.5m
+LDFLAGS = -lboost_unit_test_framework -lboost_serialization -lboost_python-py35 -lpython3.5m
 
 
 include Makefile.common

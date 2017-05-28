@@ -4,6 +4,8 @@
 #define BOOST_TEST_MODULE Mapper
 #include <boost/test/unit_test.hpp>
 
+#define TEST BOOST_CHECK  // or BOOST_TEST with newer Boost than in Jessie
+
 #include <chrono>
 #include <iostream>
 #include <random>
@@ -30,28 +32,28 @@ BOOST_AUTO_TEST_CASE(insert_retrieve_retainsProperties)
 	m.addRoom(12345, "My Room", "MyArea", "desert", {{"n", 123}});
 	std::map<std::string, int> exits_12345_expected = {{"n", 123}};
 
-	BOOST_TEST(m.getRoomName(12345) == "My Room");
-	BOOST_TEST(m.getRoomZone(12345) == "MyArea");
-	BOOST_TEST(m.getRoomTerrain(12345) == "desert");
-	BOOST_TEST(m.getRoomExits(12345) == exits_12345_expected);
+	TEST(m.getRoomName(12345) == "My Room");
+	TEST(m.getRoomZone(12345) == "MyArea");
+	TEST(m.getRoomTerrain(12345) == "desert");
+	TEST(m.getRoomExits(12345) == exits_12345_expected);
 	std::tuple<int, int, int> xyz = std::make_tuple(0, 0, 0);
 	std::tuple<int, int, int> xyz2 = std::make_tuple(0, 1, 0);
-	BOOST_TEST(m.getRoomCoords(12345) == xyz);
+	TEST(m.getRoomCoords(12345) == xyz);
 
 	m.addRoom(123, "room2", "area2", "trn", {{"s", 12345}});
 	std::map<std::string, int> exits_123_expected = {{"s", 12345}};
 
-	BOOST_TEST(m.getRoomName(12345) == "My Room");
-	BOOST_TEST(m.getRoomZone(12345) == "MyArea");
-	BOOST_TEST(m.getRoomTerrain(12345) == "desert");
-	BOOST_TEST(m.getRoomExits(12345) == exits_12345_expected);
-	BOOST_TEST(m.getRoomCoords(12345) == xyz);
+	TEST(m.getRoomName(12345) == "My Room");
+	TEST(m.getRoomZone(12345) == "MyArea");
+	TEST(m.getRoomTerrain(12345) == "desert");
+	TEST(m.getRoomExits(12345) == exits_12345_expected);
+	TEST(m.getRoomCoords(12345) == xyz);
 
-	BOOST_TEST(m.getRoomName(123) == "room2");
-	BOOST_TEST(m.getRoomZone(123) == "area2");
-	BOOST_TEST(m.getRoomTerrain(123) == "trn");
-	BOOST_TEST(m.getRoomExits(123) == exits_123_expected);
-	BOOST_TEST(m.getRoomCoords(123) == xyz2);
+	TEST(m.getRoomName(123) == "room2");
+	TEST(m.getRoomZone(123) == "area2");
+	TEST(m.getRoomTerrain(123) == "trn");
+	TEST(m.getRoomExits(123) == exits_123_expected);
+	TEST(m.getRoomCoords(123) == xyz2);
 }
 
 BOOST_AUTO_TEST_CASE(serialize_deserialize_retainsProperties)
@@ -70,17 +72,17 @@ BOOST_AUTO_TEST_CASE(serialize_deserialize_retainsProperties)
 	}
 	Map n(saved);
 
-	BOOST_TEST(n.getRoomName(12345) == "My Room");
-	BOOST_TEST(n.getRoomZone(12345) == "MyArea");
-	BOOST_TEST(n.getRoomTerrain(12345) == "desert");
-	BOOST_TEST(n.getRoomExits(12345) == exits_12345_expected);
-	BOOST_TEST(n.getRoomCoords(12345) == xyz);
+	TEST(n.getRoomName(12345) == "My Room");
+	TEST(n.getRoomZone(12345) == "MyArea");
+	TEST(n.getRoomTerrain(12345) == "desert");
+	TEST(n.getRoomExits(12345) == exits_12345_expected);
+	TEST(n.getRoomCoords(12345) == xyz);
 
-	BOOST_TEST(n.getRoomName(123) == "room2");
-	BOOST_TEST(n.getRoomZone(123) == "area2");
-	BOOST_TEST(n.getRoomTerrain(123) == "trn");
-	BOOST_TEST(n.getRoomExits(123) == exits_123_expected);
-	BOOST_TEST(n.getRoomCoords(123) == xyz2);
+	TEST(n.getRoomName(123) == "room2");
+	TEST(n.getRoomZone(123) == "area2");
+	TEST(n.getRoomTerrain(123) == "trn");
+	TEST(n.getRoomExits(123) == exits_123_expected);
+	TEST(n.getRoomCoords(123) == xyz2);
 }
 
 namespace map_internal {
@@ -102,30 +104,30 @@ namespace {
 
 BOOST_AUTO_TEST_CASE(runifyDirs)
 {
-	BOOST_TEST(map_internal::runifyDirs({"n"}) == "n");
-	BOOST_TEST(map_internal::runifyDirs({"n", "n"}) == "run 2n");
-	BOOST_TEST(map_internal::runifyDirs({"n", "n", "n"}) == "run 3n");
-	BOOST_TEST(map_internal::runifyDirs({"n", "e", "n"}) == "run n e n");
-	BOOST_TEST(map_internal::runifyDirs({"n", "e", "e", "n"}) == "run n 2e n");
-	BOOST_TEST(map_internal::runifyDirs({"n", "n", "e"}) == "run 2n e");
-	BOOST_TEST(map_internal::runifyDirs({"n", "e", "e"}) == "run n 2e");
+	TEST(map_internal::runifyDirs({"n"}) == "n");
+	TEST(map_internal::runifyDirs({"n", "n"}) == "run 2n");
+	TEST(map_internal::runifyDirs({"n", "n", "n"}) == "run 3n");
+	TEST(map_internal::runifyDirs({"n", "e", "n"}) == "run n e n");
+	TEST(map_internal::runifyDirs({"n", "e", "e", "n"}) == "run n 2e n");
+	TEST(map_internal::runifyDirs({"n", "n", "e"}) == "run 2n e");
+	TEST(map_internal::runifyDirs({"n", "e", "e"}) == "run n 2e");
 }
 
 BOOST_AUTO_TEST_CASE(runify)
 {
-	// crashes BOOST_TEST(crun({}) == vec({}));
-	BOOST_TEST(crun({"n"}) == vec({"n"}));
-	BOOST_TEST(crun({"n", "n"}) == vec({"run 2n"}));
-	BOOST_TEST(crun({"n", "n", "n", "e", "e"}) == vec({"run 2e 3n"}));
-	BOOST_TEST(crun({"cmd"}) == vec({"cmd"}));
-	BOOST_TEST(crun({"hi", "ho"}) == vec({"ho", "hi"}));
-	BOOST_TEST(crun({"open n;n", "n", "n", "n", "e", "e", "open s;s"}) == vec({{"open s;s"}, {"run 2e 3n"}, {"open n;n"}}));
+	// crashes TEST(crun({}) == vec({}));
+	TEST(crun({"n"}) == vec({"n"}));
+	TEST(crun({"n", "n"}) == vec({"run 2n"}));
+	TEST(crun({"n", "n", "n", "e", "e"}) == vec({"run 2e 3n"}));
+	TEST(crun({"cmd"}) == vec({"cmd"}));
+	TEST(crun({"hi", "ho"}) == vec({"ho", "hi"}));
+	TEST(crun({"open n;n", "n", "n", "n", "e", "e", "open s;s"}) == vec({{"open s;s"}, {"run 2e 3n"}, {"open n;n"}}));
 }
 
 BOOST_AUTO_TEST_CASE(stringify)
 {
-	BOOST_TEST(map_internal::stringify({"n"}) == "n");
-	BOOST_TEST(map_internal::stringify({"run 3n", "open n", "run 2n"}) == "run 3n;open n;run 2n");
+	TEST(map_internal::stringify({"n"}) == "n");
+	TEST(map_internal::stringify({"run 3n", "open n", "run 2n"}) == "run 3n;open n;run 2n");
 }
 
 BOOST_AUTO_TEST_CASE(pathfinding)
@@ -150,51 +152,51 @@ BOOST_AUTO_TEST_CASE(pathfinding)
 
 	for (int i = 11; i <= 16; ++i)
 	{
-		BOOST_TEST(m.findPath(10, i) == "");
-		BOOST_TEST(m.findPath(i, 10) == "");
+		TEST(m.findPath(10, i) == "");
+		TEST(m.findPath(i, 10) == "");
 	}
 
-	BOOST_TEST(m.findPath(11, 11) == "");
-	BOOST_TEST(m.findPath(11, 12) == "run n e");
-	BOOST_TEST(m.findPath(11, 13) == "run n w");
-	BOOST_TEST(m.findPath(11, 14) == "run 2n");
-	BOOST_TEST(m.findPath(11, 15) == "n");
-	BOOST_TEST(m.findPath(11, 16) == "run n e;open e;e");
+	TEST(m.findPath(11, 11) == "");
+	TEST(m.findPath(11, 12) == "run n e");
+	TEST(m.findPath(11, 13) == "run n w");
+	TEST(m.findPath(11, 14) == "run 2n");
+	TEST(m.findPath(11, 15) == "n");
+	TEST(m.findPath(11, 16) == "run n e;open e;e");
 
-	BOOST_TEST(m.findPath(12, 11) == "run w s");
-	BOOST_TEST(m.findPath(12, 12) == "");
-	BOOST_TEST(m.findPath(12, 13) == "run 2w");
-	BOOST_TEST(m.findPath(12, 14) == "run w n");
-	BOOST_TEST(m.findPath(12, 15) == "w");
-	BOOST_TEST(m.findPath(12, 16) == "open e;e");
+	TEST(m.findPath(12, 11) == "run w s");
+	TEST(m.findPath(12, 12) == "");
+	TEST(m.findPath(12, 13) == "run 2w");
+	TEST(m.findPath(12, 14) == "run w n");
+	TEST(m.findPath(12, 15) == "w");
+	TEST(m.findPath(12, 16) == "open e;e");
 
-	BOOST_TEST(m.findPath(13, 11) == "run e s");
-	BOOST_TEST(m.findPath(13, 12) == "run 2e");
-	BOOST_TEST(m.findPath(13, 13) == "");
-	BOOST_TEST(m.findPath(13, 14) == "run e n");
-	BOOST_TEST(m.findPath(13, 15) == "e");
-	BOOST_TEST(m.findPath(13, 16) == "run 2e;open e;e");
+	TEST(m.findPath(13, 11) == "run e s");
+	TEST(m.findPath(13, 12) == "run 2e");
+	TEST(m.findPath(13, 13) == "");
+	TEST(m.findPath(13, 14) == "run e n");
+	TEST(m.findPath(13, 15) == "e");
+	TEST(m.findPath(13, 16) == "run 2e;open e;e");
 
-	BOOST_TEST(m.findPath(14, 11) == "run 2s");
-	BOOST_TEST(m.findPath(14, 12) == "run s e");
-	BOOST_TEST(m.findPath(14, 13) == "run s w");
-	BOOST_TEST(m.findPath(14, 14) == "");
-	BOOST_TEST(m.findPath(14, 15) == "s");
-	BOOST_TEST(m.findPath(14, 16) == "run s e;open e;e");
+	TEST(m.findPath(14, 11) == "run 2s");
+	TEST(m.findPath(14, 12) == "run s e");
+	TEST(m.findPath(14, 13) == "run s w");
+	TEST(m.findPath(14, 14) == "");
+	TEST(m.findPath(14, 15) == "s");
+	TEST(m.findPath(14, 16) == "run s e;open e;e");
 
-	BOOST_TEST(m.findPath(15, 11) == "s");
-	BOOST_TEST(m.findPath(15, 12) == "e");
-	BOOST_TEST(m.findPath(15, 13) == "w");
-	BOOST_TEST(m.findPath(15, 14) == "n");
-	BOOST_TEST(m.findPath(15, 15) == "");
-	BOOST_TEST(m.findPath(15, 16) == "e;open e;e");
+	TEST(m.findPath(15, 11) == "s");
+	TEST(m.findPath(15, 12) == "e");
+	TEST(m.findPath(15, 13) == "w");
+	TEST(m.findPath(15, 14) == "n");
+	TEST(m.findPath(15, 15) == "");
+	TEST(m.findPath(15, 16) == "e;open e;e");
 
-	BOOST_TEST(m.findPath(16, 11) == "open w;w;run w s");
-	BOOST_TEST(m.findPath(16, 12) == "open w;w");
-	BOOST_TEST(m.findPath(16, 13) == "open w;w;run 2w");
-	BOOST_TEST(m.findPath(16, 14) == "open w;w;run w n");
-	BOOST_TEST(m.findPath(16, 15) == "open w;w;w");
-	BOOST_TEST(m.findPath(16, 16) == "");
+	TEST(m.findPath(16, 11) == "open w;w;run w s");
+	TEST(m.findPath(16, 12) == "open w;w");
+	TEST(m.findPath(16, 13) == "open w;w;run 2w");
+	TEST(m.findPath(16, 14) == "open w;w;run w n");
+	TEST(m.findPath(16, 15) == "open w;w;w");
+	TEST(m.findPath(16, 16) == "");
 }
 
 BOOST_AUTO_TEST_CASE(stress)
