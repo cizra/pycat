@@ -47,3 +47,14 @@ class Map {
 	private:
 		MapPimpl* d;
 };
+
+#include <boost/python.hpp>
+
+BOOST_PYTHON_MODULE(libmapper)
+{
+	boost::python::class_<Map>("Map", boost::python::init<std::string>())
+		.def("serialize", &Map::serialize)
+		.def("addRoom", &Map::addRoom)
+		.def("findPath", &Map::findPath)
+		;
+}
