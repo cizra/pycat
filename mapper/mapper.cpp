@@ -242,7 +242,7 @@ std::string Map::serialize() const
 	return out.str();
 }
 
-void Map::addRoom(Map::mudId_t room, const char* name, const char* zone_str, const char* terrain_str,
+void Map::addRoom(Map::mudId_t room, std::string const& name, std::string const& zone_str, std::string const& terrain_str,
 		std::map<std::string, Map::mudId_t> const& exits)
 {
 	size_t zone = maybeInsert(zone_str, d->zones);

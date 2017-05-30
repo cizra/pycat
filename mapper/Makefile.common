@@ -4,10 +4,10 @@ CXXFLAGS += $(INCLUDEPATH) -c -std=c++14 -fPIC -Wall -Wextra -g $(OPTFLAGS)
 .PHONY: all
 all: libmapper.so test
 
-mapper.o: mapper.cpp mapper.hpp
+mapper.o: mapper.cpp mapper.hpp pytuple.hpp
 	$(CXX) $(CXXFLAGS) -o $@ mapper.cpp
 
-test.o: test.cpp mapper.hpp
+test.o: test.cpp mapper.hpp pytuple.hpp
 	$(CXX) $(CXXFLAGS) -o $@ test.cpp
 
 libmapper.so: mapper.o
