@@ -24,7 +24,7 @@ def forageDone(mud, _):
 
 def nothingToMine(mud, _):
     dirs = list(mud.gmcp['room']['info']['exits'].keys())
-    return random.choice(dirs) + '\n' + 'warrants\nmastermine'
+    return random.choice(dirs) + '\n' + 'mastermine'
 
 def nothingToDig(mud, _):
     dirs = list(mud.gmcp['room']['info']['exits'].keys())
