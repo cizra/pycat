@@ -79,7 +79,7 @@ class Map {
 		// or
 		// run 2ne2sw
 		// returns empty string if path wasn't found
-		std::string findPath(mudId_t from, mudId_t to, bool spaces=true) const;
+		std::string findPath(mudId_t from, mudId_t to) const;
 
 	private:
 		MapPimpl* d;

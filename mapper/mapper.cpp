@@ -321,9 +321,8 @@ std::map<std::string, Map::mudId_t> Map::getRoomExits(Map::mudId_t room) const
 	return out;
 }
 
-std::string Map::findPath(Map::mudId_t from, Map::mudId_t to, bool spaces) const
+std::string Map::findPath(Map::mudId_t from, Map::mudId_t to) const
 {
-	(void)spaces;
 	if (from == to)
 		return "";
 
