@@ -43,6 +43,12 @@ class TestMapper(unittest.TestCase):
         self.assertEqual(n.getRoomTerrain(123), "terrain2")
         self.assertEqual(n.getRoomCoords(123), (0, 1, 0))
 
+    def test_pathfinding(self):
+        m = Map("")
+        m.addRoom(12345, "My Room", "My Area", "desert", {"n": 123})
+        m.addRoom(123, "room2", "area2", "terrain2", {"s": 12345})
+        self.assertEqual(m.findPath(123, 12345), "s")
+
 
 if __name__ == '__main__':
     unittest.main()
