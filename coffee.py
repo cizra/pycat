@@ -68,6 +68,8 @@ class Coffee(base.BaseClient):
 
     def expGain(self, key):
         now = time.time()
+        if 'char' not in self.gmcp or 'status' not in self.gmcp['char'] or 'tnl' not in self.gmcp['char']['status']:
+            return
         now_tnl = self.gmcp['char']['status']['tnl']
         if key in self.state:
             dx = self.state[key]['tnl'] - now_tnl
