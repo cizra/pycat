@@ -4,7 +4,8 @@ import subprocess
 
 
 def notify(msg):
-    subprocess.call(['notify-send', 'CfM', msg])
+    # subprocess.call(['notify-send', 'CfM', msg])
+    pass
 
 
 ALIASES = {
@@ -131,6 +132,9 @@ class BaseClient(object):
 
     def handleGmcp(self, cmd, value):
         # self.log('Got GMCP', cmd, value)
+        # if cmd == 'char.status' and 'char' in self.gmcp and 'status' in self.gmcp['char'] and self.gmcp['char']['status']['fatigue'] == 0:
+            # self.send('sta\nrun 5d\nmastermine')
+        pass
 
     def quit(self):
         pass

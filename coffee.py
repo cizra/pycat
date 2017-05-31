@@ -79,7 +79,8 @@ class Coffee(base.BaseClient):
         self.state[key] = {'time': now, 'tnl': now_tnl}
 
     def get_host_port():
-        return '::1', 4000
+        # return '::1', 4000
+        return 'coffeemud.net', 2323
 
     def trigger2(self, line):
         if re.match('^You start .+', line):
