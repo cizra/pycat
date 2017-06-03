@@ -20,11 +20,11 @@ def log(*args):
 class Session(object):
     def __init__(self, world_module):
         self.gmcp = {}
-        world_class = world_module.get_class()
-        host_port = world_class.get_host_port()
-        self.telnet = self.connect(*host_port)
+        world_class = world_module.getClass()
         self.world_module = world_module
         self.world = world_class(self)
+        host_port = self.world.getHostPort()
+        self.telnet = self.connect(*host_port)
         self.gmcp = {}
 
     def join(self):
@@ -66,6 +66,7 @@ class Session(object):
 
     def handleGmcp(self, data):
         # this.that {JSON blob}
+        # TODO: move into clients
         space_idx = data.find(' ')
         whole_key = data[:space_idx]
         value_json = data[space_idx + 1:]
@@ -126,7 +127,7 @@ class Session(object):
                 state = self.world.state
                 self.world.quit()
                 self.world_module = importlib.reload(self.world_module)
-                self.world = self.world_module.get_class()(self)
+                self.world = self.world_module.getClass()(self)
                 self.world.state = state
             except Exception:
                 traceback.print_exc()

@@ -1,6 +1,6 @@
 *.swp
-/__pycache__
-/session.log
+*.log
+__pycache__
 /mapper/*.o
 /mapper/unittest
 /mapper/libmapper.so
