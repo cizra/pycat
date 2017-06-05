@@ -43,15 +43,34 @@ namespace map_internal {
 		}
 	};
 
+	bool direction(std::string const& kw)
+	{
+		return kw == "n" || kw == "e" || kw == "s" || kw == "w" || kw == "u" || kw == "d" || kw == "ne" || kw == "se" || kw == "sw" || kw == "nw";
+	}
+
 	struct edge_property {
 		std::string keyword;
-		float weight;
+		float weight = 2;
+
+		edge_property() = default;
+		edge_property(std::initializer_list<std::string> il)
+		{
+			keyword = *(il.begin());
+			if (map_internal::direction(keyword))
+				weight = 1;
+			else
+				weight = 2;
+		}
 
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
 			(void)version;
 			ar & keyword;
+			if (map_internal::direction(keyword))
+				weight = 1;
+			else
+				weight = 2;
 		}
 	};
 
@@ -98,11 +117,6 @@ namespace map_internal {
 		if (dir == "nw")
 			return std::make_tuple(x-1, y+1, z);
 		return in;
-	}
-
-	bool direction(std::string const& cmd)
-	{
-		return cmd == "n" || cmd == "e" || cmd == "s" || cmd == "w" || cmd == "u" || cmd == "d";
 	}
 
 	std::string stringify(std::vector<std::string> const& cmds)
@@ -279,7 +293,7 @@ void Map::addRoom(Map::mudId_t room, std::string const& name, std::string const&
 			d->graph[exit_vtx_it->second].xyz = coords(
 					d->graph[vertex_descriptor].xyz, exitKwDest.first);
 		}
-		add_edge(vertex_descriptor, exit_vtx_it->second, {exitKwDest.first, 1}, d->graph);
+		add_edge(vertex_descriptor, exit_vtx_it->second, {exitKwDest.first}, d->graph);
 	}
 }
 
