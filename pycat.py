@@ -94,6 +94,7 @@ class Session(object):
         return t
 
     def send(self, line):
+        print("> ", line)
         self.telnet.write((line + '\n').encode('utf-8'))
 
     def handle_input(self):

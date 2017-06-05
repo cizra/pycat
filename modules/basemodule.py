@@ -9,7 +9,6 @@ class BaseModule(object):
         self.triggers = {}
 
     def send(self, line):
-        print("> ", line[:-1])
         return self.mud.send(line)
 
     def log(self, *args, **kwargs):
