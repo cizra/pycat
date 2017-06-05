@@ -101,6 +101,6 @@ BOOST_PYTHON_MODULE(libmapper)
 		.def("getRoomZone", &Map::getRoomZone)
 		.def("getRoomTerrain", &Map::getRoomTerrain)
 		.def("getRoomCoords", &Map::getRoomCoords)
-		.def("getRoomExitsP", &Map::getRoomExits)
+		.def("getRoomExits", &Map::getRoomExitsP)
 		;
 }
