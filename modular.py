@@ -3,10 +3,13 @@ import re
 
 class ModularClient(object):
     def __init__(self, mud):
+        # self.modules must be set up by child class
         self.mud = mud
-        self.modules = []
         self.state = {}
         self.gmcp = {}
+        for m in self.modules:
+            m.world = self
+            m.gmcp = self.gmcp
 
     def getHostPort(self):
         for m in self.modules:

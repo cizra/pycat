@@ -3,8 +3,6 @@ import re
 class BaseModule(object):
     def __init__(self, mud):
         self.mud = mud
-        # self.world = mud.world
-        # self.state = mud.world.state
         self.aliases = {}
         self.triggers = {}
 
