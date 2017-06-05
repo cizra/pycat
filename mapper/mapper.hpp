@@ -20,7 +20,7 @@ class Map {
 		std::string serialize() const;
 
 		template <class K, class V>
-		boost::python::dict toPython(std::map<K, V> const& map) {
+		static boost::python::dict toPython(std::map<K, V> const& map) {
 			boost::python::dict out;
 			for (auto iter = map.begin(); iter != map.end(); ++iter)
 				out[iter->first] = iter->second;
@@ -28,7 +28,7 @@ class Map {
 		}
 
 		template <class K, class V>
-		std::map<K, V> fromPython(boost::python::dict const& dict) {
+		static std::map<K, V> fromPython(boost::python::dict const& dict) {
 			std::map<K, V> out;
 			boost::python::list keys = dict.keys();
 			for (int i = 0; i < len(keys); ++i) {
@@ -73,6 +73,10 @@ class Map {
 		std::string getRoomTerrain(mudId_t room) const;
 		std::tuple<int, int, int> getRoomCoords(mudId_t room) const;
 		std::map<std::string, mudId_t> getRoomExits(mudId_t room) const;
+		boost::python::dict getRoomExitsP(mudId_t room) const
+		{
+			return toPython(getRoomExits(room));
+		}
 
 		// spaces determines if the results looks like
 		// run 2n e 2s w
@@ -97,6 +101,6 @@ BOOST_PYTHON_MODULE(libmapper)
 		.def("getRoomZone", &Map::getRoomZone)
 		.def("getRoomTerrain", &Map::getRoomTerrain)
 		.def("getRoomCoords", &Map::getRoomCoords)
-		.def("getRoomExits", &Map::getRoomExits)
+		.def("getRoomExitsP", &Map::getRoomExits)
 		;
 }
