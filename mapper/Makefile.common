@@ -19,6 +19,7 @@ unittest: test.o libmapper.so
 .PHONY: test
 test: unittest
 	./unittest
+	LD_PRELOAD=libboost_serialization.so:libboost_python-py35.so:libpython3.5m.so ./test.py
 
 .PHONY: clean
 clean:
