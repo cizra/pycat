@@ -113,6 +113,7 @@ class Session(object):
                     line = replacement
             prn.append(line)
         sys.stdout.write('\n'.join(prn))
+        sys.stdout.flush()
 
 
     def handle_output(self):
