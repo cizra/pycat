@@ -26,6 +26,15 @@ BOOST_AUTO_TEST_CASE(instantiate)
 	Map m;
 }
 
+BOOST_AUTO_TEST_CASE(findRoomByName)
+{
+	Map m;
+	m.addRoom(12345, "My Room", "MyArea", {{"n", 123}});
+	m.addRoom(123, "room2", "area2", {{"s", 12345}});
+	TEST(m.findRoomByName("room2") == 123);
+	TEST(m.findRoomByName("My Room") == 12345);
+}
+
 BOOST_AUTO_TEST_CASE(insert_retrieve_retainsProperties)
 {
 	Map m;
