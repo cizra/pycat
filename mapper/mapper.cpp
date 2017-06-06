@@ -17,29 +17,27 @@
 
 namespace map_internal {
 	struct graph_property {
-		std::vector<std::string> terrains; // accumulates terrain types as they are encountered
-		std::vector<std::string> zones; // accumulates zones as they are encountered
+		std::string data;
 
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
 			(void)version;
-			ar & terrains & zones;
+			ar & data;
 		}
 	};
 
 	struct vertex_property {
 		Map::mudId_t mudId;
 		std::string name;
-		size_t zone;
-		size_t terrain;
+		std::string data;
 		std::tuple<int, int, int> xyz;
 
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
 			(void)version;
-			ar & mudId & name & zone & terrain & std::get<0>(xyz) & std::get<1>(xyz) & std::get<2>(xyz);
+			ar & mudId & name & data & std::get<0>(xyz) & std::get<1>(xyz) & std::get<2>(xyz);
 		}
 	};
 
@@ -217,14 +215,6 @@ class MapPimpl {
 	public:
 		mygraph_t graph;
 		std::map<Map::mudId_t, mygraph_t::vertex_descriptor> ids; // mapping from arbitrary, possibly negative or stringy MUD-side IDs to small ints
-
-		std::vector<std::string>& terrains;
-		std::vector<std::string>& zones;
-
-		MapPimpl()
-			: terrains(graph[boost::graph_bundle].terrains)
-			, zones(graph[boost::graph_bundle].zones)
-		{}
 };
 
 
@@ -256,12 +246,8 @@ std::string Map::serialize() const
 	return out.str();
 }
 
-void Map::addRoom(Map::mudId_t room, std::string const& name, std::string const& zone_str, std::string const& terrain_str,
-		std::map<std::string, Map::mudId_t> const& exits)
+void Map::addRoom(Map::mudId_t room, std::string const& name, std::string const& data, std::map<std::string, Map::mudId_t> const& exits)
 {
-	size_t zone = maybeInsert(zone_str, d->zones);
-	size_t terrain = maybeInsert(terrain_str, d->terrains);
-
 	auto vertex_it = d->ids.find(room);
 
 	bool inserted = false;
@@ -275,8 +261,7 @@ void Map::addRoom(Map::mudId_t room, std::string const& name, std::string const&
 
 	d->graph[vertex_descriptor].mudId = room;
 	d->graph[vertex_descriptor].name = name;
-	d->graph[vertex_descriptor].zone = zone;
-	d->graph[vertex_descriptor].terrain = terrain;
+	d->graph[vertex_descriptor].data = data;
 	// only the initial room gets inserted (plus random teleports, portals and stuff).
 	// The rest get added as exits.
 	if (inserted)
@@ -303,16 +288,10 @@ std::string Map::getRoomName(Map::mudId_t room) const
 	return d->graph[d->ids[room]].name;
 }
 
-std::string Map::getRoomZone(Map::mudId_t room) const
+std::string Map::getRoomData(Map::mudId_t room) const
 {
 	assert(d->ids.find(room) != d->ids.end());
-	return d->zones.at(d->graph[d->ids[room]].zone);
-}
-
-std::string Map::getRoomTerrain(Map::mudId_t room) const
-{
-	assert(d->ids.find(room) != d->ids.end());
-	return d->terrains.at(d->graph[d->ids[room]].terrain);
+	return d->graph[d->ids[room]].data;
 }
 
 std::tuple<int, int, int> Map::getRoomCoords(mudId_t room) const

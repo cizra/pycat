@@ -19,6 +19,7 @@ class Map {
 		~Map();
 		std::string serialize() const;
 
+		// TODO: write automagic converters like for tuple
 		template <class K, class V>
 		static boost::python::dict toPython(std::map<K, V> const& map) {
 			boost::python::dict out;
@@ -46,20 +47,22 @@ class Map {
 		void addRoom(
 				mudId_t room,
 				std::string const& name,
-				std::string const& zone,
-				std::string const& terrain,
+				std::string const& data,
 				std::map<std::string, mudId_t> const& exits
 				);
 		void addRoomPy(
 				mudId_t room,
 				std::string const& name,
-				std::string const& zone,
-				std::string const& terrain,
+				std::string const& data,
 				boost::python::dict const& exits
 				)
 		{
-			return addRoom(room, name, zone, terrain, fromPython<std::string, int>(exits));
+			return addRoom(room, name, data, fromPython<std::string, int>(exits));
 		}
+
+		void setRoomData(mudId_t room, std::string const& data); // overwrites existing data
+		// void setExitData(std::string const& data); -- possible to implement, if needed
+		void setMapData(std::string const& data); // overwrites existing data
 
 		// TODO: delete room
 
@@ -68,9 +71,9 @@ class Map {
 		// to recalculate coordinates once the pieces have been joined.
 		// void recalcRoomCoords(mudId_t startRoom);
 
+		mudId_t findRoomByName(std::string const& name) const;
 		std::string getRoomName(mudId_t room) const;
-		std::string getRoomZone(mudId_t room) const;
-		std::string getRoomTerrain(mudId_t room) const;
+		std::string getRoomData(mudId_t room) const;
 		std::tuple<int, int, int> getRoomCoords(mudId_t room) const;
 		std::map<std::string, mudId_t> getRoomExits(mudId_t room) const;
 		boost::python::dict getRoomExitsP(mudId_t room) const
@@ -98,8 +101,7 @@ BOOST_PYTHON_MODULE(libmapper)
 		.def("addRoom", &Map::addRoomPy)
 		.def("findPath", &Map::findPath)
 		.def("getRoomName", &Map::getRoomName)
-		.def("getRoomZone", &Map::getRoomZone)
-		.def("getRoomTerrain", &Map::getRoomTerrain)
+		.def("getRoomData", &Map::getRoomData)
 		.def("getRoomCoords", &Map::getRoomCoords)
 		.def("getRoomExits", &Map::getRoomExitsP)
 		;

@@ -29,29 +29,26 @@ BOOST_AUTO_TEST_CASE(instantiate)
 BOOST_AUTO_TEST_CASE(insert_retrieve_retainsProperties)
 {
 	Map m;
-	m.addRoom(12345, "My Room", "MyArea", "desert", {{"n", 123}});
+	m.addRoom(12345, "My Room", "MyArea", {{"n", 123}});
 	std::map<std::string, int> exits_12345_expected = {{"n", 123}};
 
 	TEST(m.getRoomName(12345) == "My Room");
-	TEST(m.getRoomZone(12345) == "MyArea");
-	TEST(m.getRoomTerrain(12345) == "desert");
+	TEST(m.getRoomData(12345) == "MyArea");
 	TEST(m.getRoomExits(12345) == exits_12345_expected);
 	std::tuple<int, int, int> xyz = std::make_tuple(0, 0, 0);
 	std::tuple<int, int, int> xyz2 = std::make_tuple(0, 1, 0);
 	TEST(m.getRoomCoords(12345) == xyz);
 
-	m.addRoom(123, "room2", "area2", "trn", {{"s", 12345}});
+	m.addRoom(123, "room2", "area2", {{"s", 12345}});
 	std::map<std::string, int> exits_123_expected = {{"s", 12345}};
 
 	TEST(m.getRoomName(12345) == "My Room");
-	TEST(m.getRoomZone(12345) == "MyArea");
-	TEST(m.getRoomTerrain(12345) == "desert");
+	TEST(m.getRoomData(12345) == "MyArea");
 	TEST(m.getRoomExits(12345) == exits_12345_expected);
 	TEST(m.getRoomCoords(12345) == xyz);
 
 	TEST(m.getRoomName(123) == "room2");
-	TEST(m.getRoomZone(123) == "area2");
-	TEST(m.getRoomTerrain(123) == "trn");
+	TEST(m.getRoomData(123) == "area2");
 	TEST(m.getRoomExits(123) == exits_123_expected);
 	TEST(m.getRoomCoords(123) == xyz2);
 }
@@ -65,22 +62,20 @@ BOOST_AUTO_TEST_CASE(serialize_deserialize_retainsProperties)
 	std::tuple<int, int, int> xyz2 = std::make_tuple(0, 1, 0);
 	{
 		Map m;
-		m.addRoom(12345, "My Room", "MyArea", "desert", {{"n", 123}});
-		m.addRoom(123, "room2", "area2", "trn", {{"s", 12345}});
+		m.addRoom(12345, "My Room", "MyArea", {{"n", 123}});
+		m.addRoom(123, "room2", "area2", {{"s", 12345}});
 
 		saved = m.serialize();
 	}
 	Map n(saved);
 
 	TEST(n.getRoomName(12345) == "My Room");
-	TEST(n.getRoomZone(12345) == "MyArea");
-	TEST(n.getRoomTerrain(12345) == "desert");
+	TEST(n.getRoomData(12345) == "MyArea");
 	TEST(n.getRoomExits(12345) == exits_12345_expected);
 	TEST(n.getRoomCoords(12345) == xyz);
 
 	TEST(n.getRoomName(123) == "room2");
-	TEST(n.getRoomZone(123) == "area2");
-	TEST(n.getRoomTerrain(123) == "trn");
+	TEST(n.getRoomData(123) == "area2");
 	TEST(n.getRoomExits(123) == exits_123_expected);
 	TEST(n.getRoomCoords(123) == xyz2);
 }
@@ -137,18 +132,18 @@ BOOST_AUTO_TEST_CASE(pathfinding)
 	  *   1
 	  */
 	Map m;
-	m.addRoom(10, "Disjoint", "area2", "trn", {});
-	m.addRoom(11, "southern", "area2", "trn", {{"n", 15}});
-	m.addRoom(12, "eastern", "area2", "trn", {{"w", 15}, {"open e;e", 16}});
-	m.addRoom(13, "western", "area2", "trn", {{"e", 15}});
-	m.addRoom(14, "northern", "area2", "trn", {{"s", 15}});
-	m.addRoom(15, "middle", "area2", "trn", {
+	m.addRoom(10, "Disjoint", "area2", {});
+	m.addRoom(11, "southern", "area2", {{"n", 15}});
+	m.addRoom(12, "eastern", "area2", {{"w", 15}, {"open e;e", 16}});
+	m.addRoom(13, "western", "area2", {{"e", 15}});
+	m.addRoom(14, "northern", "area2", {{"s", 15}});
+	m.addRoom(15, "middle", "area2", {
 			{"n", 14},
 			{"e", 12},
 			{"s", 11},
 			{"w", 13}
 			});
-	m.addRoom(16, "door", "area2", "trn", {{"open w;w", 12}});
+	m.addRoom(16, "door", "area2", {{"open w;w", 12}});
 
 	for (int i = 11; i <= 16; ++i)
 	{
@@ -216,7 +211,7 @@ BOOST_AUTO_TEST_CASE(stress)
 			exitsMap[exitNames.back()] = uniform(gen);
 			exitNames.pop_back();
 		}
-		m.addRoom(i, "name", "area", "terrain", exitsMap);
+		m.addRoom(i, "name", "data", exitsMap);
 	}
 
 	std::cout << "Graph of 50 rooms, 4 random exits in each room except for the first ones, generated in " << std::chrono::duration<double>(std::chrono::steady_clock::now() - checkpoint).count() << "s" << std::endl;
