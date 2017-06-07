@@ -1,6 +1,18 @@
 import re
 
 
+def stack(line):
+    assert('\n' not in line)
+    out = []
+    startmatch = 0
+    for i in range(1, len(line) - 1):
+        if line[i] == ';' and line[i-1] != ';' and line[i+1] != ';':
+            out.append(line[startmatch:i].replace(';;', ';'))
+            startmatch = i + 1
+    out.append(line[startmatch:].replace(';;', ';'))
+    return out
+
+
 class ModularClient(object):
     def __init__(self, mud):
         # self.modules must be set up by child class
@@ -20,17 +32,6 @@ class ModularClient(object):
     def alias(self, line):
         # It's possible to move command stacking and spamrepeat into modules, at the cost of horribly complicating
         # everything in this function. Implementing them here results in less overall ugliness.
-        def stack(line):
-            assert('\n' not in line)
-            out = []
-            startmatch = 0
-            for i in range(1, len(line) - 1):
-                if line[i] == ';' and line[i-1] != ';' and line[i+1] != ';':
-                    out.append(line[startmatch:i].replace(';;', ';'))
-                    startmatch = i + 1
-            out.append(line[startmatch:].replace(';;', ';'))
-            return out
-
         sublines = stack(line)
         if len(sublines) > 1:
             for subline in sublines:
