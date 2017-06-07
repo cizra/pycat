@@ -82,10 +82,6 @@ class Map {
 			return toPython(getRoomExits(room));
 		}
 
-		// spaces determines if the results looks like
-		// run 2n e 2s w
-		// or
-		// run 2ne2sw
 		// returns empty string if path wasn't found
 		std::string findPath(mudId_t from, mudId_t to) const;
 
