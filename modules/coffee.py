@@ -4,9 +4,9 @@ import re
 
 
 ALIASES = {
-        'home': 'run 6s w 2s e 2n;open w;w',
-        'rt vassendar': 'run 4s d w d 2w d 2n 2e;open s;s;open d;run 5d;open w;w;run 8n w 2s 6w;open w;run 11w 3n 3w;open w;run 5w;run 3n 5w',
-        'rt wgate': 'run 2s 3w;open w;w',
+        'home': 'run 6s w 2s e 2n\nopen w\nw',
+        'rt vassendar': 'run 4s d w d 2w d 2n 2e\nopen s\ns\nopen d\nrun 5d\nopen w\nw\nrun 8n w 2s 6w\nopen w\nrun 11w 3n 3w\nopen w\nrun 5w\nrun 3n 5w',
+        'rt wgate': 'run 2s 3w\nopen w\nw',
         'rt sehaire': 'run w u 6w 2n 3w s 6w s 6w 2n 5w 5n w n w n 4w n e',
         }
 TRIGGERS = {
