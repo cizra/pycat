@@ -71,6 +71,32 @@ class Mapper(BaseModule):
             f.write(self.m.serialize())
         self.log("Serialized map to ", self.mapfname)
 
+    def startExit(self, args):
+        self.exitKw = ' '.join(args)
+        room = self.gmcp['room']['info']
+        self.exitFrom = {}
+        self.exitFrom['exits'] = {}
+        self.exitFrom['id'] = room['num']
+        self.exitFrom['name'] = room['name']
+        self.exitFrom['data'] = dict(zone=room['zone'], terrain = room['terrain'])
+        exits = {}
+        for k, v in room['exits'].items():
+            self.exitFrom['exits'][k.lower()] = v
+        self.log("Type '#map endexit' when you're in the right room, or #map endexit abort")
+        self.send(self.exitKw.replace(';', '\n'))
+
+    def endExit(self, args):
+        if len(args) == 1:
+            self.log("Aborted.")
+            return
+        self.exitFrom['exits'][self.exitKw] = self.current()
+        self.m.addRoom(
+                self.exitFrom['id'],
+                self.exitFrom['name'],
+                json.dumps(self.exitFrom['data']),
+                self.exitFrom['exits'])
+        self.exitKw = None
+
     def __init__(self, mud, mapfname='default.map'):
         self.mapfname = mapfname
         try:
@@ -91,9 +117,13 @@ class Mapper(BaseModule):
                 'bookmarks': self.bookmarks,
                 'path': self.path,
                 'go': self.go,
-                'save': lambda: self.quit([])
+                'save': lambda: self.quit([]),
+                'startexit': self.startExit,
+                'endexit': self.endExit,
                 }
 
+        self.exitKw = None
+        self.exitFrom = None
         super().__init__(mud)
 
     def alias(self, line):
@@ -128,7 +158,7 @@ class Mapper(BaseModule):
             id = value['num']
             name = value['name']
             data = dict(zone=value['zone'], terrain = value['terrain'])
-            exits = {}
+            exits = self.m.getRoomExits(id)  # retain custom exits
             for k, v in value['exits'].items():
                 exits[k.lower()] = v
             self.m.addRoom(id, name, json.dumps(data), exits)
