@@ -44,6 +44,18 @@ class TestMapper(unittest.TestCase):
         m.addRoom(123, "room2", "area2", {"s": 12345})
         self.assertEqual(m.findPath(123, 12345), "s")
 
+    def test_setGetMapData(self):
+        m = Map()
+        m.setMapData("foo bar")
+        self.assertEqual(m.getMapData(), "foo bar")
+
+    def test_setGetRoomData(self):
+        m = Map("")
+        m.addRoom(12345, "My Room", "My Area", {"n": 123})
+        m.addRoom(123, "room2", "area2", {"s": 12345})
+        self.assertEqual(m.getRoomData(12345), "My Area")
+        self.assertEqual(m.getRoomData(123), "area2")
+
 
 if __name__ == '__main__':
     unittest.main()

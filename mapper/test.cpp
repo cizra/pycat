@@ -26,6 +26,22 @@ BOOST_AUTO_TEST_CASE(instantiate)
 	Map m;
 }
 
+BOOST_AUTO_TEST_CASE(setGetMapData)
+{
+	Map m;
+	m.setMapData("JSON blob with custom stuff");
+	TEST(m.getMapData() == "JSON blob with custom stuff");
+}
+
+BOOST_AUTO_TEST_CASE(setGetRoomData)
+{
+	Map m;
+	m.addRoom(12345, "My Room", "MyArea", {{"n", 123}});
+	TEST(m.getRoomData(12345) == "MyArea");
+	m.setRoomData(12345, "JSON blob with custom stuff");
+	TEST(m.getRoomData(12345) == "JSON blob with custom stuff");
+}
+
 BOOST_AUTO_TEST_CASE(findRoomByName)
 {
 	Map m;

@@ -379,3 +379,19 @@ Map::mudId_t Map::findRoomByName(std::string const& name) const
 	return {};
 }
 
+void Map::setRoomData(mudId_t room, std::string const& data)
+{
+	auto vtx = d->ids[room];
+	d->graph[vtx].data = data;
+}
+
+void Map::setMapData(std::string const& data)
+{
+	d->graph[boost::graph_bundle].data = data;
+}
+
+std::string Map::getMapData() const
+{
+	return d->graph[boost::graph_bundle].data;
+}
+

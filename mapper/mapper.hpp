@@ -62,7 +62,8 @@ class Map {
 
 		void setRoomData(mudId_t room, std::string const& data); // overwrites existing data
 		// void setExitData(std::string const& data); -- possible to implement, if needed
-		void setMapData(std::string const& data); // overwrites existing data
+		void setMapData(std::string const& data);
+		std::string getMapData() const;
 
 		// TODO: delete room
 
@@ -104,5 +105,9 @@ BOOST_PYTHON_MODULE(libmapper)
 		.def("getRoomData", &Map::getRoomData)
 		.def("getRoomCoords", &Map::getRoomCoords)
 		.def("getRoomExits", &Map::getRoomExitsP)
+		.def("setRoomData", &Map::setRoomData)
+		.def("getRoomData", &Map::getRoomData)
+		.def("setMapData", &Map::setMapData)
+		.def("getMapData", &Map::getMapData)
 		;
 }
