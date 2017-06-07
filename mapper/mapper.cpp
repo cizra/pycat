@@ -302,15 +302,14 @@ std::tuple<int, int, int> Map::getRoomCoords(mudId_t room) const
 
 std::map<std::string, Map::mudId_t> Map::getRoomExits(Map::mudId_t room) const
 {
-	assert(d->ids.find(room) != d->ids.end());
-
 	std::map<std::string, Map::mudId_t> out;
-	auto pair = out_edges(d->ids[room], d->graph);
-	auto it = pair.first;
-	auto end = pair.second;
-	for (; it != end; ++it)
-		out[d->graph[*it].keyword] = d->graph[target(*it, d->graph)].mudId;
-
+	if (d->ids.find(room) != d->ids.end()) {
+		auto pair = out_edges(d->ids[room], d->graph);
+		auto it = pair.first;
+		auto end = pair.second;
+		for (; it != end; ++it)
+			out[d->graph[*it].keyword] = d->graph[target(*it, d->graph)].mudId;
+	}
 	return out;
 }
 

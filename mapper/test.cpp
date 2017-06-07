@@ -26,6 +26,12 @@ BOOST_AUTO_TEST_CASE(instantiate)
 	Map m;
 }
 
+BOOST_AUTO_TEST_CASE(noRoom_noExits_noCrash)
+{
+	Map m;
+	TEST(m.getRoomExits(321) == (std::map<std::string, int>()));
+}
+
 BOOST_AUTO_TEST_CASE(setGetMapData)
 {
 	Map m;
