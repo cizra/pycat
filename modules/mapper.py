@@ -46,7 +46,7 @@ class Mapper(BaseModule):
         return path
 
     def go(self, args):
-        self.send(self.path(args))
+        self.send(self.path(args).replace(';', '\n'))
 
     def bookmarks(self, args):
         self.log('Bookmarks:\n' + pprint.pformat(self.data['bookmarks']))
@@ -114,7 +114,7 @@ class Mapper(BaseModule):
         return True
 
     def handleGmcp(self, cmd, value):
-        # room.info {'details': '', 'id': 'Homes#1226', 'terrain': 'cave', 'exits': {'N': -565511209}, 'coord': {'id': 0, 'x': -1, 'cont': 0, 'y': -1}, 'desc': '', 'num': -565511180, 'name': 'An empty room', 'zone': 'Homes'}
+        # room.info
         # {'coord': {'cont': 0, 'id': 0, 'x': -1, 'y': -1},
         #   'desc': '',
         #   'details': '',
