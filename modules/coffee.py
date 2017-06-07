@@ -29,4 +29,5 @@ class Coffee(BaseModule):
         self.triggers.update(TRIGGERS)
 
     def getHostPort(self):
-        return 'coffeemud.net', 2323
+        # return 'coffeemud.net', 2323
+        return '::1', 4000
