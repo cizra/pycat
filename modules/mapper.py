@@ -147,11 +147,15 @@ class Mapper(BaseModule):
         outstr = '\n'.join([''.join(char)  for char in out])
         return outstr
 
-    def quit(self):
+    def quit(self, args=None):
+        if args:
+            path = args[0]
+        else:
+            path = self.mapfname
         self.m.setMapData(json.dumps(self.data))
-        with open(self.mapfname, 'w') as f:
+        with open(path, 'w') as f:
             f.write(self.m.serialize())
-        self.log("Serialized map to ", self.mapfname)
+        self.log("Serialized map to ", path)
 
     def startExit(self, args):
         self.exitKw = ' '.join(args)
@@ -199,7 +203,7 @@ class Mapper(BaseModule):
                 'bookmarks': self.bookmarks,
                 'path': self.path,
                 'go': self.go,
-                'save': lambda: self.quit([]),
+                'save': self.quit,
                 'startexit': self.startExit,
                 'endexit': self.endExit,
                 }
