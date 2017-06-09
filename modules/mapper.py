@@ -1,9 +1,12 @@
 from modules.basemodule import BaseModule
 import mapper.libmapper
+import collections
+import json
+import os
 import pprint
 import re
+import shutil
 import time
-import json
 
 
 class Mapper(BaseModule):
@@ -56,14 +59,93 @@ class Mapper(BaseModule):
         self.data['bookmarks'][arg] = self.current()
         self.bookmarks([])
 
-    def draw(self):
-        self.log("""
-█ █ █
-│ │ │
-▒─▒╫▒╸
-│ │ │
-▓ ▓ ▓
-""")
+    def draw(self, sizeX=None, sizeY=None):
+        # Draw room at x,y,z. Enumerate exits. For each exit target, breadth-first, figure out its new dimensions, rinse, repeat.
+        # █▓▒░
+        if sizeX and sizeY:
+            columns, lines = sizeX, sizeY
+        else:
+            columns, lines = shutil.get_terminal_size((21, 22))
+
+        def adjustExit(x, y, d, prev):
+            if d == 'n':
+                return x, y-1, '|', '↑'
+            if d == 'w':
+                return x-1, y, '─', '←'
+            if d == 's':
+                return x, y+1, '|', '↓'
+            if d == 'e':
+                return x+1, y, '─', '→'
+            if d == 'd':
+                if prev == '▲':
+                    return x, y, '◆', '◆'
+                else:
+                    return x, y, '▼', '▼'
+            if d == 'u':
+                if prev == '▼':
+                    return x, y, '◆', '◆'
+                else:
+                    return x, y, '▲', '▲'
+            # TODO: test these in SneezyMUD
+            if d == 'nw':
+                return x-1, y-1, '/', '/'
+            if d == 'sw':
+                return x-1, y+1, '\\', '\\'
+            if d == 'se':
+                return x+1, y+1, '/', '/'
+            if d == 'ne':
+                return x+1, y-1, '\\', '\\'
+
+        out = []  # NB! indices are out[y][x] because the greater chunks are whole lines
+        for _ in range(lines - 1):  # -1 for the next prompt
+            out.append([' '] * columns)
+
+        # The only room coordinates that matter are the start room's -- the rest get calculated by tracing paths.
+        # TODO: add edge length for manual beautification of non-Euclidean maps
+        startX, startY, startZ = self.m.getRoomCoords(self.current())
+        centerX, centerY = (columns-1)//2, (lines-1)//2
+
+        roomq = collections.deque()
+        roomq.append((centerX, centerY, self.current()))
+
+        visited = set()
+
+        # TODO: one-way exits
+        while roomq:
+            drawX, drawY, room = roomq.popleft()
+            mapX, mapY, mapZ = self.m.getRoomCoords(room)
+            if room not in visited:
+                visited.add(room)
+                # It's possible to keep walking through z layers and end up back on z=initial, which might produce nicer maps -- but we'll have to walk the _whole_ map, or bound by some range.
+                if mapZ == startZ:
+                    if 0 <= drawX and drawX < columns and 0 <= drawY and drawY < lines-1:
+                        out[drawY][drawX] = '█'
+                        exits = self.m.getRoomExits(room)
+                        for d, tgt in exits.items():
+                            if d in ['n', 'e', 's', 'w', 'u', 'd', 'ne', 'se', 'sw', 'nw']:
+                                exX, exY, char, hidden = adjustExit(drawX, drawY, d, out[drawY][drawX])
+                                nextX, nextY, _, _ = adjustExit(exX, exY, d, ' ')  # Adjust again, ie. go one step further in the same direction for the target room
+                                # Don't overwrite already drawn areas
+                                if 0 <= exX and exX < columns and 0 <= exY and exY < lines-1:
+                                    # If the map grid element we'd occupy is already occupied, don't go there
+                                    free = 0 <= nextX and nextX < columns and 0 <= nextY and nextY < lines-1 and (out[nextY][nextX] == ' ' or tgt in visited)
+                                    exists = self.m.getRoomData(tgt) != ''  # romdata exists == room is visited, otherwise it's just heard about through exits.
+                                    out[exY][exX] = char if free and exists else hidden
+                                    if d not in ['u', 'd'] and free and exists:
+                                        roomq.append((nextX, nextY, tgt))
+
+        # Special marking for start room:
+        if out[centerY][centerX] == '▼':
+            out[centerY][centerX] = '▿'
+        elif out[centerY][centerX] == '▲':
+            out[centerY][centerX] = '▵'
+        elif out[centerY][centerX] == '◆':
+            out[centerY][centerX] = '◇'
+        else:
+            out[centerY][centerX] = '░'
+
+        outstr = '\n'.join([''.join(char)  for char in out])
+        return outstr
 
     def quit(self):
         self.m.setMapData(json.dumps(self.data))
@@ -133,7 +215,7 @@ class Mapper(BaseModule):
             return
 
         if len(words) == 1:
-            self.draw()
+            print(self.draw())
             return True
 
         cmd = words[1]
@@ -162,3 +244,6 @@ class Mapper(BaseModule):
             for k, v in value['exits'].items():
                 exits[k.lower()] = v
             self.m.addRoom(id, name, json.dumps(data), exits)
+
+            with open('mapdraw', 'w') as f:
+                f.write(self.draw(15, 15) + '\n')
