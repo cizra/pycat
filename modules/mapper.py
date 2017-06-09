@@ -59,9 +59,10 @@ class Mapper(BaseModule):
         self.data['bookmarks'][arg] = self.current()
         self.bookmarks([])
 
-    def draw(self, sizeX=None, sizeY=None):
+    def draw(self, args, sizeX=None, sizeY=None):
         # Draw room at x,y,z. Enumerate exits. For each exit target, breadth-first, figure out its new dimensions, rinse, repeat.
         # █▓▒░
+        oneArea = len(args) == 1 and args[0] == 'area'
         if sizeX and sizeY:
             columns, lines = sizeX, sizeY
         else:
@@ -104,6 +105,8 @@ class Mapper(BaseModule):
         # TODO: add edge length for manual beautification of non-Euclidean maps
         startX, startY, startZ = self.m.getRoomCoords(self.current())
         centerX, centerY = (columns-1)//2, (lines-1)//2
+        data = self.m.getRoomData(self.current())
+        area = json.loads(data)['zone']
 
         roomq = collections.deque()
         roomq.append((centerX, centerY, self.current()))
@@ -129,9 +132,12 @@ class Mapper(BaseModule):
                                 if 0 <= exX and exX < columns and 0 <= exY and exY < lines-1:
                                     # If the map grid element we'd occupy is already occupied, don't go there
                                     free = 0 <= nextX and nextX < columns and 0 <= nextY and nextY < lines-1 and (out[nextY][nextX] == ' ' or tgt in visited)
-                                    exists = self.m.getRoomData(tgt) != ''  # romdata exists == room is visited, otherwise it's just heard about through exits.
-                                    out[exY][exX] = char if free and exists else hidden
-                                    if d not in ['u', 'd'] and free and exists:
+                                    dataS = self.m.getRoomData(tgt)
+                                    exists = dataS != ''  # romdata exists == room is visited, otherwise it's just heard about through exits.
+                                    if exists:
+                                        otherAreas = not oneArea or json.loads(dataS)['zone'] == area
+                                    out[exY][exX] = char if free and exists and otherAreas else hidden
+                                    if d not in ['u', 'd'] and free and exists and otherAreas:
                                         roomq.append((nextX, nextY, tgt))
 
         # Special marking for start room:
@@ -199,7 +205,9 @@ class Mapper(BaseModule):
         self.commands = {
                 'help': self.help,
                 'here': self.here,
+                'draw': lambda args: print(self.draw(args)),
                 'bookmark': self.bookmark,
+                'name': self.bookmark,
                 'bookmarks': self.bookmarks,
                 'path': self.path,
                 'go': self.go,
@@ -219,7 +227,7 @@ class Mapper(BaseModule):
             return
 
         if len(words) == 1:
-            print(self.draw())
+            print(self.draw([]))
             return True
 
         cmd = words[1]
@@ -250,4 +258,4 @@ class Mapper(BaseModule):
             self.m.addRoom(id, name, json.dumps(data), exits)
 
             with open('mapdraw', 'w') as f:
-                f.write(self.draw(15, 15) + '\n')
+                f.write(self.draw(['area'], 15, 15) + '\n')
