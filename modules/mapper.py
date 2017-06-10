@@ -110,7 +110,6 @@ class Mapper(BaseModule):
             out.append([' '] * columns)
 
         # The only room coordinates that matter are the start room's -- the rest get calculated by tracing paths.
-        # TODO: add edge length for manual beautification of non-Euclidean maps
         startX, startY, startZ = self.m.getRoomCoords(self.current())
         centerX, centerY = (columns-1)//2, (lines-1)//2
         data = self.m.getRoomData(self.current())
@@ -126,28 +125,29 @@ class Mapper(BaseModule):
         while roomq:
             drawX, drawY, room = roomq.popleft()
             mapX, mapY, mapZ = self.m.getRoomCoords(room)
-            if room not in visited:
-                visited.add(room)
-                # It's possible to keep walking through z layers and end up back on z=initial, which might produce nicer maps -- but we'll have to walk the _whole_ map, or bound by some range.
-                if mapZ == startZ:
-                    if 0 <= drawX and drawX < columns and 0 <= drawY and drawY < lines-1:
-                        out[drawY][drawX] = '█'
-                        exits = self.m.getRoomExits(room)
-                        for d, tgt in exits.items():
-                            if d in ['n', 'e', 's', 'w', 'u', 'd', 'ne', 'se', 'sw', 'nw']:
-                                exX, exY, char, hidden = adjustExit(drawX, drawY, d, out[drawY][drawX])
-                                nextX, nextY, _, _ = adjustExit(exX, exY, d, ' ')  # Adjust again, ie. go one step further in the same direction for the target room
-                                # Don't overwrite already drawn areas
-                                if 0 <= exX and exX < columns and 0 <= exY and exY < lines-1:
-                                    # If the map grid element we'd occupy is already occupied, don't go there
-                                    free = 0 <= nextX and nextX < columns and 0 <= nextY and nextY < lines-1 and (out[nextY][nextX] == ' ' or tgt in visited)
-                                    dataS = self.m.getRoomData(tgt)
-                                    exists = dataS != ''  # romdata exists == room is visited, otherwise it's just heard about through exits.
-                                    if exists:
-                                        otherAreas = not oneArea or json.loads(dataS)['zone'] == area
-                                    out[exY][exX] = char if free and exists and otherAreas else hidden
-                                    if d not in ['u', 'd'] and free and exists and otherAreas:
-                                        roomq.append((nextX, nextY, tgt))
+            visited.add(room)
+            # It's possible to keep walking through z layers and end up back on z=initial, which might produce nicer maps -- but we'll have to walk the _whole_ map, or bound by some range.
+            out[drawY][drawX] = '█'
+            exits = self.m.getRoomExits(room)
+            for d, tgt in exits.items():
+                if d in ['n', 'e', 's', 'w', 'u', 'd', 'ne', 'se', 'sw', 'nw']:
+                    exX, exY, char, hidden = adjustExit(drawX, drawY, d, out[drawY][drawX])
+                    nextX, nextY, _, _ = adjustExit(exX, exY, d, ' ')  # Adjust again, ie. go one step further in the same direction for the target room
+                    # Don't overwrite already drawn areas
+                    if 0 <= exX and exX < columns and 0 <= exY and exY < lines-1:
+                        # If the map grid element we'd occupy is already occupied, don't go there
+                        free = 0 <= nextX and nextX < columns and 0 <= nextY and nextY < lines-1 and (out[nextY][nextX] == ' ' or tgt in visited)
+                        dataS = self.m.getRoomData(tgt)
+                        exists = dataS != ''  # romdata exists == room is visited, otherwise it's just heard about through exits.
+                        if exists:
+                            otherAreas = not oneArea or json.loads(dataS)['zone'] == area
+                        out[exY][exX] = char if free and exists and otherAreas else hidden
+                        visit = (tgt not in visited
+                                and d not in ['u', 'd']
+                                and 0 <= nextX and nextX < columns and 0 <= nextY and nextY < lines-1
+                                )
+                        if visit and free and exists and otherAreas:
+                            roomq.append((nextX, nextY, tgt))
 
         # Special marking for start room:
         if out[centerY][centerX] == '▼':
