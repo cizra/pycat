@@ -32,6 +32,14 @@ BOOST_AUTO_TEST_CASE(noRoom_noExits_noCrash)
 	TEST(m.getRoomExits(321) == (std::map<std::string, int>()));
 }
 
+BOOST_AUTO_TEST_CASE(setGetExitData)
+{
+	Map m;
+	m.addRoom(12345, "My Room", "MyArea", {{"n", 123}});
+	m.setExitData(12345, 123, "JSON blob with custom stuff");
+	TEST(m.getExitData(12345, 123) == "JSON blob with custom stuff");
+}
+
 BOOST_AUTO_TEST_CASE(setGetMapData)
 {
 	Map m;

@@ -49,6 +49,7 @@ namespace map_internal {
 	struct edge_property {
 		std::string keyword;
 		float weight = 2;
+		std::string data;
 
 		edge_property() = default;
 		edge_property(std::initializer_list<std::string> il)
@@ -63,8 +64,9 @@ namespace map_internal {
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			(void)version;
 			ar & keyword;
+			if (version >= 1)
+				ar & data;
 			if (map_internal::direction(keyword))
 				weight = 1;
 			else
@@ -207,6 +209,7 @@ namespace map_internal {
 		return reverse;
 	}
 }
+BOOST_CLASS_VERSION(map_internal::edge_property, 1)
 
 using namespace map_internal;
 
@@ -394,3 +397,15 @@ std::string Map::getMapData() const
 	return d->graph[boost::graph_bundle].data;
 }
 
+std::string Map::getExitData(Map::mudId_t source, Map::mudId_t target) const
+{
+	auto edge_found = edge(d->ids[source], d->ids[target], d->graph);
+	return edge_found.second ? d->graph[edge_found.first].data : "";
+}
+
+void Map::setExitData(Map::mudId_t source, Map::mudId_t target, std::string const& data)
+{
+	auto edge_found = edge(d->ids[source], d->ids[target], d->graph);
+	if (edge_found.second)
+		d->graph[edge_found.first].data = data;
+}

@@ -85,6 +85,9 @@ class Map {
 		// returns empty string if path wasn't found
 		std::string findPath(mudId_t from, mudId_t to) const;
 
+		std::string getExitData(mudId_t source, mudId_t target) const;
+		void setExitData(mudId_t source, mudId_t target, std::string const& data);
+
 	private:
 		MapPimpl* d;
 };
@@ -105,5 +108,7 @@ BOOST_PYTHON_MODULE(libmapper)
 		.def("getRoomData", &Map::getRoomData)
 		.def("setMapData", &Map::setMapData)
 		.def("getMapData", &Map::getMapData)
+		.def("setExitData", &Map::setExitData)
+		.def("getExitData", &Map::getExitData)
 		;
 }

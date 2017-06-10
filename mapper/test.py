@@ -7,6 +7,12 @@ class TestMapper(unittest.TestCase):
     def test_instantiate(self):
         m = Map("")
 
+    def test_setGetRoomData(self):
+        m = Map("")
+        m.addRoom(12345, "My Room", "My Area", {"n": 123})
+        m.setExitData(12345, 123, "custom")
+        self.assertEqual(m.getExitData(12345, 123), "custom")
+
     def test_insert_retrieve_retainsProperties(self):
         m = Map("")
         m.addRoom(12345, "My Room", "My Area", {"n": 123})
