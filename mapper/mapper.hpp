@@ -72,7 +72,11 @@ class Map {
 		// to recalculate coordinates once the pieces have been joined.
 		// void recalcRoomCoords(mudId_t startRoom);
 
-		mudId_t findRoomByName(std::string const& name) const;
+		std::map<mudId_t, std::string> findRoomByName(std::string const& name) const;
+		boost::python::dict findRoomByNameP(std::string const& name) const
+		{
+			return toPython(findRoomByName(name));
+		}
 		std::string getRoomName(mudId_t room) const;
 		std::string getRoomData(mudId_t room) const;
 		std::tuple<int, int, int> getRoomCoords(mudId_t room) const;
@@ -110,5 +114,6 @@ BOOST_PYTHON_MODULE(libmapper)
 		.def("getMapData", &Map::getMapData)
 		.def("setExitData", &Map::setExitData)
 		.def("getExitData", &Map::getExitData)
+		.def("findRoomByName", &Map::findRoomByNameP)
 		;
 }

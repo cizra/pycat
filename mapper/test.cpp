@@ -101,8 +101,12 @@ BOOST_AUTO_TEST_CASE(findRoomByName)
 	Map m;
 	m.addRoom(12345, "My Room", "MyArea", {{"n", 123}});
 	m.addRoom(123, "room2", "area2", {{"s", 12345}});
-	TEST(m.findRoomByName("room2") == 123);
-	TEST(m.findRoomByName("My Room") == 12345);
+
+	std::map<int, std::string> only = {{123, "room2"}};
+	TEST(m.findRoomByName("oom2") == only);
+
+	std::map<int, std::string> multi = {{123, "room2"}, {12345, "My Room"}};
+	TEST(m.findRoomByName("oom") == multi);
 }
 
 BOOST_AUTO_TEST_CASE(insert_retrieve_retainsProperties)

@@ -398,14 +398,16 @@ std::string Map::findPath(Map::mudId_t from, Map::mudId_t to) const
 	return "";
 }
 
-Map::mudId_t Map::findRoomByName(std::string const& name) const
+std::map<Map::mudId_t, std::string> Map::findRoomByName(std::string const& name) const
 {
+	std::map<Map::mudId_t, std::string> out;
+
 	boost::graph_traits<mygraph_t>::vertex_iterator vi, vi_end;
 	for (std::tie(vi, vi_end) = vertices(d->graph); vi != vi_end; ++vi) {
-		if (d->graph[*vi].name == name)
-			return d->graph[*vi].mudId;
+		if (d->graph[*vi].name.find(name) != std::string::npos)
+			out[d->graph[*vi].mudId] = d->graph[*vi].name;
 	}
-	return {};
+	return out;
 }
 
 void Map::setRoomData(mudId_t room, std::string const& data)

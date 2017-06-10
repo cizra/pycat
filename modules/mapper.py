@@ -70,7 +70,7 @@ class Mapper(BaseModule):
     def draw(self, args, sizeX=None, sizeY=None):
         # Draw room at x,y,z. Enumerate exits. For each exit target, breadth-first, figure out its new dimensions, rinse, repeat.
         # █▓▒░
-        oneArea = len(args) == 1 and args[0] == 'area'
+        oneArea = len(args) == 1 and args[0] == 'all'
         if sizeX and sizeY:
             columns, lines = sizeX, sizeY
         else:
@@ -327,4 +327,4 @@ class Mapper(BaseModule):
             self.m.addRoom(id, name, json.dumps(data), exits)
 
             with open('mapdraw', 'w') as f:
-                f.write(self.draw(['area'], 15, 15) + '\n')
+                f.write(self.draw([], 15, 15) + '\n')
