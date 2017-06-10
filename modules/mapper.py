@@ -24,12 +24,20 @@ class Mapper(BaseModule):
             this = int(args[0])
         else:
             this = self.current()
+
+        just_exits = self.m.getRoomExits(this)
+        exits = {}
+        for dir, tgt in just_exits.items():
+            data = self.m.getExitData(this, tgt)
+            data = json.loads(data) if data else {}
+            exits[dir] = {'dst': tgt, 'data': data}
+
         self.log('\n' + pprint.pformat({
             'num': this,
             'name': self.m.getRoomName(this),
             'data': self.m.getRoomData(this),
             'coords': self.m.getRoomCoords(this),
-            'exits': self.m.getRoomExits(this),
+            'exits': exits,
             }))
 
     def path(self, args):
@@ -114,6 +122,7 @@ class Mapper(BaseModule):
         visited = set()
 
         # TODO: one-way exits
+        # TODO: draw doors
         while roomq:
             drawX, drawY, room = roomq.popleft()
             mapX, mapY, mapZ = self.m.getRoomCoords(room)
@@ -189,6 +198,23 @@ class Mapper(BaseModule):
                 self.exitFrom['exits'])
         self.exitKw = None
 
+    def exitlen(self, args):
+        direction = args[0]
+        length = args[1]
+        here = self.current()
+        exits = self.m.getRoomExits(here)
+        if direction.lower() not in exits:
+            self.log("No such direction")
+            return
+        there = exits[direction.lower()]
+        data = self.m.getExitData(here, there)
+        if data:
+            data = json.loads(data)
+        else:
+            data = {}
+        data['len'] = length
+        self.m.setExitData(here, there, json.dumps(data))
+
     def __init__(self, mud, mapfname='default.map'):
         self.mapfname = mapfname
         try:
@@ -214,6 +240,7 @@ class Mapper(BaseModule):
                 'save': self.quit,
                 'startexit': self.startExit,
                 'endexit': self.endExit,
+                'exitlen': self.exitlen,
                 }
 
         self.exitKw = None
