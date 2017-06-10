@@ -191,14 +191,14 @@ class Mapper(BaseModule):
         return outstr
 
     def quit(self, args=None):
-        if args:
-            path = args[0]
-        else:
-            path = self.mapfname
+        self.save([self.mapfname])
+
+    def save(self, args):
+        self.mapfname = args[0]
         self.m.setMapData(json.dumps(self.data))
-        with open(path, 'w') as f:
+        with open(self.mapfname, 'w') as f:
             f.write(self.m.serialize())
-        self.log("Serialized map to ", path)
+        self.log("Serialized map to ", self.mapfname)
 
     def startExit(self, args):
         self.exitKw = ' '.join(args)
@@ -226,7 +226,7 @@ class Mapper(BaseModule):
                 self.exitFrom['exits'])
         self.exitKw = None
 
-    def exitlen(self, args):
+    def exitLen(self, args):
         direction = args[0]
         length = args[1]
         here = self.current()
@@ -243,20 +243,32 @@ class Mapper(BaseModule):
         data['len'] = length
         self.m.setExitData(here, there, json.dumps(data))
 
-    def __init__(self, mud, mapfname='default.map'):
-        self.mapfname = mapfname
+    def load(self, args):
+        # TODO: memory usage and map size can be reduced by storing
+        # terrains/zones in mapdata, and referencing them by index in rooms 
+        self.mapfname = args[0]
         try:
             with open(self.mapfname, 'r') as f:
                 ser = f.read()
             self.m = mapper.libmapper.Map(ser)
-            self.data = json.loads(self.m.getMapData())
+            print("Loaded map from", self.mapfname)
         except FileNotFoundError:
+            self.m = mapper.libmapper.Map()
+            print("Created a new map")
+
+        md = self.m.getMapData()
+        if md:
+            self.data = json.loads(self.m.getMapData())
+        else:
             self.data = {
                     'bookmarks': {},
                     }
-            self.m = mapper.libmapper.Map()
+
+    def __init__(self, mud, mapfname='default.map'):
+        self.load([mapfname])
 
         self.commands = {
+                'load': self.load,
                 'help': self.help,
                 'here': self.here,
                 'draw': lambda args: print(self.draw(args)),
@@ -268,11 +280,13 @@ class Mapper(BaseModule):
                 'save': self.quit,
                 'startexit': self.startExit,
                 'endexit': self.endExit,
-                'exitlen': self.exitlen,
+                'exitlen': self.exitLen,
                 }
 
+        # for creating custom exits
         self.exitKw = None
         self.exitFrom = None
+
         super().__init__(mud)
 
     def alias(self, line):

@@ -18,7 +18,6 @@ importlib.reload(modules.mapper)
 MODULES = [  # determines the pecking order
         modules.eval.Eval,
         modules.repeat.Repeat,
-        modules.mapper.Mapper,
         modules.coffee.Coffee,
         modules.gaoler.Gaoler,
         ]
@@ -26,6 +25,16 @@ MODULES = [  # determines the pecking order
 
 class Client(modular.ModularClient):
     def __init__(self, mud):
+        try:
+            self.logfname
+        except AttributeError:
+            self.logfname = 'new.log'
+
+        try:
+            self.mapfname
+        except AttributeError:
+            self.mapfname = 'default.map'
+
         self.modules = []
         for m in MODULES:
             try:
@@ -33,9 +42,17 @@ class Client(modular.ModularClient):
             except Exception:
                 traceback.print_exc()
         try:
-            self.modules.append(modules.logging.Logging(mud, 'new.log'))
+            self.modules.append(modules.logging.Logging(mud, self.logfname))
         except Exception:
             traceback.print_exc()
+
+        # TODO: sucks. Switch to dicts, iterate over values in parent
+        try:
+            self.mapper = modules.mapper.Mapper(mud, self.mapfname)
+        except Exception:
+            traceback.print_exc()
+        self.modules.append(self.mapper)
+
         super().__init__(mud)
 
 
