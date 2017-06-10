@@ -235,13 +235,18 @@ class Mapper(BaseModule):
             self.log("No such direction")
             return
         there = exits[direction.lower()]
-        data = self.m.getExitData(here, there)
-        if data:
-            data = json.loads(data)
-        else:
-            data = {}
-        data['len'] = length
-        self.m.setExitData(here, there, json.dumps(data))
+
+        def do(here, there):
+            data = self.m.getExitData(here, there)
+            if data:
+                data = json.loads(data)
+            else:
+                data = {}
+            data['len'] = length
+            self.m.setExitData(here, there, json.dumps(data))
+
+        do(here, there)
+        do(there, here)
 
     def load(self, args):
         # TODO: memory usage and map size can be reduced by storing
