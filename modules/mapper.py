@@ -269,10 +269,14 @@ class Mapper(BaseModule):
                     'bookmarks': {},
                     }
 
+    def find(self, args):
+        self.log('\n' + pprint.pformat(self.m.findRoomByName(args[0])))
+
     def __init__(self, mud, mapfname='default.map'):
         self.load([mapfname])
 
         self.commands = {
+                'find': self.find,
                 'load': self.load,
                 'help': self.help,
                 'here': self.here,
