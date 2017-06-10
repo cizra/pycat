@@ -99,7 +99,11 @@ class Session(object):
         self.telnet.write((line + '\n').encode('utf-8'))
 
     def handle_input(self):
-        data = self.telnet.read_very_eager().decode('utf-8')
+        try:
+            data = self.telnet.read_very_eager().decode('utf-8')
+        except EOFError:
+            self.world.quit()
+            raise
         if not data:
             _ = self.telnet.read_sb_data()
         prn = []
