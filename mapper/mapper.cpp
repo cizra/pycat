@@ -75,7 +75,7 @@ namespace map_internal {
 	};
 
 	using mygraph_t = boost::adjacency_list<
-		boost::vecS, // out edges for each vertex
+		boost::setS, // out edges for each vertex. Set for uniqueness
 		boost::vecS, // vertices
 		boost::directedS,
 		vertex_property,
@@ -270,18 +270,45 @@ void Map::addRoom(Map::mudId_t room, std::string const& name, std::string const&
 	if (inserted)
 		d->graph[vertex_descriptor].xyz = std::make_tuple(0, 0, 0);
 
-	clear_out_edges(vertex_descriptor, d->graph);
-	for (auto exitKwDest : exits)
+	// Add new edges
+	// Remove disappeared edges
+	// Don't touch existing edges -- in particular, retain data
+	for (auto exitKwDest : exits) // Add new edges
 	{
-		auto exit_vtx_it = d->ids.find(exitKwDest.second);
-		if (exit_vtx_it == d->ids.end())
+		const std::string keyword = exitKwDest.first;
+		const mudId_t destination = exitKwDest.second;
+		auto exit_vtx_it = d->ids.find(destination);
+		if (exit_vtx_it == d->ids.end())  // if exit destination doesn't exist, create it
 		{
-			exit_vtx_it = d->ids.emplace(exitKwDest.second, add_vertex(d->graph)).first;
-			d->graph[exit_vtx_it->second].mudId = exitKwDest.second;
+			exit_vtx_it = d->ids.emplace(destination, add_vertex(d->graph)).first;
+			d->graph[exit_vtx_it->second].mudId = destination;
 			d->graph[exit_vtx_it->second].xyz = coords(
-					d->graph[vertex_descriptor].xyz, exitKwDest.first);
+					d->graph[vertex_descriptor].xyz, keyword);
 		}
-		add_edge(vertex_descriptor, exit_vtx_it->second, {exitKwDest.first}, d->graph);
+		// the edge with longest keyword wins (think open n;n vs n)
+		auto edgeAndFound = edge(vertex_descriptor, exit_vtx_it->second, d->graph);
+		if (edgeAndFound.second) {
+			auto alt = edgeAndFound.first;
+			if (d->graph[alt].keyword.size() < keyword.size()) {
+				remove_edge(vertex_descriptor, exit_vtx_it->second, d->graph);
+				assert(add_edge(vertex_descriptor, exit_vtx_it->second, {exitKwDest.first}, d->graph).second);
+			}
+		} else {
+			assert(add_edge(vertex_descriptor, exit_vtx_it->second, {exitKwDest.first}, d->graph).second);
+		}
+	}
+
+	std::vector<mygraph_t::edge_descriptor> backup; // backup because iterators get invalidated during removal
+	backup.resize(boost::out_degree(vertex_descriptor, d->graph));
+	auto pair = out_edges(vertex_descriptor, d->graph);
+	auto it = pair.first;
+	auto end = pair.second;
+	std::copy(it, end, backup.begin());
+	// for each edge in graph, check if its target also in our exit list. If it's not, remove it.
+	for (auto edge : backup) {
+		auto dest = target(edge, d->graph);
+		if (std::find_if(exits.begin(), exits.end(), [this, dest](auto kwDest) { return this->d->ids[kwDest.second] == dest; }) == exits.end())
+			remove_edge(vertex_descriptor, dest, d->graph);
 	}
 }
 

@@ -26,6 +26,46 @@ BOOST_AUTO_TEST_CASE(instantiate)
 	Map m;
 }
 
+BOOST_AUTO_TEST_CASE(exitAndDoor_gmcpupdate_doorWins)
+{
+	Map m;
+	m.addRoom(12345, "My Room", "MyArea", {{"n", 123}});  // initial GMCP
+	m.addRoom(12345, "My Room", "MyArea", {{"n", 123}, {"open n;n", 123}});  // custom exit
+	m.addRoom(12345, "My Room", "MyArea", {{"n", 123}});  // second GMCP
+	std::map<std::string, int> exits_12345_expected = {{"open n;n", 123}};
+	TEST(m.getRoomExits(12345) == exits_12345_expected);
+}
+
+BOOST_AUTO_TEST_CASE(edgesRemoved)
+{
+	Map m;
+	m.addRoom(12345, "My Room", "MyArea", {{"n", 123}, {"e", 1234}});
+	m.addRoom(12345, "My Room", "MyArea", {{"n", 123}});
+	std::map<std::string, int> exits_12345_expected = {{"n", 123}};
+	TEST(m.getRoomExits(12345) == exits_12345_expected);
+}
+
+BOOST_AUTO_TEST_CASE(noParallelEdges)
+{
+	Map m;
+	m.addRoom(12345, "My Room", "MyArea", {{"n", 123}, {"open n;n", 123}});
+	std::map<std::string, int> exits_12345_expected = {{"open n;n", 123}};
+	TEST(m.getRoomExits(12345) == exits_12345_expected);
+
+	m.addRoom(123, "My Room", "MyArea", {{"open s;s", 12345}, {"s", 12345}});
+	std::map<std::string, int> exits_123_expected = {{"open s;s", 12345}};
+	TEST(m.getRoomExits(123) == exits_123_expected);
+}
+
+BOOST_AUTO_TEST_CASE(readdRoom_exitDataPreserved)
+{
+	Map m;
+	m.addRoom(12345, "My Room", "MyArea", {{"n", 123}});
+	m.setExitData(12345, 123, "JSON blob with custom stuff");
+	m.addRoom(12345, "My Room", "MyArea", {{"n", 123}});
+	TEST(m.getExitData(12345, 123) == "JSON blob with custom stuff");
+}
+
 BOOST_AUTO_TEST_CASE(noRoom_noExits_noCrash)
 {
 	Map m;
