@@ -120,6 +120,18 @@ class Mapper(BaseModule):
 
         visited = set()
 
+        def getExitLen(source, target):
+            exitDataS = self.m.getExitData(source, target)
+            if not exitDataS:
+                return 1
+            exitData = json.loads(exitDataS)
+            if not exitData or 'len' not in exitData:
+                return 1
+            return int(exitData['len'])
+
+        def fits(x, y):
+            return 0 <= x and x < columns and 0 <= y and y < lines-1
+
         # TODO: one-way exits
         # TODO: draw doors
         while roomq:
@@ -131,23 +143,39 @@ class Mapper(BaseModule):
             exits = self.m.getRoomExits(room)
             for d, tgt in exits.items():
                 if d in ['n', 'e', 's', 'w', 'u', 'd', 'ne', 'se', 'sw', 'nw']:
-                    exX, exY, char, hidden = adjustExit(drawX, drawY, d, out[drawY][drawX])
+                    dataS = self.m.getRoomData(tgt)
+                    exists = dataS != ''
+                    dataD = json.loads(dataS) if exists else {}
+                    nextArea = dataD['zone'] if 'zone' in dataD else None
+                    sameAreas = oneArea or nextArea == area
+
+                    if not exists or not sameAreas:
+                        exitLen = 1
+                    else:
+                        exitLen = getExitLen(room, tgt)
+
+                    exX = drawX
+                    exY = drawY
+                    # draw a long exit for beautification
+                    for _ in range(exitLen):
+                        exX, exY, char, hidden = adjustExit(exX, exY, d, out[drawY][drawX])
+                        if fits(exX, exY):
+                            # If the map grid element we'd occupy is already occupied, don't go there
+                            nextX, nextY, _, _ = adjustExit(exX, exY, d, ' ')  # Adjust again, ie. go one step further in the same direction for the target room
+                            # Don't overwrite already drawn areas
+                            free = fits(exX, exY) and (not fits(nextX, nextY) or out[nextY][nextX] == ' ') or tgt in visited
+                            out[exY][exX] = char if free and exists and sameAreas else hidden
+
                     nextX, nextY, _, _ = adjustExit(exX, exY, d, ' ')  # Adjust again, ie. go one step further in the same direction for the target room
-                    # Don't overwrite already drawn areas
-                    if 0 <= exX and exX < columns and 0 <= exY and exY < lines-1:
-                        # If the map grid element we'd occupy is already occupied, don't go there
-                        free = 0 <= nextX and nextX < columns and 0 <= nextY and nextY < lines-1 and (out[nextY][nextX] == ' ' or tgt in visited)
-                        dataS = self.m.getRoomData(tgt)
-                        exists = dataS != ''  # romdata exists == room is visited, otherwise it's just heard about through exits.
-                        if exists:
-                            otherAreas = not oneArea or json.loads(dataS)['zone'] == area
-                        out[exY][exX] = char if free and exists and otherAreas else hidden
-                        visit = (tgt not in visited
-                                and d not in ['u', 'd']
-                                and 0 <= nextX and nextX < columns and 0 <= nextY and nextY < lines-1
-                                )
-                        if visit and free and exists and otherAreas:
-                            roomq.append((nextX, nextY, tgt))
+                    visit = (exists
+                            and tgt not in visited
+                            and sameAreas
+                            and d not in ['u', 'd']
+                            and fits(nextX, nextY)
+                            and out[nextY][nextX] == ' '
+                            )
+                    if visit:
+                        roomq.append((nextX, nextY, tgt))
 
         # Special marking for start room:
         if out[centerY][centerX] == '▼':
