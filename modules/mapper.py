@@ -40,12 +40,15 @@ class Mapper(BaseModule):
             'exits': exits,
             }))
 
-    def path(self, args):
-        there = args[0]
+    def path(self, there):
         if there in self.data['bookmarks']:
             there = self.data['bookmarks'][there]
         else:
-            there = int(there)
+            try:
+                there = int(there)
+            except ValueError:
+                self.log("No such bookmark")
+                return
 
         this = self.current()
         if this == there:
@@ -56,8 +59,8 @@ class Mapper(BaseModule):
         self.log("{} (found in {} seconds)".format(path, time.time() - then))
         return path
 
-    def go(self, args):
-        self.send(self.path(args).replace(';', '\n'))
+    def go(self, room):
+        self.send(self.path(room).replace(';', '\n'))
 
     def bookmarks(self, args):
         self.log('Bookmarks:\n' + pprint.pformat(self.data['bookmarks']))
@@ -272,24 +275,50 @@ class Mapper(BaseModule):
     def find(self, args):
         self.log('\n' + pprint.pformat(self.m.findRoomByName(args[0])))
 
+    def unmapped(self, args):
+        out = set()
+        visited = set()
+        roomq = collections.deque()
+        roomq.append(self.current())
+        visited.add(self.current())
+        startArea = json.loads(self.m.getRoomData(self.current()))['zone']
+        while roomq:
+            room = roomq.popleft()
+            visited.add(room)
+            exits = self.m.getRoomExits(room)
+            for d, tgt in exits.items():
+                dataS = self.m.getRoomData(tgt)
+                if not dataS:
+                    out.add(tgt)
+                else:
+                    if  tgt not in visited and json.loads(dataS)['zone'] == startArea:
+                        roomq.append(tgt)
+        return out
+
+
     def __init__(self, mud, mapfname='default.map'):
         self.load([mapfname])
 
         self.commands = {
+                'unmapped': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(args)])),
+                'gounmapped': lambda args: self.go(self.unmapped(args)[0]),
                 'find': self.find,
                 'load': self.load,
+                'read': self.load,
                 'help': self.help,
                 'here': self.here,
                 'draw': lambda args: print(self.draw(args)),
                 'bookmark': self.bookmark,
                 'name': self.bookmark,
                 'bookmarks': self.bookmarks,
-                'path': self.path,
-                'go': self.go,
-                'save': self.quit,
+                'path': lambda args: self.path(args[0]),
+                'go': lambda args: self.go(args[0]),
+                'save': self.save,
+                'write': self.save,
                 'startexit': self.startExit,
                 'endexit': self.endExit,
-                'exitlen': self.exitLen,
+                'inc': self.inc,
+                'dec': self.dec,
                 }
 
         # for creating custom exits
