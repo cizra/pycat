@@ -81,32 +81,32 @@ class Mapper(BaseModule):
 
         def adjustExit(x, y, d, prev):
             if d == 'n':
-                return x, y-1, '|', '↑'
+                return x, y-1, '│', '↑', '║'
             if d == 'w':
-                return x-1, y, '─', '←'
+                return x-1, y, '─', '←', '═'
             if d == 's':
-                return x, y+1, '|', '↓'
+                return x, y+1, '│', '↓', '║'
             if d == 'e':
-                return x+1, y, '─', '→'
+                return x+1, y, '─', '→', '═'
             if d == 'd':
                 if prev == '▲':
-                    return x, y, '◆', '◆'
+                    return x, y, '◆', '◆', '◆'
                 else:
-                    return x, y, '▼', '▼'
+                    return x, y, '▼', '▼', '▼'
             if d == 'u':
                 if prev == '▼':
-                    return x, y, '◆', '◆'
+                    return x, y, '◆', '◆', '◆'
                 else:
-                    return x, y, '▲', '▲'
+                    return x, y, '▲', '▲', '▲'
             # TODO: test these in SneezyMUD
             if d == 'nw':
-                return x-1, y-1, '/', '/'
+                return x-1, y-1, '/', '/', '/'
             if d == 'sw':
-                return x-1, y+1, '\\', '\\'
+                return x-1, y+1, '\\', '\\', '\\'
             if d == 'se':
-                return x+1, y+1, '/', '/'
+                return x+1, y+1, '/', '/', '/'
             if d == 'ne':
-                return x+1, y-1, '\\', '\\'
+                return x+1, y-1, '\\', '\\', '\\'
 
         out = []  # NB! indices are out[y][x] because the greater chunks are whole lines
         for _ in range(lines - 1):  # -1 for the next prompt
@@ -137,48 +137,72 @@ class Mapper(BaseModule):
 
         # TODO: one-way exits
         # TODO: draw doors
+        coordCache = {}  # Remember where we drew each room, to search for broken-looking exits
         while roomq:
             drawX, drawY, room = roomq.popleft()
-            mapX, mapY, mapZ = self.m.getRoomCoords(room)
-            visited.add(room)
-            # It's possible to keep walking through z layers and end up back on z=initial, which might produce nicer maps -- but we'll have to walk the _whole_ map, or bound by some range.
-            out[drawY][drawX] = '█'
-            exits = self.m.getRoomExits(room)
-            for d, tgt in exits.items():
-                if d in ['n', 'e', 's', 'w', 'u', 'd', 'ne', 'se', 'sw', 'nw']:
-                    dataS = self.m.getRoomData(tgt)
-                    exists = dataS != ''
-                    dataD = json.loads(dataS) if exists else {}
-                    nextArea = dataD['zone'] if 'zone' in dataD else None
-                    sameAreas = oneArea or nextArea == area
+            if room not in visited:  # A given room might end up in the queue through different paths
+                mapX, mapY, mapZ = self.m.getRoomCoords(room)
+                visited.add(room)
+                # It's possible to keep walking through z layers and end up back on z=initial, which might produce nicer maps -- but we'll have to walk the _whole_ map, or bound by some range.
+                out[drawY][drawX] = '█'
+                coordCache[room] = (drawX, drawY)
+                # out[drawY][drawX] = str(count % 10)
+                # count += 1
+                exits = self.m.getRoomExits(room)
+                for d, tgt in exits.items():
+                    if d in ['n', 'e', 's', 'w', 'u', 'd', 'ne', 'se', 'sw', 'nw']:
+                        dataS = self.m.getRoomData(tgt)
+                        exists = dataS != ''
+                        dataD = json.loads(dataS) if exists else {}
+                        nextArea = dataD['zone'] if 'zone' in dataD else None
+                        sameAreas = oneArea or nextArea == area
 
-                    if not exists or not sameAreas:
-                        exitLen = 1
-                    else:
-                        exitLen = getExitLen(room, tgt)
+                        if not exists or not sameAreas:
+                            exitLen = 1
+                        else:
+                            exitLen = getExitLen(room, tgt)
 
-                    exX = drawX
-                    exY = drawY
-                    # draw a long exit for beautification
-                    for _ in range(exitLen):
-                        exX, exY, char, hidden = adjustExit(exX, exY, d, out[drawY][drawX])
-                        if fits(exX, exY):
-                            # If the map grid element we'd occupy is already occupied, don't go there
-                            nextX, nextY, _, _ = adjustExit(exX, exY, d, ' ')  # Adjust again, ie. go one step further in the same direction for the target room
-                            # Don't overwrite already drawn areas
-                            free = fits(exX, exY) and (not fits(nextX, nextY) or out[nextY][nextX] == ' ') or tgt in visited
-                            out[exY][exX] = char if free and exists and sameAreas else hidden
+                        exX = drawX
+                        exY = drawY
 
-                    nextX, nextY, _, _ = adjustExit(exX, exY, d, ' ')  # Adjust again, ie. go one step further in the same direction for the target room
-                    visit = (exists
-                            and tgt not in visited
-                            and sameAreas
-                            and d not in ['u', 'd']
-                            and fits(nextX, nextY)
-                            and out[nextY][nextX] == ' '
-                            )
-                    if visit:
-                        roomq.append((nextX, nextY, tgt))
+                        roomX, roomY = exX, exY
+                        # Figure out the coordinates of the target room
+                        for _ in range(exitLen + 1):  # exitlen for the exit, +1 for the target room
+                            roomX, roomY, _, _, _ = adjustExit(roomX, roomY, d, ' ')
+
+                        # Mark exits that break map (if the target room is already drawn, but not adjacent to this one)
+                        mark = False
+                        if tgt in visited:
+                            tgtX, tgtY = coordCache[tgt]
+                            if tgtX != roomX or tgtY != roomY:
+                                print("Offset detected:", roomX - tgtX, roomY-tgtX)
+                                mark = True
+
+                        # draw a long exit for beautification
+                        for _ in range(exitLen):
+                            exX, exY, regularExit, hiddenExit, markedExit = adjustExit(exX, exY, d, out[drawY][drawX])
+                            if fits(exX, exY):
+                                # If the map grid element we'd occupy is already occupied, don't go there
+                                nextX, nextY, _, _, _ = adjustExit(exX, exY, d, ' ')  # Adjust again, ie. go one step further in the same direction for the target room
+                                # Don't overwrite already drawn areas
+                                free = fits(exX, exY) and (not fits(nextX, nextY) or out[nextY][nextX] == ' ') or tgt in visited
+
+                                if mark:
+                                    out[exY][exX] = markedExit
+                                elif free and exists and sameAreas:
+                                    out[exY][exX] = regularExit
+                                else:
+                                    out[exY][exX] = hiddenExit
+
+                        visit = (exists
+                                and tgt not in visited
+                                and sameAreas
+                                and d not in ['u', 'd']
+                                and fits(roomX, roomY)
+                                and out[roomY][roomX] == ' '
+                                )
+                        if visit:
+                            roomq.append((roomX, roomY, tgt))
 
         # Special marking for start room:
         if out[centerY][centerX] == '▼':
@@ -229,15 +253,17 @@ class Mapper(BaseModule):
                 self.exitFrom['exits'])
         self.exitKw = None
 
-    def exitLen(self, args):
-        direction = args[0]
-        length = args[1]
+    def getRoomByDirection(self, direction):
         here = self.current()
         exits = self.m.getRoomExits(here)
         if direction.lower() not in exits:
             self.log("No such direction")
-            return
-        there = exits[direction.lower()]
+            return None
+        return exits[direction.lower()]
+
+    def exitLen(self, direction, increment):
+        here = self.current()
+        there = self.getRoomByDirection(direction)
 
         def do(here, there):
             data = self.m.getExitData(here, there)
@@ -245,11 +271,23 @@ class Mapper(BaseModule):
                 data = json.loads(data)
             else:
                 data = {}
-            data['len'] = length
+            # Oops, must have stored it as string :( TODO: correct in files and remove this code
+
+            data['len'] = int(data['len']) if 'len' in data else 1
+            data['len'] += increment
+            if data['len'] <= 1:
+                data['len'] = 1
             self.m.setExitData(here, there, json.dumps(data))
 
         do(here, there)
         do(there, here)
+        print(self.draw([]))
+
+    def inc(self, args):
+        self.exitLen(args[0], 2)
+
+    def dec(self, args):
+        self.exitLen(args[0], -2)
 
     def load(self, args):
         # TODO: memory usage and map size can be reduced by storing
