@@ -407,4 +407,4 @@ class Mapper(BaseModule):
             self.m.addRoom(id, name, json.dumps(data), exits)
 
             with open('mapdraw', 'w') as f:
-                f.write(self.draw([], 15, 15) + '\n')
+                f.write(self.draw([], 35, 35) + '\n')
