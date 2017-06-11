@@ -214,7 +214,11 @@ class Mapper(BaseModule):
         else:
             out[centerY][centerX] = '░'
 
-        outstr = '\n'.join([''.join(char)  for char in out])
+        outlines = [''.join(char) for char in out]
+        outstr = ""
+        for l in outlines:
+            if l.strip(' '):
+                outstr += l + '\n'
         return outstr
 
     def quit(self, args=None):
