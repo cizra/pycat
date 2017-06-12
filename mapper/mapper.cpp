@@ -135,7 +135,8 @@ namespace map_internal {
 
 	std::string runifyDirs(std::vector<std::string> const& directions)
 	{
-		assert(!directions.empty());
+		if (directions.empty())
+			return "";
 		int count = 1;
 		// directions hold strings like {n n n e e s}. Transform them to 3n 2e s
 		std::string str;
@@ -314,19 +315,22 @@ void Map::addRoom(Map::mudId_t room, std::string const& name, std::string const&
 
 std::string Map::getRoomName(Map::mudId_t room) const
 {
-	assert(d->ids.find(room) != d->ids.end());
+	if (d->ids.find(room) == d->ids.end())
+		return "";
 	return d->graph[d->ids[room]].name;
 }
 
 std::string Map::getRoomData(Map::mudId_t room) const
 {
-	assert(d->ids.find(room) != d->ids.end());
+	if (d->ids.find(room) == d->ids.end())
+		return "";
 	return d->graph[d->ids[room]].data;
 }
 
 std::tuple<int, int, int> Map::getRoomCoords(mudId_t room) const
 {
-	assert(d->ids.find(room) != d->ids.end());
+	if (d->ids.find(room) == d->ids.end())
+		return std::make_tuple(0, 0, 0);
 	return d->graph[d->ids[room]].xyz;
 }
 
@@ -348,8 +352,8 @@ std::string Map::findPath(Map::mudId_t from, Map::mudId_t to) const
 	if (from == to)
 		return "";
 
-	assert(d->ids.find(from) != d->ids.end());
-	assert(d->ids.find(to) != d->ids.end());
+	if (d->ids.find(from) == d->ids.end() || d->ids.find(to) == d->ids.end())
+		return "";
 
 	std::vector<mygraph_t::vertex_descriptor> predecessors(num_vertices(d->graph));
 	auto vertex = d->ids[from];
