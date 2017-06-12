@@ -60,7 +60,9 @@ class Mapper(BaseModule):
         return path
 
     def go(self, room):
-        self.send(self.path(room).replace(';', '\n'))
+        path = self.path(room)
+        if path:
+            self.send(path.replace(';', '\n'))
 
     def bookmarks(self, args):
         self.log('Bookmarks:\n' + pprint.pformat(self.data['bookmarks']))
