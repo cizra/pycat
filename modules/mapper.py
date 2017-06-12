@@ -227,11 +227,12 @@ class Mapper(BaseModule):
         self.save([self.mapfname])
 
     def save(self, args):
-        self.mapfname = args[0]
+        if len(args) == 1:
+            self.mapfname = args[0]
         self.m.setMapData(json.dumps(self.data))
         with open(self.mapfname, 'w') as f:
             f.write(self.m.serialize())
-        self.log("Serialized map to ", self.mapfname)
+        self.log("Serialized map to", self.mapfname)
 
     def startExit(self, args):
         self.exitKw = ' '.join(args)
@@ -298,7 +299,8 @@ class Mapper(BaseModule):
     def load(self, args):
         # TODO: memory usage and map size can be reduced by storing
         # terrains/zones in mapdata, and referencing them by index in rooms 
-        self.mapfname = args[0]
+        if len(args) == 1:
+            self.mapfname = args[0]
         try:
             with open(self.mapfname, 'r') as f:
                 ser = f.read()
