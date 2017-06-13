@@ -15,12 +15,12 @@ importlib.reload(modules.repeat)
 importlib.reload(modules.coffee)
 importlib.reload(modules.gaoler)
 importlib.reload(modules.mapper)
-MODULES = [  # determines the pecking order
-        modules.eval.Eval,
-        modules.repeat.Repeat,
-        modules.coffee.Coffee,
-        modules.gaoler.Gaoler,
-        ]
+MODULES = {  # determines the pecking order
+        'eval': modules.eval.Eval,
+        'repeat': modules.repeat.Repeat,
+        'gaoler': modules.gaoler.Gaoler,
+        'coffee': modules.coffee.Coffee,
+        }
 
 
 class Client(modular.ModularClient):
@@ -35,23 +35,21 @@ class Client(modular.ModularClient):
         except AttributeError:
             self.mapfname = 'default.map'
 
-        self.modules = []
-        for m in MODULES:
+        self.modules = {}
+        for name, module in MODULES.items():
             try:
-                self.modules.append(m(mud))
+                self.modules[name] = module(mud)
             except Exception:
                 traceback.print_exc()
         try:
-            self.modules.append(modules.logging.Logging(mud, self.logfname))
+            self.modules['logging'] = modules.logging.Logging(mud, self.logfname)
         except Exception:
             traceback.print_exc()
 
-        # TODO: sucks. Switch to dicts, iterate over values in parent
         try:
-            self.mapper = modules.mapper.Mapper(mud, self.mapfname)
+            self.modules['mapper'] = modules.mapper.Mapper(mud, self.mapfname)
         except Exception:
             traceback.print_exc()
-        self.modules.append(self.mapper)
 
         super().__init__(mud)
 
