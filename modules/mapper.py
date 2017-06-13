@@ -325,7 +325,7 @@ class Mapper(BaseModule):
         self.log('\n' + pprint.pformat(self.m.findRoomByName(args[0])))
 
     def unmapped(self, args):
-        out = set()
+        out = []  # A set would probably be smaller, but a list is in the order of closeness.
         visited = set()
         roomq = collections.deque()
         roomq.append(self.current())
@@ -338,11 +338,11 @@ class Mapper(BaseModule):
             for d, tgt in exits.items():
                 dataS = self.m.getRoomData(tgt)
                 if not dataS:
-                    out.add(tgt)
+                    out.append(tgt)
                 else:
                     if  tgt not in visited and json.loads(dataS)['zone'] == startArea:
                         roomq.append(tgt)
-        return out
+        return list(dict.fromkeys(out))  # dedupe
 
 
     def __init__(self, mud, mapfname='default.map'):
