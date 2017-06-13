@@ -155,7 +155,7 @@ class Mapper(BaseModule):
                 # count += 1
                 exits = self.m.getRoomExits(room)
                 for d, tgt in exits.items():
-                    if d in ['n', 'e', 's', 'w', 'u', 'd', 'ne', 'se', 'sw', 'nw']:
+                    if d in ['n', 'e', 's', 'w', 'u', 'd', 'ne', 'se', 'sw', 'nw'] or re.match(r'open .;.', d):
                         dataS = self.m.getRoomData(tgt)
                         exists = dataS != ''
                         dataD = json.loads(dataS) if exists else {}
