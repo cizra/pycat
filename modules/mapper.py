@@ -82,6 +82,9 @@ class Mapper(BaseModule):
             columns, lines = shutil.get_terminal_size((21, 22))
 
         def adjustExit(x, y, d, prev):
+            m = re.match(r'open (.);.', d)
+            if m:
+                return adjustExit(x, y, m.group(1), prev)
             if d == 'n':
                 return x, y-1, '│', '↑', '║'
             if d == 'w':
