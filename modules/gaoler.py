@@ -9,7 +9,7 @@ def nothingToMine(mud, _):
     return random.choice(dirs) + '\n' + 'mastermine'
 
 def getWater(mud, _):
-    mud.send(mud.world.mapper.path([-565510123]) + '\nfill barrel sink\ndrink sink\ndrink sink\nmastermine')
+    mud.send(mud.world.mapper.path(-565510123) + '\nfill barrel sink\ndrink sink\ndrink sink\nmastermine')
 
 
 ALIASES = {
