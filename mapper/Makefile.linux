@@ -1,6 +1,0 @@
-INCLUDEPATH += -isystem /usr/include/python3.5
-CXX = g++
-LDFLAGS = -lboost_unit_test_framework -lboost_serialization -lboost_python-py35 -lpython3.5m
-
-
-include Makefile.common

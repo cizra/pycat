@@ -1,5 +1,0 @@
-INCLUDEPATH += -isystem /usr/local/include
-CXX = clang++
-LDFLAGS = -L/usr/local/lib -lboost_unit_test_framework -lboost_serialization
-
-include Makefile.common

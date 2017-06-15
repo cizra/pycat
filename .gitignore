@@ -4,7 +4,6 @@ __pycache__
 /mapper/*.o
 /mapper/unittest
 /mapper/libmapper.so
-/mapper/Makefile
 
 # Fully mapped areas should probably end up in Git
 /*.map
