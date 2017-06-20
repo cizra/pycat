@@ -1,16 +1,6 @@
-#include "mapper.hpp"
-
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE Mapper
-#include <boost/test/unit_test.hpp>
+#include "test_pch.hpp"
 
 #define TEST BOOST_CHECK  // or BOOST_TEST with newer Boost than in Jessie
-
-#include <chrono>
-#include <iostream>
-#include <random>
-#include <sstream>
-#include <stack>
 
 namespace std {
 	std::ostream& operator<<(std::ostream& os, std::tuple<int, int, int> const& tpl)
