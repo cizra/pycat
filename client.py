@@ -47,7 +47,7 @@ class Client(modular.ModularClient):
             traceback.print_exc()
 
         try:
-            self.modules['mapper'] = modules.mapper.Mapper(mud, False, self.mapfname)
+            self.modules['mapper'] = modules.mapper.Mapper(mud, False, self.mapfname, True)
         except Exception:
             traceback.print_exc()
 
