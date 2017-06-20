@@ -72,10 +72,9 @@ class Mapper(BaseModule):
         self.data['bookmarks'][arg] = self.current()
         self.bookmarks([])
 
-    def draw(self, args, sizeX=None, sizeY=None):
+    def draw(self, sizeX=None, sizeY=None):
         # Draw room at x,y,z. Enumerate exits. For each exit target, breadth-first, figure out its new dimensions, rinse, repeat.
         # █▓▒░
-        oneArea = len(args) == 1 and args[0] == 'all'
         if sizeX and sizeY:
             columns, lines = sizeX, sizeY
         else:
@@ -160,7 +159,7 @@ class Mapper(BaseModule):
                         exists = dataS != ''
                         dataD = json.loads(dataS) if exists else {}
                         nextArea = dataD['zone'] if 'zone' in dataD else None
-                        sameAreas = oneArea or nextArea == area
+                        sameAreas = self.drawAreas or nextArea == area
 
                         if not exists or not sameAreas:
                             exitLen = 1
@@ -291,7 +290,7 @@ class Mapper(BaseModule):
 
         do(here, there)
         do(there, here)
-        print(self.draw([]))
+        print(self.draw())
 
     def inc(self, args):
         self.exitLen(args[0], 2)
@@ -345,7 +344,11 @@ class Mapper(BaseModule):
         return list(dict.fromkeys(out))  # dedupe
 
 
-    def __init__(self, mud, mapfname='default.map'):
+    def assemble(self, path):
+
+    def __init__(self, mud, drawAreas, mapfname, spaces):
+        self.drawAreas = drawAreas
+        self.spaces = spaces
         self.load([mapfname])
 
         self.commands = {
@@ -356,7 +359,6 @@ class Mapper(BaseModule):
                 'read': self.load,
                 'help': self.help,
                 'here': self.here,
-                'draw': lambda args: print(self.draw(args)),
                 'bookmark': self.bookmark,
                 'name': self.bookmark,
                 'bookmarks': self.bookmarks,
@@ -383,7 +385,7 @@ class Mapper(BaseModule):
             return
 
         if len(words) == 1:
-            print(self.draw([]))
+            print(self.draw())
             return True
 
         cmd = words[1]
@@ -414,4 +416,4 @@ class Mapper(BaseModule):
             self.m.addRoom(id, name, json.dumps(data), exits)
 
             with open('mapdraw', 'w') as f:
-                f.write(self.draw([], 35, 35) + '\n')
+                f.write(self.draw(35, 35) + '\n')
