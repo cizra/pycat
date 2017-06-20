@@ -8,3 +8,5 @@ __pycache__
 
 # Fully mapped areas should probably end up in Git
 /*.map
+
+/mapdraw
