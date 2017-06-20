@@ -48,7 +48,10 @@ class TestMapper(unittest.TestCase):
         m = Map("")
         m.addRoom(12345, "My Room", "My Area", {"n": 123})
         m.addRoom(123, "room2", "area2", {"s": 12345})
-        self.assertEqual(m.findPath(123, 12345), "s")
+        # Boost's vector indexing suite doesn't allow comparing with lists
+        path = m.findPath(123, 12345)
+        self.assertEqual(len(path), 1)
+        self.assertEqual(path[0], "s")
 
     def test_setGetMapData(self):
         m = Map()

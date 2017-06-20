@@ -89,7 +89,7 @@ class Map {
 		}
 
 		// returns empty string if path wasn't found
-		std::string findPath(mudId_t from, mudId_t to) const;
+		std::vector<std::string> findPath(mudId_t from, mudId_t to) const;
 
 		std::string getExitData(mudId_t source, mudId_t target) const;
 		void setExitData(mudId_t source, mudId_t target, std::string const& data);
@@ -101,6 +101,8 @@ class Map {
 BOOST_PYTHON_MODULE(libmapper)
 {
 	export_cpptuple_conv();
+	boost::python::class_<std::vector<std::string>>("VectorOfStrings").def(boost::python::vector_indexing_suite<std::vector<std::string>>());
+
 	boost::python::class_<Map>("Map", boost::python::init<std::string>())
 		.def(boost::python::init<>())
 		.def("serialize", &Map::serialize)
