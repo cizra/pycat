@@ -55,8 +55,8 @@ class Mapper(BaseModule):
             self.log("Already there!")
             return ''
         then = time.time()
-        path = self.m.findPath(this, there)
-        self.log("{} (found in {} seconds)".format(path, time.time() - then))
+        path = self.assemble(self.m.findPath(this, there))
+        self.log("{} (found in {} ms)".format(path, (time.time() - then)/1000))
         return path
 
     def go(self, room):
@@ -343,7 +343,8 @@ class Mapper(BaseModule):
         return list(dict.fromkeys(out))  # dedupe
 
 
-    def assemble(self, path):
+    def assemble(self, paths):
+        return ';'.join(paths)
 
     def __init__(self, mud, drawAreas, mapfname, spaces):
         self.drawAreas = drawAreas
