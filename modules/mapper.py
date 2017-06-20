@@ -102,15 +102,14 @@ class Mapper(BaseModule):
                     return x, y, '◆', '◆', '◆'
                 else:
                     return x, y, '▲', '▲', '▲'
-            # TODO: test these in SneezyMUD
             if d == 'nw':
-                return x-1, y-1, '/', '/', '/'
+                return x-1, y-1, '\\', '\\', '\\'
             if d == 'sw':
-                return x-1, y+1, '\\', '\\', '\\'
+                return x-1, y+1, '/', '/', '/'
             if d == 'se':
-                return x+1, y+1, '/', '/', '/'
+                return x+1, y+1, '\\', '\\', '\\'
             if d == 'ne':
-                return x+1, y-1, '\\', '\\', '\\'
+                return x+1, y-1, '/', '/', '/'
 
         out = []  # NB! indices are out[y][x] because the greater chunks are whole lines
         for _ in range(lines - 1):  # -1 for the next prompt
