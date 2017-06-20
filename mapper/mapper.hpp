@@ -6,6 +6,8 @@
 #include <string>
 
 #include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+
 
 // MUD mapper
 // Uses Boost's astar_search for pathfinding

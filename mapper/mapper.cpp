@@ -104,83 +104,9 @@ namespace map_internal {
 		return in;
 	}
 
-	std::string stringify(std::vector<std::string> const& cmds)
+	std::vector<std::string> stackify(std::vector<mygraph_t::vertex_descriptor> const& predecessors, mygraph_t const& graph, mygraph_t::vertex_descriptor goal)
 	{
-		std::ostringstream out;
-		bool first = true;
-		for (const auto& s : cmds) {
-			if (!first)
-				out << ';';
-			else
-				first = false;
-			out << s;
-		}
-		return out.str();
-	}
-
-	std::string runifyDirs(std::vector<std::string> const& directions)
-	{
-		if (directions.empty())
-			return "";
-		int count = 1;
-		// directions hold strings like {n n n e e s}. Transform them to 3n 2e s
-		std::string str;
-		bool first = true;
-		for (size_t i = 1; i < directions.size(); ++i)
-		{
-			if (directions[i - 1] == directions[i]) {
-				count++;
-			} else {
-				if (!first)
-					str += ' ';
-				else
-					first = false;
-
-				str += (count == 1 ? "" : std::to_string(count)) + directions[i - 1];
-				count = 1;
-			}
-		}
-		if (!first)
-			str += ' ';
-		str += (count == 1 ? "" : std::to_string(count)) + directions.back();
-		if (str.size() == 1)
-			return str;
-		else
-			return "run " + str;
-	}
-
-	std::vector<std::string> runify(std::stack<std::string>&& cmds)
-	{
-		// all directions are assmebled in the directions stack
-		// when a non-direction is encountered, flush the accumulated directions (if any), and print that
-
-		std::vector<std::string> out;
-		out.reserve(cmds.size());
-		std::vector<std::string> directions; // accumulates directions between non-directions
-		directions.reserve(cmds.size());
-
-		while (!cmds.empty()) {
-			std::string const& current = cmds.top();
-			if (direction(current)) {
-				directions.emplace_back(cmds.top());
-				cmds.pop();
-			} else {
-				if (!directions.empty()) {
-					out.emplace_back(runifyDirs(directions));
-					directions.clear();
-				}
-				out.emplace_back(cmds.top());
-				cmds.pop();
-			}
-		}
-		if (!directions.empty())
-			out.emplace_back(runifyDirs(directions));
-		return out;
-	}
-	
-	std::stack<std::string> stackify(std::vector<mygraph_t::vertex_descriptor> const& predecessors, mygraph_t const& graph, mygraph_t::vertex_descriptor goal)
-	{
-		std::stack<std::string> reverse;
+		std::vector<std::string> reverse;
 		for (auto v = goal;;) {
 			auto pred = predecessors[v];
 			if (pred == v)
@@ -189,10 +115,10 @@ namespace map_internal {
 			bool found;
 			std::tie(myEdge, found) = edge(predecessors[v], v, graph);
 			assert(found);
-			reverse.push(graph[myEdge].keyword);
+			reverse.push_back(graph[myEdge].keyword);
 			v = pred;
 		}
-		return reverse;
+		return std::vector<std::string>(reverse.crbegin(), reverse.crend());
 	}
 }
 BOOST_CLASS_VERSION(map_internal::edge_property, 1)
@@ -332,13 +258,13 @@ std::map<std::string, Map::mudId_t> Map::getRoomExits(Map::mudId_t room) const
 	return out;
 }
 
-std::string Map::findPath(Map::mudId_t from, Map::mudId_t to) const
+std::vector<std::string> Map::findPath(Map::mudId_t from, Map::mudId_t to) const
 {
 	if (from == to)
-		return "";
+		return {};
 
 	if (d->ids.find(from) == d->ids.end() || d->ids.find(to) == d->ids.end())
-		return "";
+		return {};
 
 	std::vector<mygraph_t::vertex_descriptor> predecessors(num_vertices(d->graph));
 	auto vertex = d->ids[from];
@@ -381,10 +307,10 @@ std::string Map::findPath(Map::mudId_t from, Map::mudId_t to) const
 				visitor(astar_goal_visitor(goal))
 				);
 	} catch(const found_goal&) {
-		return stringify(runify(stackify(predecessors, d->graph, goal)));
+		return stackify(predecessors, d->graph, goal);
 	}
 
-	return "";
+	return {};
 }
 
 std::map<Map::mudId_t, std::string> Map::findRoomByName(std::string const& name) const

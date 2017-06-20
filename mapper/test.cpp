@@ -153,49 +153,8 @@ BOOST_AUTO_TEST_CASE(serialize_deserialize_retainsProperties)
 	TEST(n.getRoomCoords(123) == xyz2);
 }
 
-namespace map_internal {
-	extern std::string stringify(std::vector<std::string> const& cmds);
-	extern std::vector<std::string> runify(std::stack<std::string>&& cmds);
-	extern std::string runifyDirs(std::vector<std::string> const& directions);
-}
-
 namespace {
-	std::vector<std::string> crun(std::vector<std::string> const& in)
-	{
-		std::stack<std::string> fwd;
-		for (const auto& s : in)
-			fwd.push(s);
-		return map_internal::runify(std::move(fwd));
-	}
 	using vec = std::vector<std::string>;
-}
-
-BOOST_AUTO_TEST_CASE(runifyDirs)
-{
-	TEST(map_internal::runifyDirs({"n"}) == "n");
-	TEST(map_internal::runifyDirs({"n", "n"}) == "run 2n");
-	TEST(map_internal::runifyDirs({"n", "n", "n"}) == "run 3n");
-	TEST(map_internal::runifyDirs({"n", "e", "n"}) == "run n e n");
-	TEST(map_internal::runifyDirs({"n", "e", "e", "n"}) == "run n 2e n");
-	TEST(map_internal::runifyDirs({"n", "n", "e"}) == "run 2n e");
-	TEST(map_internal::runifyDirs({"n", "e", "e"}) == "run n 2e");
-}
-
-BOOST_AUTO_TEST_CASE(runify)
-{
-	// crashes TEST(crun({}) == vec({}));
-	TEST(crun({"n"}) == vec({"n"}));
-	TEST(crun({"n", "n"}) == vec({"run 2n"}));
-	TEST(crun({"n", "n", "n", "e", "e"}) == vec({"run 2e 3n"}));
-	TEST(crun({"cmd"}) == vec({"cmd"}));
-	TEST(crun({"hi", "ho"}) == vec({"ho", "hi"}));
-	TEST(crun({"open n;n", "n", "n", "n", "e", "e", "open s;s"}) == vec({{"open s;s"}, {"run 2e 3n"}, {"open n;n"}}));
-}
-
-BOOST_AUTO_TEST_CASE(stringify)
-{
-	TEST(map_internal::stringify({"n"}) == "n");
-	TEST(map_internal::stringify({"run 3n", "open n", "run 2n"}) == "run 3n;open n;run 2n");
 }
 
 BOOST_AUTO_TEST_CASE(pathfinding)
@@ -220,51 +179,51 @@ BOOST_AUTO_TEST_CASE(pathfinding)
 
 	for (int i = 11; i <= 16; ++i)
 	{
-		TEST(m.findPath(10, i) == "");
-		TEST(m.findPath(i, 10) == "");
+		TEST(m.findPath(10, i) == vec({}));
+		TEST(m.findPath(i, 10) == vec({}));
 	}
 
-	TEST(m.findPath(11, 11) == "");
-	TEST(m.findPath(11, 12) == "run n e");
-	TEST(m.findPath(11, 13) == "run n w");
-	TEST(m.findPath(11, 14) == "run 2n");
-	TEST(m.findPath(11, 15) == "n");
-	TEST(m.findPath(11, 16) == "run n e;open e;e");
+	TEST(m.findPath(11, 11) == vec({}));
+	TEST(m.findPath(11, 12) == vec({"n", "e"}));
+	TEST(m.findPath(11, 13) == vec({"n", "w"}));
+	TEST(m.findPath(11, 14) == vec({"n", "n"}));
+	TEST(m.findPath(11, 15) == vec({"n"}));
+	TEST(m.findPath(11, 16) == vec({"n", "e", "open e;e"}));
 
-	TEST(m.findPath(12, 11) == "run w s");
-	TEST(m.findPath(12, 12) == "");
-	TEST(m.findPath(12, 13) == "run 2w");
-	TEST(m.findPath(12, 14) == "run w n");
-	TEST(m.findPath(12, 15) == "w");
-	TEST(m.findPath(12, 16) == "open e;e");
+	TEST(m.findPath(12, 11) == vec({"w", "s"}));
+	TEST(m.findPath(12, 12) == vec({}));
+	TEST(m.findPath(12, 13) == vec({"w", "w"}));
+	TEST(m.findPath(12, 14) == vec({"w", "n"}));
+	TEST(m.findPath(12, 15) == vec({"w"}));
+	TEST(m.findPath(12, 16) == vec({"open e;e"}));
 
-	TEST(m.findPath(13, 11) == "run e s");
-	TEST(m.findPath(13, 12) == "run 2e");
-	TEST(m.findPath(13, 13) == "");
-	TEST(m.findPath(13, 14) == "run e n");
-	TEST(m.findPath(13, 15) == "e");
-	TEST(m.findPath(13, 16) == "run 2e;open e;e");
+	TEST(m.findPath(13, 11) == vec({"e", "s"}));
+	TEST(m.findPath(13, 12) == vec({"e", "e"}));
+	TEST(m.findPath(13, 13) == vec({}));
+	TEST(m.findPath(13, 14) == vec({"e", "n"}));
+	TEST(m.findPath(13, 15) == vec({"e"}));
+	TEST(m.findPath(13, 16) == vec({"e", "e", "open e;e"}));
 
-	TEST(m.findPath(14, 11) == "run 2s");
-	TEST(m.findPath(14, 12) == "run s e");
-	TEST(m.findPath(14, 13) == "run s w");
-	TEST(m.findPath(14, 14) == "");
-	TEST(m.findPath(14, 15) == "s");
-	TEST(m.findPath(14, 16) == "run s e;open e;e");
+	TEST(m.findPath(14, 11) == vec({"s", "s"}));
+	TEST(m.findPath(14, 12) == vec({"s", "e"}));
+	TEST(m.findPath(14, 13) == vec({"s", "w"}));
+	TEST(m.findPath(14, 14) == vec({}));
+	TEST(m.findPath(14, 15) == vec({"s"}));
+	TEST(m.findPath(14, 16) == vec({"s", "e", "open e;e"}));
 
-	TEST(m.findPath(15, 11) == "s");
-	TEST(m.findPath(15, 12) == "e");
-	TEST(m.findPath(15, 13) == "w");
-	TEST(m.findPath(15, 14) == "n");
-	TEST(m.findPath(15, 15) == "");
-	TEST(m.findPath(15, 16) == "e;open e;e");
+	TEST(m.findPath(15, 11) == vec({"s"}));
+	TEST(m.findPath(15, 12) == vec({"e"}));
+	TEST(m.findPath(15, 13) == vec({"w"}));
+	TEST(m.findPath(15, 14) == vec({"n"}));
+	TEST(m.findPath(15, 15) == vec({}));
+	TEST(m.findPath(15, 16) == vec({"e", "open e;e"}));
 
-	TEST(m.findPath(16, 11) == "open w;w;run w s");
-	TEST(m.findPath(16, 12) == "open w;w");
-	TEST(m.findPath(16, 13) == "open w;w;run 2w");
-	TEST(m.findPath(16, 14) == "open w;w;run w n");
-	TEST(m.findPath(16, 15) == "open w;w;w");
-	TEST(m.findPath(16, 16) == "");
+	TEST(m.findPath(16, 11) == vec({"open w;w", "w", "s"}));
+	TEST(m.findPath(16, 12) == vec({"open w;w"}));
+	TEST(m.findPath(16, 13) == vec({"open w;w", "w", "w"}));
+	TEST(m.findPath(16, 14) == vec({"open w;w", "w", "n"}));
+	TEST(m.findPath(16, 15) == vec({"open w;w", "w"}));
+	TEST(m.findPath(16, 16) == vec({}));
 }
 
 BOOST_AUTO_TEST_CASE(stress)
