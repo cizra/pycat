@@ -19,6 +19,8 @@ class ModularClient(object):
         self.mud = mud
         self.state = {}
         self.gmcp = {}
+        self.aliases = {}
+        self.triggers = {}
         for m in self.modules.values():
             m.world = self
             m.gmcp = self.gmcp
@@ -49,6 +51,10 @@ class ModularClient(object):
                     self.mud.send(cmd)
             return True
 
+        if line in self.aliases:
+            self.mud.send(self.aliases[line])
+            return True
+
         for module in self.modules.values():
             # If alias wants to signal that it consumed the command, return True -- it won't be sent to MUD then
             # Otherwise, the line is sent to MUD
@@ -59,6 +65,17 @@ class ModularClient(object):
 
     def trigger(self, raw):
         stripped = self.mud.strip_ansi(raw).strip()
+
+        for trigger, response in self.triggers.items():
+            if re.match(trigger, stripped):
+                if isinstance(response, str):
+                    self.send(response)
+                else:
+                    output = response(self, re.match(trigger, stripped).groups())
+                    if output:  # might be for side effects
+                        self.send(output)
+                break
+
         replacement = None
         for module in self.modules.values():
             if hasattr(module, 'trigger'):
@@ -76,6 +93,9 @@ class ModularClient(object):
         for module in self.modules.values():
             if hasattr(module, 'quit'):
                 module.quit()
+
+    def send(self, *args):
+        self.mud.send(*args)
 
 
 def getClass():

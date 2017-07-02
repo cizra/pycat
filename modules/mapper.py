@@ -346,9 +346,8 @@ class Mapper(BaseModule):
     def assemble(self, paths):
         return ';'.join(paths)
 
-    def __init__(self, mud, drawAreas, mapfname, spaces):
+    def __init__(self, mud, drawAreas, mapfname):
         self.drawAreas = drawAreas
-        self.spaces = spaces
         self.load([mapfname])
 
         self.commands = {

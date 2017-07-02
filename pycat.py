@@ -18,11 +18,11 @@ def log(*args):
 
 
 class Session(object):
-    def __init__(self, world_module):
+    def __init__(self, world_module, arg):
         self.gmcp = {}
-        world_class = world_module.getClass()
         self.world_module = world_module
-        self.world = world_class(self)
+        self.arg = arg
+        self.world = world_module.getClass()(self, self.arg)
         host_port = self.world.getHostPort()
         self.telnet = self.connect(*host_port)
         self.gmcp = {}
@@ -134,7 +134,7 @@ class Session(object):
                 state = self.world.state
                 self.world.quit()
                 self.world_module = importlib.reload(self.world_module)
-                self.world = self.world_module.getClass()(self)
+                self.world = self.world_module.getClass()(self, self.arg)
                 self.world.state = state
                 self.gmcpOut('request room')
                 self.gmcpOut('request char')
@@ -169,12 +169,13 @@ class Session(object):
 
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: {} worldmodule (without .py)".format(sys.argv[0]))
+    if len(sys.argv) != 2 and len(sys.argv) != 3:
+        print("Usage: {} worldmodule (without .py) [arg]".format(sys.argv[0]))
         exit(1)
 
     world_module = importlib.import_module(sys.argv[1])
-    ses = Session(world_module)
+    arg = sys.argv[2] if len(sys.argv) == 3 else None
+    ses = Session(world_module, arg)
     ses.run()
 
 
