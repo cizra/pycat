@@ -69,6 +69,7 @@ class Coffee(modular.ModularClient):
                     'You point at .*, but nothing more happens.': 'ff',
                     'You point at .*, but fizzle the spell.': 'mm',
                     'You attempt to invoke magical protection, but fail.': 'cast mage armor',
+                    'You shout combatively, but nothing more happens.': 'cast combat precognition',
                     })
 
     def getHostPort(self):
