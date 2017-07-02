@@ -81,7 +81,7 @@ class Mapper(BaseModule):
             columns, lines = shutil.get_terminal_size((21, 22))
 
         def adjustExit(x, y, d, prev):
-            m = re.match(r'open (.);.', d)
+            m = re.match(r'open .+;(.+)', d)
             if m:
                 return adjustExit(x, y, m.group(1), prev)
             if d == 'n':
@@ -153,7 +153,7 @@ class Mapper(BaseModule):
                 # count += 1
                 exits = self.m.getRoomExits(room)
                 for d, tgt in exits.items():
-                    if d in ['n', 'e', 's', 'w', 'u', 'd', 'ne', 'se', 'sw', 'nw'] or re.match(r'open .;.', d):
+                    if d in ['n', 'e', 's', 'w', 'u', 'd', 'ne', 'se', 'sw', 'nw'] or re.match(r'open .+;[neswud]+', d):
                         dataS = self.m.getRoomData(tgt)
                         exists = dataS != ''
                         dataD = json.loads(dataS) if exists else {}
