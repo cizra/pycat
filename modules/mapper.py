@@ -395,7 +395,7 @@ class Mapper(BaseModule):
         return True
 
     def handleGmcp(self, cmd, value):
-        # room.info
+        # CoffeeMUD's room.info
         # {'coord': {'cont': 0, 'id': 0, 'x': -1, 'y': -1},
         #   'desc': '',
         #   'details': '',
@@ -405,13 +405,27 @@ class Mapper(BaseModule):
         #   'num': -565511180,
         #   'terrain': 'cave',
         #   'zone': 'Homes'}
+
+        # SneezyMUD's room.info
+        # {'coord': {'cont': 0, 'id': -1, 'x': -1, 'y': -1},
+        #  'details': '',
+        #  'exit_kw': {'s': 'door'},
+        #  'exits': {'e': 753, 'n': 757, 's': 114, 'w': 751},
+        #  'name': 'Church Entry',
+        #  'num': 752,
+        #  'terrain': 'Temperate Building',
+        #  'zone': '13'}
+
+
         if cmd == 'room.info':
             id = value['num']
             name = value['name']
             data = dict(zone=value['zone'], terrain = value['terrain'])
             exits = self.m.getRoomExits(id)  # retain custom exits
-            for k, v in value['exits'].items():
-                exits[k.lower()] = v
+            for direction, target in value['exits'].items():
+                exits[direction.lower()] = target
+            for direction, door in value['exit_kw'].items():
+                exits['open {door} {direction};{direction}'.format(door=door, direction=direction)] = exits[direction.lower()]
             self.m.addRoom(id, name, json.dumps(data), exits)
 
             with open('mapdraw', 'w') as f:
