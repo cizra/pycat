@@ -19,8 +19,8 @@ TRIGGERS = {
         'You are no longer thirsty.': '!',
         'You are starved, and near death.  EAT SOMETHING!': 'quit\ny',
         'You are dehydrated, and near death.  DRINK SOMETHING!': 'quit\ny',
-        'YOU ARE DYING OF THIRST!': 'quit\ny',
-        'YOU ARE DYING OF HUNGER!': 'quit\ny',
+        'YOU ARE DYING OF THIRST!': 'drink barrel\nquit\ny',
+        'YOU ARE DYING OF HUNGER!': 'eat bread\nquit\ny',
         }
 
 
