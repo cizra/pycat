@@ -3,8 +3,8 @@ import re
 class BaseModule(object):
     def __init__(self, mud):
         self.mud = mud
-        self.aliases = {}
-        self.triggers = {}
+        self.aliases = self.getTriggers()
+        self.triggers = self.getTriggers()
 
     def send(self, line):
         return self.mud.send(line)
@@ -27,3 +27,9 @@ class BaseModule(object):
                     if output:  # might be for side effects
                         self.send(output)
                 break
+
+    def getTriggers(self):
+        return {}
+
+    def getAliases(self):
+        return {}
