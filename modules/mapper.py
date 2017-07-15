@@ -424,8 +424,9 @@ class Mapper(BaseModule):
             exits = self.m.getRoomExits(id)  # retain custom exits
             for direction, target in value['exits'].items():
                 exits[direction.lower()] = target
-            for direction, door in value['exit_kw'].items():
-                exits['open {door} {direction};{direction}'.format(door=door, direction=direction)] = exits[direction.lower()]
+            if 'exit_kw' in value:
+                for direction, door in value['exit_kw'].items():
+                    exits['open {door} {direction};{direction}'.format(door=door, direction=direction)] = exits[direction.lower()]
             self.m.addRoom(id, name, json.dumps(data), exits)
 
             with open('mapdraw', 'w') as f:
