@@ -1,7 +1,7 @@
 import importlib
 import traceback
 import modular
-importlib.reload(modular)
+
 
 
 ALIASES = {
@@ -26,25 +26,32 @@ TRIGGERS = {
 
 class Coffee(modular.ModularClient):
     def __init__(self, mud, name):
-        from modules.logging import Logging
-        from modules.eval import Eval
-        from modules.repeat import Repeat
-        from modules.mapper import Mapper
 
         self.name = name
         self.logfname = '{}.log'.format(name)
         self.mapfname = '{}.map'.format(name)
 
+        import modules.logging
+        import modules.eval
+        import modules.repeat
+        import modules.mapper
+        importlib.reload(modular)
+        importlib.reload(modules.logging)
+        importlib.reload(modules.eval)
+        importlib.reload(modules.repeat)
+        importlib.reload(modules.mapper)
+
         self.modules = {}
         mods = {
-                'eval': (Eval, []),
-                'repeat': (Repeat, []),
-                'logging': (Logging, [self.logfname]),
-                'mapper': (Mapper, [False, self.mapfname]),
+                'eval': (modules.eval.Eval, []),
+                'repeat': (modules.repeat.Repeat, []),
+                'logging': (modules.logging.Logging, [self.logfname]),
+                'mapper': (modules.mapper.Mapper, [False, self.mapfname]),
                 }
         if name == 'grumpy':
-            from modules.gaoler import Gaoler
-            mods['gaoler'] = (Gaoler, [])
+            import modules.gaoler
+            importlib.reload(modules.gaoler)
+            mods['gaoler'] = (modules.gaoler.Gaoler, [])
         for modname, module in mods.items():
             try:
                 constructor, args = module
