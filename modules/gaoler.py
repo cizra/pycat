@@ -13,8 +13,17 @@ def nothingToChop(mud, _):
     return random.choice(dirs) + '\n' + 'chop'
 
 def getWater(mud, _):
-    print("--- path is", mud.world.modules['mapper'].path(-565510123))
-    mud.send(mud.world.modules['mapper'].path(-565510123) + '\nfill barrel sink\ndrink sink\ndrink sink\nmastermine')
+    mud.send(mud.world.modules['mapper'].path(-420699692) + '\nfill barrel sink\ndrink sink\ndrink sink\ns\nchop')
+
+def buyBread(mud, _):
+    mud.send('remove axe')
+    mud.send('remove axe')
+    mud.world.modules['mapper'].go('baker')
+    mud.send('buy 120 bread')
+    mud.send('run s e 4s w 2s e 2n')
+    mud.send('wield axe')
+    mud.send('hold axe')
+    mud.send('chop')
 
 
 class Gaoler(BaseModule):
@@ -34,6 +43,9 @@ class Gaoler(BaseModule):
             'You can\'t see to do that!': 'light fire',
             'A wood barrel is empty.': getWater,
             'You need to stand up!': 'stand\nchop',
+            'If you don\'t do something, you will be logged out in 5 minutes!': 'stand\nchop',
+            'A wood barrel is empty.': getWater,
+            'You don\'t seem to have \'bread\'.': buyBread,
             }
 
 
