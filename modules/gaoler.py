@@ -21,6 +21,8 @@ def buyBread(mud, _):
     mud.world.modules['mapper'].go('baker')
     mud.send('buy 120 bread')
     mud.send('run s e 4s w 2s e 2n')
+    mud.send('open w')
+    mud.send('run w s')
     mud.send('wield axe')
     mud.send('hold axe')
     mud.send('chop')
