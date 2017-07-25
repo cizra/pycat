@@ -100,10 +100,17 @@ class Session(object):
 
     def handle_input(self):
         try:
-            data = self.telnet.read_very_eager().decode('utf-8')
+            data = self.telnet.read_very_eager()
         except EOFError:
             self.world.quit()
             raise
+        try:
+            data = data.decode('utf-8')
+        except UnicodeError as e:
+            print("Unicode error:", e)
+            print("Data was:", data)
+            data = ''
+
         if not data:
             _ = self.telnet.read_sb_data()
         prn = []
