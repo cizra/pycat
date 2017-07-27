@@ -44,7 +44,7 @@ class ModularClient(object):
             line = sublines[0]
 
         if re.match(r'#\d+ .+', line):
-            match = re.match(r'#(\d)+ (.+)', line)
+            match = re.match(r'#(\d+) (.+)', line)
             times, cmd = match.groups()
             for i in range(int(times)):
                 if not self.alias(cmd):
