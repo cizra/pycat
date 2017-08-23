@@ -380,7 +380,7 @@ class Mapper(BaseModule):
     def alias(self, line):
         words = line.split(' ')
 
-        if words[0] != '#map':
+        if words[0].lower() != '#map':
             return
 
         if len(words) == 1:

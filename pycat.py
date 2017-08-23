@@ -19,6 +19,7 @@ def log(*args):
 
 class Session(object):
     def __init__(self, world_module, arg):
+        self.mud_encoding = 'iso-8859-1'
         self.gmcp = {}
         self.world_module = world_module
         self.arg = arg
@@ -38,7 +39,7 @@ class Session(object):
         return re.sub(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', '', line)
 
     def gmcpOut(self, msg):
-        self.telnet.sock.sendall(telnetlib.IAC + telnetlib.SB + telnetlib.GMCP + msg.encode('utf-8') + telnetlib.IAC + telnetlib.SE)
+        self.telnet.sock.sendall(telnetlib.IAC + telnetlib.SB + telnetlib.GMCP + msg.encode(self.mud_encoding) + telnetlib.IAC + telnetlib.SE)
 
     def iac(self, sock, cmd, option):
         if cmd == telnetlib.WILL:
@@ -61,7 +62,7 @@ class Session(object):
             data = self.telnet.read_sb_data()
             if data[0] == ord(telnetlib.GMCP):
                 try:
-                    self.handleGmcp(data[1:].decode('utf-8'))
+                    self.handleGmcp(data[1:].decode(self.mud_encoding))
                 except Exception as e:
                     traceback.print_exc()
 
@@ -96,7 +97,7 @@ class Session(object):
 
     def send(self, line):
         print("> ", line)
-        self.telnet.write((line + '\n').encode('utf-8'))
+        self.telnet.write((line + '\n').encode(self.mud_encoding))
 
     def handle_input(self):
         try:
@@ -105,7 +106,7 @@ class Session(object):
             self.world.quit()
             raise
         try:
-            data = data.decode('utf-8')
+            data = data.decode(self.mud_encoding)
         except UnicodeError as e:
             print("Unicode error:", e)
             print("Data was:", data)
