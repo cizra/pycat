@@ -66,6 +66,12 @@ class Coffee(modular.ModularClient):
         self.aliases.update(ALIASES)
         self.triggers.update(TRIGGERS)
 
+        if name == 'zerleha':
+            self.triggers.update({
+                'You are now listed as AFK.': 'sc',
+                'You are hungry.': 'eat bread',
+                'You are thirsty.': 'drink drum',
+                })
         if name == 'cizra':
             self.triggers.update({
                     '(\w+): A closed door': lambda mud, matches: 'open ' + matches[0],
