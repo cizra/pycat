@@ -343,8 +343,60 @@ class Mapper(BaseModule):
         return list(dict.fromkeys(out))  # dedupe
 
 
-    def assemble(self, paths):
-        return ';'.join(paths)
+    def assemble(self, cmds1):
+        # return ';'.join(paths)
+        cmds = []
+        for cmd in cmds1:
+            cmds += cmd.split(';')
+
+        def direction(elem):
+            return elem in "neswud"
+
+        def runifyDirs(directions):
+            if not directions:
+                return ""
+            count = 1
+            # directions hold strings like {n n n e e s}. Transform them to 3n 2e s
+            out = ""
+            first = True;
+            for i in range(1, len(directions)):
+                if directions[i - 1] == directions[i]:
+                    count += 1
+                else:
+                    if first:
+                        first = False
+                    else:
+                        out += ' '
+
+                    out += ("" if count == 1 else str(count)) + directions[i - 1]
+                    count = 1
+            if not first:
+                out += ' '
+            out += ("" if count == 1 else str(count)) + directions[-1]
+            if len(out) == 1:
+                return out;
+            else:
+                return "run " + out;
+
+
+        out = []
+        directions = []  # accumulates directions between non-directions
+
+        while cmds:
+            current = cmds[0]
+            if direction(current):
+                directions.append(current)
+                cmds = cmds[1:]
+            else:
+                if directions:
+                    out.append(runifyDirs(directions))
+                    directions = []
+                out.append(current)
+                cmds = cmds[1:]
+        if directions:
+            out.append(runifyDirs(directions))
+        return ';'.join(out)
+
 
     def __init__(self, mud, drawAreas, mapfname):
         self.drawAreas = drawAreas
