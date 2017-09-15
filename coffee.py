@@ -86,10 +86,22 @@ class Coffee(modular.ModularClient):
                     'You point at .*, shooting forth a magic missile!': 'mm',
                     'You point at .*, shooting forth a blazing fireball!': 'ff',
                     'You are too close to .* to use Fireball.': 'mm',
+
+                    # spell failures
                     'You point at .*, but nothing more happens.': 'ff',
                     'You point at .*, but fizzle the spell.': 'mm',
                     'You attempt to invoke magical protection, but fail.': 'cast mage armor',
                     'You shout combatively, but nothing more happens.': 'cast combat precognition',
+                    'You cast a spell on yourself, but the magic fizzles.': 'cast fly',
+                    'You attempt to invoke a spell, but fail miserably.': 'cast shield',
+
+                    # recasts
+                    'Your magical armor fades away.': 'cast mage armor',
+                    'You begin to feel a bit more vulnerable.': 'cast shield',
+                    'The light above you dims.': 'cast light',
+                    'Your combat precognition fades away.': 'cast combat prec',
+                    'You begin to float back down.': 'cast fly',
+                    'Your skin softens.': 'cast stoneskin',
                     })
 
     def getHostPort(self):
