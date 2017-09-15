@@ -1,7 +1,12 @@
 import importlib
 import traceback
+import time
+
 import modular
 
+
+def trackTimeStart(mud, _):
+    mud.state['task_start_time'] = time.time()
 
 
 ALIASES = {
@@ -21,6 +26,8 @@ TRIGGERS = {
         'You are dehydrated, and near death.  DRINK SOMETHING!': 'drink barrel\nquit\ny',
         'YOU ARE DYING OF THIRST!': 'drink barrel\nquit\ny',
         'YOU ARE DYING OF HUNGER!': 'eat bread\nquit\ny',
+        'You start .*\.': trackTimeStart,
+        'You are done (.*)\.': lambda mud, matches: mud.mud.log("The task took {}s".format(time.time() - mud.state['task_start_time'])),
         }
 
 
