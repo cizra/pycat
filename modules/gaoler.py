@@ -31,6 +31,7 @@ def buyBread(mud, _):
     mud.send('recall')
     mud.send('run 2s w n')
     mud.send('buy 120 bread')
+    mud.send('eat bread')
     mud.send('run s e 4s w 2s e 2n')
     mud.send('unlock w')
     mud.send('open w')
