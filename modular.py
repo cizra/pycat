@@ -48,19 +48,25 @@ class ModularClient(object):
             times, cmd = match.groups()
             for i in range(int(times)):
                 if not self.alias(cmd):
-                    self.mud.send(cmd)
+                    self.send(cmd)
             return True
 
-        if line in self.aliases:
-            self.mud.send(self.aliases[line])
-            return True
-
-        for module in self.modules.values():
-            # If alias wants to signal that it consumed the command, return True -- it won't be sent to MUD then
-            # Otherwise, the line is sent to MUD
-            if hasattr(module, 'alias'):
-                if module.alias(line):
-                    return True
+        for alias, action in self.aliases.items():
+            if re.match(alias, line):
+                if isinstance(action, str):
+                    self.send(action)
+                else:
+                    output = action(self, re.match(alias, line).groups())
+                    if output:  # might be for side effects
+                        self.send(output)
+                return True
+        else:
+            for module in self.modules.values():
+                # If alias wants to signal that it consumed the command, return True -- it won't be sent to MUD then
+                # Otherwise, the line is sent to MUD
+                if hasattr(module, 'alias'):
+                    if module.alias(line):
+                        return True
         return False
 
     def trigger(self, raw):
