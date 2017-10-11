@@ -103,6 +103,8 @@ class ModularClient(object):
     def send(self, *args):
         self.mud.send(*args)
 
+    def log(self, *args):
+        self.mud.log(*args)
 
 def getClass():
     return ModularClient

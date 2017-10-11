@@ -6,7 +6,26 @@ import modular
 
 
 def trackTimeStart(mud, _):
+    if 'honing' in mud.state:
+        skill, counter = mud.state['honing']
+        mud.send(skill)
+        mud.state['honing'] = (skill, counter + 1)
+        return
+
     mud.state['task_start_time'] = time.time()
+
+
+def hone(mud, groups):
+    skill = groups[0]
+    mud.state['honing'] = (skill, 1)
+    mud.send(skill)
+
+
+def honed(mud, groups):
+    skill = groups[0]
+    if 'honing' in mud.state:
+        mud.log("Honed {} in {} tries".format(skill, mud.state['honing'][1]))
+        del mud.state['honing']
 
 
 ALIASES = {
@@ -14,6 +33,7 @@ ALIASES = {
         'rt vassendar': 'run 4s d w d 2w d 2n 2e\nopen s\ns\nopen d\nrun 5d\nopen w\nw\nrun 8n w 2s 6w\nopen w\nrun 11w 3n 3w\nopen w\nrun 5w\nrun 3n 5w',
         'rt wgate': 'run 2s 3w\nopen w\nw',
         'rt sehaire': 'run w u 6w 2n 3w s 6w s 6w 2n 5w 5n w n w n 4w n e',
+        'hone (.+)': hone,
         }
 
 TRIGGERS = {
@@ -28,6 +48,7 @@ TRIGGERS = {
         'YOU ARE DYING OF HUNGER!': 'eat bread\nquit\ny',
         'You start .*\.': trackTimeStart,
         'You are done (.*)\.': lambda mud, matches: mud.mud.log("The task took {}s".format(time.time() - mud.state['task_start_time'])),
+        'You become better at (.+).': honed,
         }
 
 
