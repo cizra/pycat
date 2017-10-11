@@ -69,6 +69,10 @@ class Gaoler(BaseModule):
             'You can\'t carry that many items.': 'drop all.pound\ndrop all.bundle',
             }
 
+    def getTimers(self):
+        return {
+                "hone": self.mktimer(60*5 + 5, lambda: self.send("bodypie grumpy ears\nirrig title On a pond\nexcav title On a pond\nlandscap title On a pond\nweave hair ribbon\nrun 2e\nmarm Spiked Banded Handguards\ninstrum a pair of clappers\nrun w d\nmastermine\nrun u w\nappraise ice\nmasterfish\nspeculate"))
+                }
 
 def getClass():
     return Gaoler
