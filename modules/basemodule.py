@@ -11,7 +11,7 @@ class BaseModule(object):
 
     def __init__(self, mud):
         self.mud = mud
-        self.aliases = self.getTriggers()
+        self.aliases = self.getAliases()
         self.triggers = self.getTriggers()
 
         # Timers are names mapped to tuples of (oneshot, period, remaining time until period boundary, callable)
