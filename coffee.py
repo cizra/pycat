@@ -27,6 +27,7 @@ def honed(mud, groups):
     if 'honing' in mud.state:
         mud.log("Honed {} in {} tries".format(skill, mud.state['honing'][1]))
         del mud.state['honing']
+    mud.send("skill " + skill)
 
 
 ALIASES = {
