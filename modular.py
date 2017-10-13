@@ -1,4 +1,6 @@
 import re
+import threading
+import time
 
 
 def stack(line):
@@ -13,7 +15,51 @@ def stack(line):
     return out
 
 
-class ModularClient(object):
+class TimerMixin(object):
+    def __init__(self):
+        self.previous_checkpoint = time.time()
+        self.stopflag = threading.Event()
+        self.timer_thread = threading.Thread(target=TimerMixin.timer_thread_fn, args=(self,))
+        self.timer_thread.start()
+
+    def timer_thread_fn(self):
+        while not self.stopflag.is_set():
+            now = time.time()
+            delta = now - self.previous_checkpoint
+            self.timeslice(delta)
+            self.previous_checkpoint = now
+            time.sleep(0.1)
+
+    def timeslice(self, delta):
+        def update(name, rem_time):
+            timer = self.timers[name]
+            self.timers[name] = (timer[0], timer[1], rem_time, timer[3])
+            return rem_time
+
+        remove = []
+        for name, timer in self.timers.items():
+            oneshot, period, remaining, fn = timer
+            remaining = update(name, remaining - delta)
+            if remaining < 0:
+                if oneshot:
+                    remove.append(name)
+                else:
+                    update(name, period)
+                fn()
+
+        for name in remove:
+            del self.timers[name]
+
+    @staticmethod
+    def mktimer(delay, fn, oneshot=False):
+        return (oneshot, delay, delay, fn)
+
+    def quit(self):
+        self.stopflag.set()
+        self.timer_thread.join()
+
+
+class ModularClient(TimerMixin):
     def __init__(self, mud):
         # self.modules must be set up by child class
         self.mud = mud
@@ -21,11 +67,14 @@ class ModularClient(object):
         self.gmcp = {}
         self.aliases = {}
         self.triggers = {}
+        self.timers = {}
+        TimerMixin.__init__(self)
         for m in self.modules.values():
             m.world = self
             m.gmcp = self.gmcp
             self.aliases.update(m.getAliases())
             self.triggers.update(m.getTriggers())
+            self.timers.update(m.getTimers())
 
     def getHostPort(self):
         for m in self.modules.values():
@@ -101,6 +150,9 @@ class ModularClient(object):
         for module in self.modules.values():
             if hasattr(module, 'quit'):
                 module.quit()
+        self.log("Stopping timers")
+        TimerMixin.quit(self)
+        self.log("Stopped timers")
 
     def send(self, *args):
         self.mud.send(*args)
