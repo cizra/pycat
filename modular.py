@@ -24,6 +24,8 @@ class ModularClient(object):
         for m in self.modules.values():
             m.world = self
             m.gmcp = self.gmcp
+            self.aliases.update(m.getAliases())
+            self.triggers.update(m.getTriggers())
 
     def getHostPort(self):
         for m in self.modules.values():
