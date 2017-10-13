@@ -1,4 +1,5 @@
 import importlib
+import json
 import traceback
 import time
 
@@ -127,6 +128,20 @@ class Coffee(modular.ModularClient):
 
     def getHostPort(self):
         return 'coffeemud.net', 2323
+
+    def level(self):
+        try:
+            statusstr = self.gmcp['char']['status']['string'].replace("%", "")
+        except KeyError:
+            self.log("Couldn't get status string from GMCP")
+            from pprint import pprint
+            pprint(self.gmcp)
+            return
+        status = json.loads(statusstr)
+        try:
+            return status['level']
+        except KeyError:
+            return
 
 
 def getClass():
