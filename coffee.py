@@ -29,13 +29,36 @@ def honed(mud, groups):
         del mud.state['honing']
     mud.send("skill " + skill)
 
+    if 'hones' not in mud.state:
+        mud.state['hones'] = {}
+    mud.state['hones'][skill] = time.time()
+    mud.timers["hone_" + skill] = mud.mkdelay(301, lambda: mud.log("You can now hone " + skill))
+
+
+def showHones(mud, _):
+    if 'hones' not in mud.state:
+        mud.log("No skills honed recently")
+    else:
+        remove = set()
+        now = time.time()
+        for skill, honetime in mud.state['hones'].items():
+            if now - honetime > 300:
+                remove.add(skill)
+            else:
+                mud.log("{}: {}s remaining".format(skill, 300 - int(now - honetime)))
+        for skill in remove:
+            del mud.state['hones'][skill]
+        if not mud.state['hones']:
+            del mud.state['hones']
+
 
 ALIASES = {
         'home': 'run 6s w 2s e 2n\nopen w\nw',
         'rt vassendar': 'run 4s d w d 2w d 2n 2e\nopen s\ns\nopen d\nrun 5d\nopen w\nw\nrun 8n w 2s 6w\nopen w\nrun 11w 3n 3w\nopen w\nrun 5w\nrun 3n 5w',
         'rt wgate': 'run 2s 3w\nopen w\nw',
         'rt sehaire': 'run w u 6w 2n 3w s 6w s 6w 2n 5w 5n w n w n 4w n e',
-        'hone (.+)': hone,
+        '#hone (.+)': hone,
+        '#hones': showHones,
         }
 
 TRIGGERS = {

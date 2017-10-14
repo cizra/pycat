@@ -19,8 +19,11 @@ class BaseModule(object):
     def getTimers(self):
         return {}
 
-    def mktimer(self, period, fn):
-        return self.world.mktimer(period, fn)
+    def mktimer(self, *args):
+        return self.world.mktimer(*args)
+
+    def mkdelay(self, *args):
+        return self.world.mkdelay(*args)
 
     def quit(self):
         pass

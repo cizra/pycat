@@ -51,8 +51,12 @@ class TimerMixin(object):
             del self.timers[name]
 
     @staticmethod
-    def mktimer(delay, fn, oneshot=False):
-        return (oneshot, delay, delay, fn)
+    def mktimer(period, fn, oneshot=False):
+        return (oneshot, period, period, fn)
+
+    @staticmethod
+    def mkdelay(delay, fn):
+        return (True, delay, delay, fn)
 
     def quit(self):
         self.stopflag.set()
