@@ -213,11 +213,16 @@ def smith(mud, _):
         ptr = mud.state['smithing']
         level = mud.level()
         skill, ptr_by_level, arg_by_ptr = skill_by_level(level)
-        if ptr_by_level[level] - ptr > 6:
+        if ptr_by_level[level] - ptr > 7:
             mud.state['smithing'] = ptr_by_level[level]
         else:
             mud.state['smithing'] = ptr - 1
         return "{skill} {arg}".format(skill=skill, arg=arg_by_ptr[ptr])
+
+def failSmithing(mud, _):
+    if 'smithing' in mud.state:
+        mud.state['smithing'] += 1
+
 
 def startSmithing(mud, _):
     level = mud.level()
@@ -258,6 +263,7 @@ class Gaoler(BaseModule):
             'You are done speculating.': 'speculate',
             'You can\'t carry that many items.': 'drop all.pound\ndrop all.bundle',
             'You are done smithing .*': smith,
+            'You mess up smithing .*': failSmithing,
             }
 
     def getTimers(self):
