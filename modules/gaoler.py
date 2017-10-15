@@ -39,6 +39,135 @@ def buyBread(mud, _):
     mud.send('speculate')
 
 
+marm_by_level = {
+        57: 21,
+        58: 27,
+        59: 27,
+        60: 29,
+        61: 31,
+        67: 56,
+        77: 90,
+        78: 97,
+        81: 100,
+        87: 112,
+        }
+
+marm_skills = [
+        "Hara-Ate",  # 57 84
+        "Sode",  # 57 42
+        "Haidate",  # 57 42
+        "Legionary Helmet",  # 57 28
+        "Mempo",  # 57 28
+        "Sune-Ate",  # 57 28
+        "Doublemail Socks",  # 57 28
+        "Galeo",  # 57 28
+        "Battleplate Greaves",  # 57 28
+        "Battleplate Sabottons",  # 57 28
+        "Kabuto",  # 57 28
+        "Mirmillo",  # 57 28
+        "Yugake",  # 57 14
+        "Wakibiki",  # 57 14
+        "Doublemail Gloves",  # 57 14
+        "Doublemail Collar",  # 57 14
+        "Doublemail Mantle",  # 57 14
+        "Battleplate Gauntlets",  # 57 14
+        "Battleplate Handguards",  # 57 14
+        "Battleplate Collar",  # 57 14
+        "Battleplate Mantle",  # 57 14
+        "Battleplate Mitts",  # 57 14
+        "Battleplate Boots",  # 58 28
+        "Kote",  # 58 14
+        "Doublemail Cuffs",  # 58 14
+        "Battleplate Bracer",  # 58 14
+        "Battleplate Vambrace",  # 58 14
+        "Battleplate Lowerarm Cannon",  # 58 14
+        "Lorica Segmenta",  # 60 63
+        "Battleplate Locking Gauntlets",  # 60 14
+        "Doublemail Belt",  # 61 14
+        "Battleplate Girdle",  # 61 14
+        "Doublemail Jacket",  # 67 135
+        "Battleplate Hauberk",  # 67 135
+        "Haramaki-Do",  # 67 90
+        "Doublemail Shirt",  # 67 90
+        "Doublemail Jerkin",  # 67 90
+        "Doublemail Vest",  # 67 90
+        "Battleplate Jerkin",  # 67 90
+        "Battleplate Vest",  # 67 90
+        "Doublemail Sleeves",  # 67 45
+        "Doublemail Leggings",  # 67 45
+        "Doublemail Skirt",  # 67 45
+        "Battleplate Sleeves",  # 67 45
+        "Battleplate Rearbraces",  # 67 45
+        "Battleplate Upperarm Cannons ",  # 67 45
+        "Battleplate Pauldrons",  # 67 45
+        "Battleplate Leggings",  # 67 45
+        "Battleplate Leg Cannons",  # 67 45
+        "Battleplate Armbands",  # 67 45
+        "Battleplate Skirt",  # 67 45
+        "Doublemail Coif",  # 67 30
+        "Dragon helm",  # 67 30
+        "Doublemail Coat",  # 67 13
+        "Doublemail Hauberk",  # 67 13
+        "Battleplate Coat",  # 67 13
+        "Battleplate Jacket",  # 67 13
+        "Demon Armor",  # 77 510
+        "Ancient Coat",  # 77 144
+        "Ancient Hauberk",  # 77 144
+        "Do-Maru",  # 77 96
+        "Ancient Vest",  # 77 96
+        "Ancient Jerkin",  # 77 96
+        "Hallowed Vestments",  # 77 51
+        "Ancient Sleeves",  # 77 48
+        "Ancient Rearbraces",  # 77 48
+        "Ancient Upperarm Cannons",  # 77 48
+        "Ancient Pauldrons",  # 77 48
+        "Ancient Leggings",  # 77 48
+        "Ancient Leg Cannons",  # 77 48
+        "Ancient Armbands",  # 77 48
+        "Ancient Skirt",  # 77 48
+        "Ancient Helmet",  # 77 32
+        "Casque",  # 77 32
+        "Ancient Socks",  # 77 32
+        "Ancient Greaves",  # 77 32
+        "Ancient Sabottons",  # 77 32
+        "Demonic Greaves",  # 77 32
+        "Ancient Gauntlets",  # 77 16
+        "Ancient Locking Gauntlets",  # 77 16
+        "Ancient Handguards",  # 77 16
+        "Demonic Gauntlets",  # 77 16
+        "Demonic Locking Gauntlets",  # 77 16
+        "Sacred Gauntlets",  # 77 16
+        "Sacred Locking Gauntlets",  # 77 16
+        "Ancient Collar",  # 77 16
+        "Ancient Mantle",  # 77 16
+        "Demonic Collar",  # 77 16
+        "Sacred Mantle",  # 77 16
+        "Ancient Mitts",  # 77 16
+        "Ancient Jacket",  # 77 14
+        "Ancient Boots",  # 78 32
+        "Sacred Boots",  # 78 32
+        "Ancient Bracer",  # 78 16
+        "Ancient Vambrace",  # 78 16
+        "Ancient Lowerarm Cannon",  # 78 16
+        "Demonic Bracer",  # 78 16
+        "Sacred Vambrace",  # 78 16
+        "Ancient Girdle",  # 81 16
+        "Demonic Girdle",  # 81 16
+        "Sacred Girdle",  # 81 16
+        "Demonic Coat",  # 87 153
+        "Sacred Jacket",  # 87 153
+        "Sacred Shirt",  # 87 102
+        "Demonic Armbands",  # 87 51
+        "Sacred Pauldrons",  # 87 51
+        "Demonic Leggings",  # 87 51
+        "Sacred Skirt",  # 87 51
+        "Demon helm",  # 87 34
+        "Sacred Crown",  # 87 34
+        "Sacred Armament",  # 87 15
+        "Demonic Hauberk",  # 87 15
+        "Demonic Jerkin",  # 87 10
+]
+
 mweap_by_level = {
         31: 7,
         32: 12,
@@ -205,8 +334,10 @@ mweap_skills = [
     ]
 
 def skill_by_level(lvl):
-    if 31 <= lvl:
+    if 31 <= lvl and lvl <= 57:
         return 'mweap', mweap_by_level, mweap_skills
+    elif 57 < lvl:
+        return 'marm', marm_by_level, marm_skills
 
 def smith(mud, _):
     level = mud.level()
