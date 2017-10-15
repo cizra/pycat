@@ -391,6 +391,7 @@ class Gaoler(BaseModule):
             'You can\'t carry that many items.': 'drop all.pound\ndrop all.bundle',
             'You are done smithing .*': smith,
             'You mess up smithing .*': failSmithing,
+            'You are done skinning and butchering the body of .*': 'butcher corpse',
             }
 
     def getTimers(self):
