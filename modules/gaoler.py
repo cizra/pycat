@@ -209,32 +209,28 @@ def skill_by_level(lvl):
         return 'mweap', mweap_by_level, mweap_skills
 
 def smith(mud, _):
-    if 'smithing' in mud.state:
-        ptr = mud.state['smithing']
-        level = mud.level()
-        skill, ptr_by_level, arg_by_ptr = skill_by_level(level)
-        if ptr_by_level[level] - ptr > 7:
-            mud.state['smithing'] = ptr_by_level[level]
-        else:
-            mud.state['smithing'] = ptr - 1
-        return "{skill} {arg}".format(skill=skill, arg=arg_by_ptr[ptr])
+    level = mud.level()
+    skill, ptr_by_level, arg_by_ptr = skill_by_level(level)
+    pbl = ptr_by_level[level] if level in ptr_by_level else list(ptr_by_level)[-1]
+    if 'smithing' not in mud.state:
+        mud.state['smithing'] = pbl + 1
+
+    mud.state['smithing'] -= 1
+
+    ptr = max(0, min(mud.state['smithing'], pbl))
+    if pbl - ptr > 6:
+        ptr = mud.state['smithing'] = pbl
+    return "{skill} {arg}".format(skill=skill, arg=arg_by_ptr[ptr])
 
 def failSmithing(mud, _):
     if 'smithing' in mud.state:
         mud.state['smithing'] += 1
 
 
-def startSmithing(mud, _):
-    level = mud.level()
-    _, ptr_by_level, _ = skill_by_level(level)
-    mud.state['smithing'] = ptr_by_level[level]
-    return smith(mud, _)
-
-
 class Gaoler(BaseModule):
     def getAliases(self):
         return {
-                'smith': startSmithing,
+                'smith': smith,
                 }
 
     def getTriggers(self):
