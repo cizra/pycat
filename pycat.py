@@ -24,9 +24,13 @@ class Session(object):
         self.world_module = world_module
         self.arg = arg
         self.world = world_module.getClass()(self, self.arg)
-        host_port = self.world.getHostPort()
-        self.telnet = self.connect(*host_port)
-        self.gmcp = {}
+        try:
+            host_port = self.world.getHostPort()
+            self.telnet = self.connect(*host_port)
+            self.gmcp = {}
+        except:
+            self.world.quit()
+            raise
 
     def join(self):
         self.thr.join()
