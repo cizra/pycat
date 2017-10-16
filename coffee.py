@@ -36,20 +36,22 @@ def honed(mud, groups):
 
 
 def showHones(mud, _):
-    if 'hones' not in mud.state:
-        mud.log("No skills honed recently")
-    else:
+    found = False
+    if 'hones' in mud.state:
         remove = set()
         now = time.time()
         for skill, honetime in mud.state['hones'].items():
             if now - honetime > 300:
                 remove.add(skill)
             else:
+                found = True
                 mud.log("{}: {}s remaining".format(skill, 300 - int(now - honetime)))
         for skill in remove:
             del mud.state['hones'][skill]
         if not mud.state['hones']:
             del mud.state['hones']
+    if not found:
+        mud.log("No skills honed recently")
 
 
 ALIASES = {
