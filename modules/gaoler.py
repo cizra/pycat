@@ -2,6 +2,7 @@ from modules.basemodule import BaseModule
 
 import random
 import re
+import time
 
 
 def nothingToForage(mud, _):
@@ -45,11 +46,36 @@ marm_by_level = {
         59: 27,
         60: 29,
         61: 31,
+        62: 31,
+        63: 31,
+        64: 31,
+        65: 31,
+        66: 31,
         67: 56,
+        68: 56,
+        69: 56,
+        70: 56,
+        71: 56,
+        72: 56,
+        73: 56,
+        74: 56,
+        75: 56,
+        76: 56,
         77: 90,
         78: 97,
+        79: 97,
+        80: 97,
         81: 100,
+        82: 100,
+        83: 100,
+        84: 100,
+        85: 100,
+        86: 100,
         87: 112,
+        88: 112,
+        89: 112,
+        90: 112,
+        91: 112,
         }
 
 marm_skills = [
@@ -340,6 +366,9 @@ def skill_by_level(lvl):
         return 'marm', marm_by_level, marm_skills
 
 def smith(mud, _):
+    if 'task_start_time' in mud.state:
+        mud.log("The task took {}s".format(time.time() - mud.state['task_start_time']))
+
     level = mud.level()
     skill, ptr_by_level, arg_by_ptr = skill_by_level(level)
     pbl = ptr_by_level[level] if level in ptr_by_level else list(ptr_by_level)[-1]
