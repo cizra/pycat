@@ -106,7 +106,7 @@ class Session(object):
     def handle_input(self):
         try:
             data = self.telnet.read_very_eager()
-        except EOFError:
+        except:
             self.world.quit()
             raise
         try:
