@@ -14,7 +14,10 @@ def nothingToForage(mud, _):
 
 def nothingToMine(mud, _):
     dirs = list(mud.gmcp['room']['info']['exits'].keys())
-    return random.choice(dirs) + '\n' + 'mastermine'
+    if len(dirs) == 1:
+        return dirs[0] + '\n' + 'speculate'
+    else:
+        return "speculate"
 
 def nothingToChop(mud, _):
     dirs = list(mud.gmcp['room']['info']['exits'].keys())
@@ -387,10 +390,77 @@ def failSmithing(mud, _):
         mud.state['smithing'] += 1
 
 
+def speculateFor(mud, groups):
+    mud.state['speculate'] = {
+            'direction': groups[0],
+            'targets': groups[1].split(' '),
+            'success': True,
+            }
+    mud.send("speculate")
+
+def specLine(mud, groups):
+    fixdir = {
+            'below': 'd',
+            'above you': 'u',
+            'to the north': 'n',
+            'to the east': 'e',
+            'to the south': 's',
+            'to the west': 'w',
+            }
+    resource, direction = groups
+    direction = fixdir[direction]
+    if 'results' not in mud.state['speculate']:
+        mud.state['speculate']['results'] = {}
+    mud.state['speculate']['results'][resource] = direction
+
+def speculateFailed(mud, _):
+    if 'speculate' in mud.state:
+        mud.state['speculate']['success'] = False
+
+def speculateDoublecheck(mud, matches):
+    if 'speculate' in mud.state:
+        if matches[0] not in mud.state['speculate']['targets']:
+            return nothingToMine(mud, matches)
+
+def speculateDone(mud, _):
+    if 'speculate' in mud.state:
+        if not mud.state['speculate']['success']:
+            mud.state['speculate']['success'] = True
+            return "speculate"
+
+        resource_to_skill = {
+                'mithril': 'mastermine',
+                'iron': 'mastermine',
+                'silk': 'masterforage',
+                }
+        for tgt in mud.state['speculate']['targets']:
+            if tgt in mud.state['speculate']['results']:
+                mud.send("{}\n{}".format(mud.state['speculate']['results'][tgt], resource_to_skill[tgt]))
+                break
+        else:
+            ex = list(map(lambda s: s.lower(), mud.gmcp['room']['info']['exits'].keys()))
+            reverse = {
+                    'n': 's',
+                    'e': 'w',
+                    's': 'n',
+                    'w': 'e',
+                    'u': 'd',
+                    'd': 'u',
+                    }
+            if mud.state['speculate']['direction'] in ex:
+                go = mud.state['speculate']['direction']
+            elif reverse[mud.state['speculate']['direction']] in ex:
+                go = mud.state['speculate']['direction'] = reverse[mud.state['speculate']['direction']]
+            else:
+                go = random.choice(ex)
+            mud.send(go + "\nspeculate")
+    mud.state['speculate']['results'] = {}
+
 class Gaoler(BaseModule):
     def getAliases(self):
         return {
                 'smith': smith,
+                'specfor (.) (.*)': speculateFor,
                 }
 
     def getTriggers(self):
@@ -416,10 +486,14 @@ class Gaoler(BaseModule):
             'If you don\'t do something, you will be logged out in 5 minutes!': 'stand\nmastermine',
             'You don\'t think this is a good place to mine.': goMine,
             'You are done carving .*.': 'chop',
-            'You are done speculating.': 'speculate',
+            'There looks like (.*) (below|above you|to the north|to the east|to the south|to the west).': specLine,
+            'You think this spot would be good for (.*)(). ': specLine,
+            'You are done speculating.': speculateDone,
+            'You have found a vein of (.*)!': speculateDoublecheck,
             'You can\'t carry that many items.': 'drop all.pound\ndrop all.bundle',
             'You are done smithing .*': smith,
             'You mess up smithing .*': failSmithing,
+            'Your speculate attempt failed.': speculateFailed,
             'You are done skinning and butchering the body of .*': 'butcher corpse',
             }
 
