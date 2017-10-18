@@ -40,7 +40,7 @@ class Mapper(BaseModule):
             'exits': exits,
             }))
 
-    def path(self, there):
+    def path2(self, here, there):
         if there in self.data['bookmarks']:
             there = self.data['bookmarks'][there]
         else:
@@ -50,14 +50,16 @@ class Mapper(BaseModule):
                 self.log("No such bookmark")
                 return
 
-        this = self.current()
-        if this == there:
+        if here == there:
             self.log("Already there!")
             return ''
         then = time.time()
-        path = self.assemble(self.m.findPath(this, there))
+        path = self.assemble(self.m.findPath(here, there))
         self.log("{} (found in {} ms)".format(path, (time.time() - then)/1000))
         return path
+
+    def path(self, there):
+        return self.path2(self.current(), there)
 
     def go(self, room):
         path = self.path(room)
