@@ -24,11 +24,11 @@ def nothingToChop(mud, _):
     return random.choice(dirs) + '\n' + 'chop'
 
 def getWater(mud, _):
-    mud.world.modules['mapper'].go(-420699692)
+    mud.modules['mapper'].go(-420699692)
     mud.send('fill barrel sink\ndrink sink\ndrink sink\ns\ne\nforage')
 
 def goMine(mud, _):
-    mud.world.modules['mapper'].go(-565509103)
+    mud.modules['mapper'].go(-565509103)
     mud.send('mastermine')
 
 def buyBread(mud, _):
@@ -82,119 +82,119 @@ marm_by_level = {
         }
 
 marm_skills = [
-        "Hara-Ate",  # 57 84
-        "Sode",  # 57 42
-        "Haidate",  # 57 42
-        "Legionary Helmet",  # 57 28
-        "Mempo",  # 57 28
-        "Sune-Ate",  # 57 28
-        "Doublemail Socks",  # 57 28
-        "Galeo",  # 57 28
-        "Battleplate Greaves",  # 57 28
-        "Battleplate Sabottons",  # 57 28
-        "Kabuto",  # 57 28
-        "Mirmillo",  # 57 28
-        "Yugake",  # 57 14
-        "Wakibiki",  # 57 14
-        "Doublemail Gloves",  # 57 14
-        "Doublemail Collar",  # 57 14
-        "Doublemail Mantle",  # 57 14
-        "Battleplate Gauntlets",  # 57 14
-        "Battleplate Handguards",  # 57 14
-        "Battleplate Collar",  # 57 14
-        "Battleplate Mantle",  # 57 14
-        "Battleplate Mitts",  # 57 14
-        "Battleplate Boots",  # 58 28
-        "Kote",  # 58 14
-        "Doublemail Cuffs",  # 58 14
-        "Battleplate Bracer",  # 58 14
-        "Battleplate Vambrace",  # 58 14
-        "Battleplate Lowerarm Cannon",  # 58 14
-        "Lorica Segmenta",  # 60 63
-        "Battleplate Locking Gauntlets",  # 60 14
-        "Doublemail Belt",  # 61 14
-        "Battleplate Girdle",  # 61 14
-        "Doublemail Jacket",  # 67 135
-        "Battleplate Hauberk",  # 67 135
-        "Haramaki-Do",  # 67 90
-        "Doublemail Shirt",  # 67 90
-        "Doublemail Jerkin",  # 67 90
-        "Doublemail Vest",  # 67 90
-        "Battleplate Jerkin",  # 67 90
-        "Battleplate Vest",  # 67 90
-        "Doublemail Sleeves",  # 67 45
-        "Doublemail Leggings",  # 67 45
-        "Doublemail Skirt",  # 67 45
-        "Battleplate Sleeves",  # 67 45
-        "Battleplate Rearbraces",  # 67 45
-        "Battleplate Upperarm Cannons ",  # 67 45
-        "Battleplate Pauldrons",  # 67 45
-        "Battleplate Leggings",  # 67 45
-        "Battleplate Leg Cannons",  # 67 45
-        "Battleplate Armbands",  # 67 45
-        "Battleplate Skirt",  # 67 45
-        "Doublemail Coif",  # 67 30
-        "Dragon helm",  # 67 30
-        "Doublemail Coat",  # 67 13
-        "Doublemail Hauberk",  # 67 13
-        "Battleplate Coat",  # 67 13
-        "Battleplate Jacket",  # 67 13
-        "Demon Armor",  # 77 510
-        "Ancient Coat",  # 77 144
-        "Ancient Hauberk",  # 77 144
-        "Do-Maru",  # 77 96
-        "Ancient Vest",  # 77 96
-        "Ancient Jerkin",  # 77 96
-        "Hallowed Vestments",  # 77 51
-        "Ancient Sleeves",  # 77 48
-        "Ancient Rearbraces",  # 77 48
-        "Ancient Upperarm Cannons",  # 77 48
-        "Ancient Pauldrons",  # 77 48
-        "Ancient Leggings",  # 77 48
-        "Ancient Leg Cannons",  # 77 48
-        "Ancient Armbands",  # 77 48
-        "Ancient Skirt",  # 77 48
-        "Ancient Helmet",  # 77 32
-        "Casque",  # 77 32
-        "Ancient Socks",  # 77 32
-        "Ancient Greaves",  # 77 32
-        "Ancient Sabottons",  # 77 32
-        "Demonic Greaves",  # 77 32
-        "Ancient Gauntlets",  # 77 16
-        "Ancient Locking Gauntlets",  # 77 16
-        "Ancient Handguards",  # 77 16
-        "Demonic Gauntlets",  # 77 16
-        "Demonic Locking Gauntlets",  # 77 16
-        "Sacred Gauntlets",  # 77 16
-        "Sacred Locking Gauntlets",  # 77 16
-        "Ancient Collar",  # 77 16
-        "Ancient Mantle",  # 77 16
-        "Demonic Collar",  # 77 16
-        "Sacred Mantle",  # 77 16
-        "Ancient Mitts",  # 77 16
-        "Ancient Jacket",  # 77 14
-        "Ancient Boots",  # 78 32
-        "Sacred Boots",  # 78 32
-        "Ancient Bracer",  # 78 16
-        "Ancient Vambrace",  # 78 16
-        "Ancient Lowerarm Cannon",  # 78 16
-        "Demonic Bracer",  # 78 16
-        "Sacred Vambrace",  # 78 16
-        "Ancient Girdle",  # 81 16
-        "Demonic Girdle",  # 81 16
-        "Sacred Girdle",  # 81 16
-        "Demonic Coat",  # 87 153
-        "Sacred Jacket",  # 87 153
-        "Sacred Shirt",  # 87 102
-        "Demonic Armbands",  # 87 51
-        "Sacred Pauldrons",  # 87 51
-        "Demonic Leggings",  # 87 51
-        "Sacred Skirt",  # 87 51
-        "Demon helm",  # 87 34
-        "Sacred Crown",  # 87 34
-        "Sacred Armament",  # 87 15
-        "Demonic Hauberk",  # 87 15
-        "Demonic Jerkin",  # 87 10
+        "agile Hara-Ate",  # 57 84
+        "agile Sode",  # 57 42
+        "agile Haidate",  # 57 42
+        "agile Legionary Helmet",  # 57 28
+        "agile Mempo",  # 57 28
+        "agile Sune-Ate",  # 57 28
+        "agile Doublemail Socks",  # 57 28
+        "agile Galeo",  # 57 28
+        "agile Battleplate Greaves",  # 57 28
+        "agile Battleplate Sabottons",  # 57 28
+        "agile Kabuto",  # 57 28
+        "agile Mirmillo",  # 57 28
+        "agile Yugake",  # 57 14
+        "agile Wakibiki",  # 57 14
+        "agile Doublemail Gloves",  # 57 14
+        "agile Doublemail Collar",  # 57 14
+        "agile Doublemail Mantle",  # 57 14
+        "agile Battleplate Gauntlets",  # 57 14
+        "agile Battleplate Handguards",  # 57 14
+        "agile Battleplate Collar",  # 57 14
+        "agile Battleplate Mantle",  # 57 14
+        "agile Battleplate Mitts",  # 57 14
+        "agile Battleplate Boots",  # 58 28
+        "agile Kote",  # 58 14
+        "agile Doublemail Cuffs",  # 58 14
+        "agile Battleplate Bracer",  # 58 14
+        "agile Battleplate Vambrace",  # 58 14
+        "agile Battleplate Lowerarm Cannon",  # 58 14
+        "agile Lorica Segmenta",  # 60 63
+        "agile Battleplate Locking Gauntlets",  # 60 14
+        "agile Doublemail Belt",  # 61 14
+        "agile Battleplate Girdle",  # 61 14
+        "agile Doublemail Jacket",  # 67 135
+        "agile Battleplate Hauberk",  # 67 135
+        "agile Haramaki-Do",  # 67 90
+        "agile Doublemail Shirt",  # 67 90
+        "agile Doublemail Jerkin",  # 67 90
+        "agile Doublemail Vest",  # 67 90
+        "agile Battleplate Jerkin",  # 67 90
+        "agile Battleplate Vest",  # 67 90
+        "agile Doublemail Sleeves",  # 67 45
+        "agile Doublemail Leggings",  # 67 45
+        "agile Doublemail Skirt",  # 67 45
+        "agile Battleplate Sleeves",  # 67 45
+        "agile Battleplate Rearbraces",  # 67 45
+        "agile Battleplate Upperarm Cannons ",  # 67 45
+        "agile Battleplate Pauldrons",  # 67 45
+        "agile Battleplate Leggings",  # 67 45
+        "agile Battleplate Leg Cannons",  # 67 45
+        "agile Battleplate Armbands",  # 67 45
+        "agile Battleplate Skirt",  # 67 45
+        "agile Doublemail Coif",  # 67 30
+        "agile Dragon helm",  # 67 30
+        "agile Doublemail Coat",  # 67 13
+        "agile Doublemail Hauberk",  # 67 13
+        "agile Battleplate Coat",  # 67 13
+        "agile Battleplate Jacket",  # 67 13
+        "agile Demon Armor",  # 77 510
+        "agile Ancient Coat",  # 77 144
+        "agile Ancient Hauberk",  # 77 144
+        "agile Do-Maru",  # 77 96
+        "agile Ancient Vest",  # 77 96
+        "agile Ancient Jerkin",  # 77 96
+        "agile Hallowed Vestments",  # 77 51
+        "agile Ancient Sleeves",  # 77 48
+        "agile Ancient Rearbraces",  # 77 48
+        "agile Ancient Upperarm Cannons",  # 77 48
+        "agile Ancient Pauldrons",  # 77 48
+        "agile Ancient Leggings",  # 77 48
+        "agile Ancient Leg Cannons",  # 77 48
+        "agile Ancient Armbands",  # 77 48
+        "agile Ancient Skirt",  # 77 48
+        "agile Ancient Helmet",  # 77 32
+        "agile Casque",  # 77 32
+        "agile Ancient Socks",  # 77 32
+        "agile Ancient Greaves",  # 77 32
+        "agile Ancient Sabottons",  # 77 32
+        "agile Demonic Greaves",  # 77 32
+        "agile Ancient Gauntlets",  # 77 16
+        "agile Ancient Locking Gauntlets",  # 77 16
+        "agile Ancient Handguards",  # 77 16
+        "agile Demonic Gauntlets",  # 77 16
+        "agile Demonic Locking Gauntlets",  # 77 16
+        "agile Sacred Gauntlets",  # 77 16
+        "agile Sacred Locking Gauntlets",  # 77 16
+        "agile Ancient Collar",  # 77 16
+        "agile Ancient Mantle",  # 77 16
+        "agile Demonic Collar",  # 77 16
+        "agile Sacred Mantle",  # 77 16
+        "agile Ancient Mitts",  # 77 16
+        "agile Ancient Jacket",  # 77 14
+        "agile Ancient Boots",  # 78 32
+        "agile Sacred Boots",  # 78 32
+        "agile Ancient Bracer",  # 78 16
+        "agile Ancient Vambrace",  # 78 16
+        "agile Ancient Lowerarm Cannon",  # 78 16
+        "agile Demonic Bracer",  # 78 16
+        "agile Sacred Vambrace",  # 78 16
+        "agile Ancient Girdle",  # 81 16
+        "agile Demonic Girdle",  # 81 16
+        "agile Sacred Girdle",  # 81 16
+        "agile Demonic Coat",  # 87 153
+        "agile Sacred Jacket",  # 87 153
+        "agile Sacred Shirt",  # 87 102
+        "agile Demonic Armbands",  # 87 51
+        "agile Sacred Pauldrons",  # 87 51
+        "agile Demonic Leggings",  # 87 51
+        "agile Sacred Skirt",  # 87 51
+        "agile Demon helm",  # 87 34
+        "agile Sacred Crown",  # 87 34
+        "agile Sacred Armament",  # 87 15
+        "agile Demonic Hauberk",  # 87 15
+        "agile Demonic Jerkin",  # 87 10
 ]
 
 mweap_by_level = {
@@ -399,6 +399,8 @@ def speculateFor(mud, groups):
     mud.send("speculate")
 
 def specLine(mud, groups):
+    if 'speculate' not in mud.state:
+        return
     fixdir = {
             'below': 'd',
             'above you': 'u',
@@ -431,10 +433,11 @@ def speculateDone(mud, _):
         resource_to_skill = {
                 'mithril': 'mastermine',
                 'iron': 'mastermine',
+                'coal': 'mastermine',
                 'silk': 'masterforage',
                 }
         for tgt in mud.state['speculate']['targets']:
-            if tgt in mud.state['speculate']['results']:
+            if 'results' in mud.state['speculate'] and tgt in mud.state['speculate']['results']:
                 mud.send("{}\n{}".format(mud.state['speculate']['results'][tgt], resource_to_skill[tgt]))
                 break
         else:
@@ -456,6 +459,14 @@ def speculateDone(mud, _):
             mud.send(go + "\nspeculate")
     mud.state['speculate']['results'] = {}
 
+def mined(mud, matches):
+    resource = matches[0]
+    here = mud.gmcp['room']['info']['num']
+    path = mud.modules['mapper'].path(-565511209)
+    rpath = mud.modules['mapper'].path2(-565511209, here)
+    return 'mastermine bundle all {resource}\nget {resource} bundle\n{path}\ndrink sink\ndrop {resource} bundle\n{rpath}\nmastermine'.format(resource=resource, path=path, rpath=rpath)
+
+
 class Gaoler(BaseModule):
     def getAliases(self):
         return {
@@ -469,8 +480,7 @@ class Gaoler(BaseModule):
             'You are hungry.': 'eat bread',
             # 'You are done building a fire.': 'chop',
             'You manage to chop up \d+ pounds? of (\w+)\.': lambda  world, matches: 'chop bundle all ' + matches[0] + '\nspeculate',
-            'You manage to mine \d+ pounds? of (.+)\.': lambda world, matches: \
-                    'mastermine bundle all {}\nmastermine'.format(matches[0]),
+            'You manage to mine \d+ pounds? of (.+)\.': mined,
             'You manage to gather \d+ pounds? of (\w+)\.': lambda  world, matches: 'forage bundle all ' + matches[0] + '\nforage',
             'You are done chopping.': 'chop',
             # 'You are done foraging.': 'forage',
