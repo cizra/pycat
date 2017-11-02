@@ -70,7 +70,7 @@ TRIGGERS = {
         'You are no longer hungry.': '!',
         'You are no longer thirsty.': '!',
         'You are starved, and near death.  EAT SOMETHING!': 'eat bread\nquit\ny',
-        'You are dehydrated, and near death.  DRINK SOMETHING!': 'drink barrel\nquit\ny',
+        'You are dehydrated, and near death.  DRINK SOMETHING!': 'drink sink\nquit\ny',
         'YOU ARE DYING OF THIRST!': 'drink barrel\nquit\ny',
         'YOU ARE DYING OF HUNGER!': 'eat bread\nquit\ny',
         'You start .*\.': trackTimeStart,
@@ -156,18 +156,38 @@ class Coffee(modular.ModularClient):
         return 'coffeemud.net', 2323
 
     def level(self):
-        try:
-            statusstr = self.gmcp['char']['status']['string'].replace("%", "")
-        except KeyError:
-            self.log("Couldn't get status string from GMCP")
-            from pprint import pprint
-            pprint(self.gmcp)
-            return
-        status = json.loads(statusstr)
-        try:
-            return status['level']
-        except KeyError:
-            return
+        return self.gmcp['char']['status']['level']
+
+    def exprate(self):
+        if 'exprate_prev' not in self.state:
+            self.state['exprate_prev'] = self.gmcp['char']['status']['tnl']
+        else:
+            now = self.gmcp['char']['status']['tnl']
+            self.log("Exp per hour: {}".format(self.state['exprate_prev'] - now))
+            self.state['exprate_prev'] = now
+
+
+    def getTimers(self):
+        return {
+                "exprate": (False, 60*60, 30, self.exprate),
+                }
+
+    def handleGmcp(self, cmd, value):
+        super().handleGmcp(cmd, value)
+        if cmd == 'char.status' and 'pos' in value and 'fatigue' in value and 'maxstats' in self.gmcp['char']:
+            if value['pos'] == 'Sleeping' and value['fatigue'] == 0 and self.gmcp['char']['vitals']['moves'] == self.gmcp['char']['maxstats']['maxmoves']:
+                self.log("Rested!")
+
+        if cmd == 'char.vitals' and 'maxstats' in self.gmcp['char']:
+            if self.gmcp['char']['status']['pos'] == 'Sleeping' and self.gmcp['char']['vitals']['hp'] == self.gmcp['char']['maxstats']['maxhp']:
+                # self.log("Healed!")
+                pass
+
+        if cmd == 'char.vitals' and 'maxstats' in self.gmcp['char']:
+            if self.gmcp['char']['status']['pos'] == 'Sleeping' and self.gmcp['char']['vitals']['mana'] > 100:
+                # self.log("Full mana!")
+                if self.name == 'hippie':
+                    self.send("sta\nchant speed time\ndrink sink\nsleep")
 
 
 def getClass():
