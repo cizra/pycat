@@ -17,7 +17,7 @@ class Mapper(BaseModule):
         self.log('\n'.join(strs))
 
     def current(self):
-        return self.gmcp['room']['info']['num']
+        return self.world.gmcp['room']['info']['num']
 
     def here(self, args):
         if args:
@@ -239,7 +239,7 @@ class Mapper(BaseModule):
 
     def startExit(self, args):
         self.exitKw = ' '.join(args)
-        room = self.gmcp['room']['info']
+        room = self.world.gmcp['room']['info']
         self.exitFrom = {}
         self.exitFrom['exits'] = {}
         self.exitFrom['id'] = room['num']

@@ -71,11 +71,10 @@ class ModularClient(TimerMixin):
         self.gmcp = {}
         self.aliases = {}
         self.triggers = {}
-        self.timers = {}
+        self.timers = self.getTimers()
         TimerMixin.__init__(self)
         for m in self.modules.values():
             m.world = self
-            m.gmcp = self.gmcp
             self.aliases.update(m.getAliases())
             self.triggers.update(m.getTriggers())
             self.timers.update(m.getTimers())
@@ -163,6 +162,9 @@ class ModularClient(TimerMixin):
 
     def log(self, *args):
         self.mud.log(*args)
+
+    def getTimers(self):
+        return {}
 
 def getClass():
     return ModularClient

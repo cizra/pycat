@@ -27,7 +27,6 @@ class Session(object):
         try:
             host_port = self.world.getHostPort()
             self.telnet = self.connect(*host_port)
-            self.gmcp = {}
         except:
             self.world.quit()
             raise
@@ -144,12 +143,12 @@ class Session(object):
             log('Reloading world')
             try:
                 state = self.world.state
+                gmcp = self.world.gmcp
                 self.world.quit()
                 self.world_module = importlib.reload(self.world_module)
                 self.world = self.world_module.getClass()(self, self.arg)
                 self.world.state = state
-                self.gmcpOut('request room')
-                self.gmcpOut('request char')
+                self.world.gmcp = gmcp
             except Exception:
                 traceback.print_exc()
             return
