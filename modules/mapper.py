@@ -406,7 +406,7 @@ class Mapper(BaseModule):
 
         self.commands = {
                 'unmapped': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(args)])),
-                'gounmapped': lambda args: self.go(self.unmapped(args).pop()),
+                'gounmapped': lambda args: self.go(self.unmapped(args)[0]),
                 'find': self.find,
                 'load': self.load,
                 'read': self.load,
