@@ -63,7 +63,7 @@ class Session(object):
                 sock.sendall(telnetlib.IAC + telnetlib.DONT + option)
         elif cmd == telnetlib.SE:
             data = self.telnet.read_sb_data()
-            if data[0] == ord(telnetlib.GMCP):
+            if data and data[0] == ord(telnetlib.GMCP):
                 try:
                     self.handleGmcp(data[1:].decode(self.mud_encoding))
                 except Exception as e:
