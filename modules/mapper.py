@@ -74,6 +74,18 @@ class Mapper(BaseModule):
         self.data['bookmarks'][arg] = self.current()
         self.bookmarks([])
 
+    def getExitData(self, source, target):
+        exitDataS = self.m.getExitData(source, target)
+        if not exitDataS:
+            return {}
+        return json.loads(exitDataS)
+
+    def addExitData(self, source, target, data):
+        exitDataS = self.m.getExitData(source, target)
+        exd = {} if not exitDataS else json.loads(exitDataS)
+        exd.update(data)
+        self.m.setExitData(source, target, json.dumps(exd))
+
     def draw(self, sizeX=None, sizeY=None):
         # Draw room at x,y,z. Enumerate exits. For each exit target, breadth-first, figure out its new dimensions, rinse, repeat.
         # █▓▒░
@@ -129,10 +141,7 @@ class Mapper(BaseModule):
         visited = set()
 
         def getExitLen(source, target):
-            exitDataS = self.m.getExitData(source, target)
-            if not exitDataS:
-                return 1
-            exitData = json.loads(exitDataS)
+            exitData = self.getExitData(source, target)
             if not exitData or 'len' not in exitData:
                 return 1
             return int(exitData['len'])
@@ -180,7 +189,7 @@ class Mapper(BaseModule):
                         if tgt in visited:
                             tgtX, tgtY = coordCache[tgt]
                             if tgtX != roomX or tgtY != roomY:
-                                print("Offset detected:", roomX - tgtX, roomY-tgtX)
+                                # print("Offset detected:", roomX - tgtX, roomY-tgtX)
                                 mark = True
 
                         # draw a long exit for beautification
@@ -228,6 +237,9 @@ class Mapper(BaseModule):
 
     def quit(self, args=None):
         self.save([self.mapfname])
+        if 'visited' not in self.world.state:
+            self.world.state['visited'] = set()
+        self.log("Visited {} rooms today!".format(len(self.world.state['visited'])))
 
     def save(self, args):
         if len(args) == 1:
@@ -262,6 +274,11 @@ class Mapper(BaseModule):
                 json.dumps(self.exitFrom['data']),
                 self.exitFrom['exits'])
         self.exitKw = None
+
+    def lockExit(self, args):
+        direction, level = args if len(args) > 1 else (args[0], -1)
+        self.addExitData(self.current(), self.getRoomByDirection(direction), {'lock': int(level)})
+        return self.here([self.current()])
 
     def getRoomByDirection(self, direction):
         here = self.current()
@@ -324,7 +341,9 @@ class Mapper(BaseModule):
     def find(self, args):
         self.log('\n' + pprint.pformat(self.m.findRoomByName(args[0])))
 
-    def unmapped(self, args):
+    def unmapped(self, unvisited):
+        if 'visited' not in self.world.state:
+            self.world.state['visited'] = set()
         out = []  # A set would probably be smaller, but a list is in the order of closeness.
         visited = set()
         roomq = collections.deque()
@@ -336,12 +355,18 @@ class Mapper(BaseModule):
             visited.add(room)
             exits = self.m.getRoomExits(room)
             for d, tgt in exits.items():
-                dataS = self.m.getRoomData(tgt)
-                if not dataS:
-                    out.append(tgt)
-                else:
-                    if  tgt not in visited and json.loads(dataS)['zone'] == startArea:
-                        roomq.append(tgt)
+                edata = self.m.getExitData(room, tgt)
+                rdataS = self.m.getRoomData(tgt)
+                if 'lock' not in edata:
+                    if not rdataS:  # unexplored
+                        out.append(tgt)
+                    else:
+                        sameZone = json.loads(rdataS)['zone'] == startArea
+                        if (unvisited and tgt not in self.world.state['visited'] and sameZone):
+                            out.append(tgt)
+                        else:
+                            if tgt not in visited and sameZone:
+                                roomq.append(tgt)
         return list(dict.fromkeys(out))  # dedupe
 
 
@@ -399,14 +424,20 @@ class Mapper(BaseModule):
             out.append(runifyDirs(directions))
         return ';'.join(out)
 
+    def autoVisit(self, _=None):
+        self.world.state['autoVisitTarget'] = self.unmapped(True)[0]
+        self.go(self.world.state['autoVisitTarget'])
 
     def __init__(self, mud, drawAreas, mapfname):
         self.drawAreas = drawAreas
         self.load([mapfname])
 
         self.commands = {
-                'unmapped': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(args)])),
-                'gounmapped': lambda args: self.go(self.unmapped(args)[0]),
+                'lock': self.lockExit,
+                'unmapped': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(False)])),
+                'unvisited': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(True)])),
+                'gounmapped': lambda args: self.go(self.unmapped(False)[0]),
+                'av': self.autoVisit,
                 'find': self.find,
                 'load': self.load,
                 'read': self.load,
@@ -473,6 +504,9 @@ class Mapper(BaseModule):
 
         if cmd == 'room.info':
             id = value['num']
+            if 'visited' not in self.world.state:
+                self.world.state['visited'] = set()
+            self.world.state['visited'].add(id)
             name = value['name']
             data = dict(zone=value['zone'], terrain = value['terrain'])
             exits = self.m.getRoomExits(id)  # retain custom exits
@@ -485,3 +519,6 @@ class Mapper(BaseModule):
 
             with open('mapdraw', 'w') as f:
                 f.write(self.draw(35, 35) + '\n')
+
+            if 'autoVisitTarget' in self.world.state and self.world.state['autoVisitTarget'] == id and self.world.gmcp['char']['vitals']['moves'] > 40:
+                self.autoVisit()
