@@ -84,7 +84,7 @@ class Coffee(modular.ModularClient):
 
         self.name = name
         self.logfname = '{}.log'.format(name)
-        self.mapfname = '{}.map'.format(name)
+        self.mapfname = 'coffee.map'
 
         import modules.logging
         import modules.eval
