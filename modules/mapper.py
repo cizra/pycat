@@ -389,7 +389,7 @@ class Mapper(BaseModule):
             cmds += cmd.split(';')
 
         def direction(elem):
-            return elem in "nsuewd"
+            return elem in ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw', 'u', 'd']
 
         def runifyDirs(directions):
             if not directions:
