@@ -277,7 +277,11 @@ class Mapper(BaseModule):
 
     def lockExit(self, args):
         direction, level = args if len(args) > 1 else (args[0], -1)
-        self.addExitData(self.current(), self.getRoomByDirection(direction), {'lock': int(level)})
+        tgt = self.getRoomByDirection(direction)
+        if not tgt:
+            self.mud.log("Exit doesn't exist")
+            return
+        self.addExitData(self.current(), tgt, {'lock': int(level)})
         return self.here([self.current()])
 
     def getRoomByDirection(self, direction):
