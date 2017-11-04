@@ -341,7 +341,10 @@ class Mapper(BaseModule):
     def find(self, args):
         self.log('\n' + pprint.pformat(self.m.findRoomByName(args[0])))
 
-    def unmapped(self, unvisited):
+    def currentArea(self):
+        return json.loads(self.m.getRoomData(self.current()))['zone']
+
+    def unmapped(self, unvisited, inArea, one):
         if 'visited' not in self.world.state:
             self.world.state['visited'] = set()
         out = []  # A set would probably be smaller, but a list is in the order of closeness.
@@ -349,7 +352,7 @@ class Mapper(BaseModule):
         roomq = collections.deque()
         roomq.append(self.current())
         visited.add(self.current())
-        startArea = json.loads(self.m.getRoomData(self.current()))['zone']
+        startArea = self.currentArea()
         while roomq:
             room = roomq.popleft()
             visited.add(room)
@@ -359,16 +362,18 @@ class Mapper(BaseModule):
                 rdataS = self.m.getRoomData(tgt)
                 if 'lock' not in edata:
                     if not rdataS:  # unexplored
-                        out.append(tgt)
+                        if one:
+                            return [tgt]
+                        else:
+                            out.append(tgt)
                     else:
-                        sameZone = json.loads(rdataS)['zone'] == startArea
+                        sameZone = not inArea or json.loads(rdataS)['zone'] == startArea
                         if (unvisited and tgt not in self.world.state['visited'] and sameZone):
                             out.append(tgt)
                         else:
                             if tgt not in visited and sameZone:
                                 roomq.append(tgt)
         return list(dict.fromkeys(out))  # dedupe
-
 
     def assemble(self, cmds1):
         # return ';'.join(paths)
@@ -377,7 +382,7 @@ class Mapper(BaseModule):
             cmds += cmd.split(';')
 
         def direction(elem):
-            return elem in "neswud"
+            return elem in "nsuewd"
 
         def runifyDirs(directions):
             if not directions:
@@ -392,12 +397,12 @@ class Mapper(BaseModule):
                 else:
                     if first:
                         first = False
-                    else:
+                    elif self.spacesInRun:
                         out += ' '
 
                     out += ("" if count == 1 else str(count)) + directions[i - 1]
                     count = 1
-            if not first:
+            if not first and self.spacesInRun:
                 out += ' '
             out += ("" if count == 1 else str(count)) + directions[-1]
             if len(out) == 1:
@@ -424,20 +429,28 @@ class Mapper(BaseModule):
             out.append(runifyDirs(directions))
         return ';'.join(out)
 
-    def autoVisit(self, _=None):
-        self.world.state['autoVisitTarget'] = self.unmapped(True)[0]
+    def autoVisit(self, args=None):
+        if not args or args[0] != 'exit':
+            self.world.state['autoVisitArea'] = self.currentArea()
+        self.world.state['autoVisitTarget'] = self.unmapped(False, 'autoVisitArea' in self.world.state, True)[0]
         self.go(self.world.state['autoVisitTarget'])
 
-    def __init__(self, mud, drawAreas, mapfname):
+    def areas(self, args):
+        from pprint import pprint
+        pprint(self.data)
+
+    def __init__(self, mud, drawAreas, mapfname, spacesInRun=True):
         self.drawAreas = drawAreas
+        self.spacesInRun = spacesInRun
         self.load([mapfname])
 
         self.commands = {
                 'lock': self.lockExit,
-                'unmapped': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(False)])),
-                'unvisited': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(True)])),
-                'gounmapped': lambda args: self.go(self.unmapped(False)[0]),
+                'unmapped': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(False, True, False)])),
+                'unvisited': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(True, True, False)])),
+                'gounmapped': lambda args: self.go(self.unmapped(False, True, True)[0]),
                 'av': self.autoVisit,
+                'areas': self.areas,
                 'find': self.find,
                 'load': self.load,
                 'read': self.load,
@@ -520,5 +533,10 @@ class Mapper(BaseModule):
             with open('mapdraw', 'w') as f:
                 f.write(self.draw(35, 35) + '\n')
 
-            if 'autoVisitTarget' in self.world.state and self.world.state['autoVisitTarget'] == id and self.world.gmcp['char']['vitals']['moves'] > 40:
-                self.autoVisit()
+            if 'autoVisitTarget' in self.world.state and self.world.state['autoVisitTarget'] == id:
+                if 'char' in self.world.gmcp and self.world.gmcp['char']['vitals']['moves'] < 60:
+                    self.log("Autovisiting, but near out of moves")
+                elif 'autoVisitArea' in self.world.state and self.world.state['autoVisitArea'] != self.currentArea():
+                    self.log("Autovisiting, but changed areas")
+                else:
+                    self.autoVisit(['exit'] if 'autoVisitArea' not in self.world.state else None)
