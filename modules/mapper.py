@@ -55,7 +55,7 @@ class Mapper(BaseModule):
             return ''
         then = time.time()
         path = self.assemble(self.m.findPath(here, there))
-        self.log("{} (found in {} ms)".format(path, (time.time() - then)/1000))
+        self.log("{} (found in {} ms)".format(path, (time.time() - then)*1000))
         return path
 
     def path(self, there):
