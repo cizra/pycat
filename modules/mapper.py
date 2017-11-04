@@ -446,6 +446,13 @@ class Mapper(BaseModule):
         from pprint import pprint
         pprint(self.data)
 
+    def delExits(self, args):
+        value = self.world.gmcp['room']['info']
+        id = value['num']
+        data = dict(zone=value['zone'], terrain = value['terrain'])
+        name = value['name']
+        self.m.addRoom(id, name, json.dumps(data), {})
+
     def __init__(self, mud, drawAreas, mapfname, spacesInRun=True):
         self.drawAreas = drawAreas
         self.spacesInRun = spacesInRun
@@ -474,6 +481,7 @@ class Mapper(BaseModule):
                 'endexit': self.endExit,
                 'inc': self.inc,
                 'dec': self.dec,
+                'delexits': self.delExits,
                 }
 
         # for creating custom exits
