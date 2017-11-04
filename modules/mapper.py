@@ -354,11 +354,13 @@ class Mapper(BaseModule):
         out = []  # A set would probably be smaller, but a list is in the order of closeness.
         visited = set()
         roomq = collections.deque()
+        roomq_check = set([self.current()])  # prevent enqueuing the same room a zillon times
         roomq.append(self.current())
         visited.add(self.current())
         startArea = self.currentArea()
         while roomq:
             room = roomq.popleft()
+            roomq_check.remove(room)
             visited.add(room)
             exits = self.m.getRoomExits(room)
             for d, tgt in exits.items():
@@ -375,7 +377,8 @@ class Mapper(BaseModule):
                         if (unvisited and tgt not in self.world.state['visited'] and sameZone):
                             out.append(tgt)
                         else:
-                            if tgt not in visited and sameZone:
+                            if tgt not in visited and sameZone and tgt not in roomq_check:
+                                roomq_check.add(tgt)
                                 roomq.append(tgt)
         return list(dict.fromkeys(out))  # dedupe
 
