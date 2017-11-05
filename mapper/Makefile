@@ -27,7 +27,7 @@ unittest: test.o libmapper.so
 
 .PHONY: test
 test: unittest
-	./unittest
+	LD_LIBRARY_PATH=`pwd` ./unittest
 	LD_PRELOAD=libboost_serialization.so:libboost_python3.so:libpython3.6m.so:libstdc++.so.6 ./test.py
 
 .PHONY: clean
