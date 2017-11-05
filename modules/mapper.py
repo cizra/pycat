@@ -9,6 +9,60 @@ import shutil
 import time
 
 
+def assemble(cmds1):
+    # return ';'.join(paths)
+    cmds = []
+    for cmd in cmds1:
+        cmds += cmd.split(';')
+
+    def direction(elem):
+        return elem in ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw', 'u', 'd']
+
+    def runifyDirs(directions):
+        if not directions:
+            return ""
+        count = 1
+        # directions hold strings like {n n n e e s}. Transform them to 3n 2e s
+        out = ""
+        first = True;
+        for i in range(1, len(directions)):
+            if directions[i - 1] == directions[i]:
+                count += 1
+            else:
+                if first:
+                    first = False
+                else:
+                    out += ' '
+
+                out += ("" if count == 1 else str(count)) + directions[i - 1]
+                count = 1
+        if not first:
+            out += ' '
+        out += ("" if count == 1 else str(count)) + directions[-1]
+        if len(out) == 1:
+            return out;
+        else:
+            return "run " + out;
+
+    out = []
+    directions = []  # accumulates directions between non-directions
+
+    while cmds:
+        current = cmds[0]
+        if direction(current):
+            directions.append(current)
+            cmds = cmds[1:]
+        else:
+            if directions:
+                out.append(runifyDirs(directions))
+                directions = []
+            out.append(current)
+            cmds = cmds[1:]
+    if directions:
+        out.append(runifyDirs(directions))
+    return ';'.join(out)
+
+
 class Mapper(BaseModule):
     def help(self, args):
         strs = ["Commands:"]
@@ -54,7 +108,7 @@ class Mapper(BaseModule):
             self.log("Already there!")
             return ''
         then = time.time()
-        path = self.assemble(self.m.findPath(here, there))
+        path = assemble(self.m.findPath(here, there))
         self.log("{} (found in {} ms)".format(path, (time.time() - then)*1000))
         return path
 
@@ -381,60 +435,6 @@ class Mapper(BaseModule):
                                 roomq_check.add(tgt)
                                 roomq.append(tgt)
         return list(dict.fromkeys(out))  # dedupe
-
-    def assemble(self, cmds1):
-        # return ';'.join(paths)
-        cmds = []
-        for cmd in cmds1:
-            cmds += cmd.split(';')
-
-        def direction(elem):
-            return elem in ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw', 'u', 'd']
-
-        def runifyDirs(directions):
-            if not directions:
-                return ""
-            count = 1
-            # directions hold strings like {n n n e e s}. Transform them to 3n 2e s
-            out = ""
-            first = True;
-            for i in range(1, len(directions)):
-                if directions[i - 1] == directions[i]:
-                    count += 1
-                else:
-                    if first:
-                        first = False
-                    elif self.spacesInRun:
-                        out += ' '
-
-                    out += ("" if count == 1 else str(count)) + directions[i - 1]
-                    count = 1
-            if not first and self.spacesInRun:
-                out += ' '
-            out += ("" if count == 1 else str(count)) + directions[-1]
-            if len(out) == 1:
-                return out;
-            else:
-                return "run " + out;
-
-
-        out = []
-        directions = []  # accumulates directions between non-directions
-
-        while cmds:
-            current = cmds[0]
-            if direction(current):
-                directions.append(current)
-                cmds = cmds[1:]
-            else:
-                if directions:
-                    out.append(runifyDirs(directions))
-                    directions = []
-                out.append(current)
-                cmds = cmds[1:]
-        if directions:
-            out.append(runifyDirs(directions))
-        return ';'.join(out)
 
     def autoVisit(self, args=None):
         if not args or args[0] != 'exit':
