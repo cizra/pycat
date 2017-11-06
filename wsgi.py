@@ -28,6 +28,8 @@ httpfooter = '</body></html>'
 
 def frontpage():
     body = """
+<h1>Cizrian Pathificator</h1>
+<p>Start typing to find a room. Click on a table row to activate.</p>
 <p>Room names are Case Sensitive!</p>
 <form method="POST">
 From: <input type="text" name="from" id="inputfrom" oninput="findRoom('from')"><br/>
@@ -49,7 +51,8 @@ def findRoom(roomName):
 
 def pathFind(args):
     here, there = int(args[0]), int(args[1])
-    return [assemble(m.findPath(here, there))]
+    ret = assemble(m.findPath(here, there)) or "Not found :("
+    return [ret]
 
 
 def route(env, start_response):
