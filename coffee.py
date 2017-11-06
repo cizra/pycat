@@ -151,6 +151,15 @@ class Coffee(modular.ModularClient):
                     'You begin to float back down.': 'cast fly',
                     'Your skin softens.': 'cast stoneskin',
                     })
+        if name == 'rhubard' or name == 'bombard':
+            self.triggers.update({
+                'Drab appears!': 'fol drab',
+                'Drab recalls body and spirit to the Java Plane!': 'recall',
+                'Drab lays down and takes a nap.': 'sleep',
+                'Drab mounts a gelding.': 'mount 2.gelding',
+                'Drab dismounts a gelding.': 'dismo',
+                'Drab takes a drink from a fountain.': 'drink fount',
+                })
 
     def getHostPort(self):
         return 'coffeemud.net', 2323
