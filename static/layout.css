@@ -1,0 +1,57 @@
+/* borrowed from https://github.com/dannytatom/muddy/blob/master/public/css/layout.css */
+html {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    color: #909090;
+    background: #272727;
+    height: 100%;
+}
+
+#client {
+    height: 100%;
+    width: 100%;
+}
+
+#client #output {
+    height: calc(100% - 70px);
+    overflow-x: hidden;
+    overflow-y: scroll;
+    padding: 10px;
+    font-family: monospace;
+    line-height: 14px;
+    white-space: pre-wrap;
+    color: #dddddd;
+}
+
+#input {
+    position: fixed;
+    bottom: 0px;
+    padding: 10px;
+    height: 25px;
+    background: #202020;
+    right: 3px;
+    left: 3px;
+}
+
+#input input {
+    padding: 3px;
+    width: calc(100% - 3px);
+    font-family: monospace;
+    color: #333333;
+    background: #f3f3f3;
+    border: 1px solid #ffffff;i
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.30);
+    -moz-box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.30);
+    -webkit-box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.30);
+}
+
+#input input:focus {
+    outline: none;
+}
