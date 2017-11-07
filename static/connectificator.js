@@ -1,20 +1,28 @@
-var maxlen = 10000;
+var maxlen = 10;
 var socket = null;
 var outputf = null;
 var inputf = null;
 var mudReaderBusy = false;
 var mudReader = new FileReader();
-var inQ = [];
-var outS = [];
+var inQ = []; // binary blobs incoming from socket, waiting to be processed
+var outS = []; // line-split view of screen, bounded by vertical size
 var ansi_up = new AnsiUp;
 
+function capOutput() {
+    outS = outS.slice(Math.max(0, outS.length - maxlen));
+}
+
 mudReader.addEventListener("loadend", function() {
-    // var out = mudReader.result;
-    // out = Telnet.parse(out);
-    // out = out.replace(/\r/g, "");
-    // out = ansi_up.ansi_to_html(out);
-    outS.push(ansi_up.ansi_to_html(Telnet.parse(
-                mudReader.result.replace(/\r/g, ''))));
+    var processed = mudReader.result;
+    processed = Telnet.parse(processed);
+    if (processed) { // just GMCP?
+        processed = processed.replace(/\r/g, "");
+        processed = ansi_up.ansi_to_html(processed);
+        processed = processed.trim();
+        var split = processed.split(/\n/);
+        split.forEach(function(line){outS.push(line);});
+        capOutput();
+    }
     if (inQ.length > 0) {
         mudReader.readAsBinaryString(inQ.shift());
     } else {
@@ -41,26 +49,19 @@ function send(text) {
     else
         text = text.replace(/;/g, "\n");
     sendRaw(text + "\n");
-    split = text.split(/\n/);
-    for (i in split)
-        outputf.innerHTML += "➡" + split[i] + "\n";
+    text.split(/\n/).forEach(function(line) {
+        outS.push('⇨' + line);
+    });
+    capOutput();
+    scroll();
     inputf.focus();
 }
 
 function scroll() {
-    var out = outS.join('');
-    if (out.length >= maxlen) {
-        outputf.innerHTML = out.substr(out.length - maxlen);
-    } else if (outputf.innerHTML.length + out.length >= maxlen) {
-        var sum = outputf.innerHTML + out;
-        outputf.innerHTML = sum.substr(out.length - maxlen);
-    } else {
-        outputf.innerHTML += out;
-    }
-    outS = [];
+    outputf.innerHTML = outS.join('\n');
     // Only scroll if the user isn't reading backlog
     if (inputf === document.activeElement)
-        outputf.scrollTop = 1E10;
+        outputf.scrollTop = 1E20;
 }
 
 function startSocket() {
@@ -108,4 +109,8 @@ function start() {
     addGmcpHandlers();
     document.getElementById('pInput').onclick = function() { document.getElementById('pInput').select();};
     document.getElementById('pInput').oninput = function() { findRoom('pInput', 'pList');};
+    winHeight = parseInt(document.defaultView.getComputedStyle(outputf, null)['height'].replace("px", ""));
+    lineHeight = parseInt(document.defaultView.getComputedStyle(outputf, null)['line-height'].replace("px", ""));
+    var page = Math.floor(winHeight / lineHeight) + 1;
+    maxlen = page * 10;
 }
