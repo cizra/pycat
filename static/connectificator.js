@@ -1,6 +1,34 @@
+var maxlen = 10000;
 var socket = null;
 var outputf = null;
 var inputf = null;
+var mudReaderBusy = false;
+var mudReader = new FileReader();
+var inQ = [];
+var outS = [];
+var ansi_up = new AnsiUp;
+
+mudReader.addEventListener("loadend", function() {
+    // var out = mudReader.result;
+    // out = Telnet.parse(out);
+    // out = out.replace(/\r/g, "");
+    // out = ansi_up.ansi_to_html(out);
+    outS.push(ansi_up.ansi_to_html(Telnet.parse(
+                mudReader.result.replace(/\r/g, ''))));
+    if (inQ.length > 0) {
+        mudReader.readAsBinaryString(inQ.shift());
+    } else {
+        mudReaderBusy = false;
+        window.setTimeout(scroll, 1); // release the mudReader faster, but still scroll on event
+    }
+});
+
+function flushQ() {
+    if (!mudReaderBusy) {
+        mudReaderBusy = true;
+        mudReader.readAsBinaryString(inQ.shift());
+    }
+}
 
 function sendRaw(stuff) {
     var b = new Blob([stuff], {type: 'application/octet-stream'});
@@ -20,27 +48,28 @@ function send(text) {
 }
 
 function scroll() {
+    var out = outS.join('');
+    if (out.length >= maxlen) {
+        outputf.innerHTML = out.substr(out.length - maxlen);
+    } else if (outputf.innerHTML.length + out.length >= maxlen) {
+        var sum = outputf.innerHTML + out;
+        outputf.innerHTML = sum.substr(out.length - maxlen);
+    } else {
+        outputf.innerHTML += out;
+    }
+    outS = [];
     // Only scroll if the user isn't reading backlog
     if (inputf === document.activeElement)
-        outputf.scrollTop = output.scrollHeight;
+        outputf.scrollTop = 1E10;
 }
 
 function startSocket() {
     inputf = document.getElementById('inputfield');
     outputf = document.getElementById('output');
-    var ansi_up = new AnsiUp;
     socket = new WebSocket('ws://' + window.location.hostname + ':7901', ['binary']);
     socket.addEventListener('message', function (event) {
-        var mudReader = new FileReader();
-        mudReader.addEventListener("loadend", function() {
-            var out = mudReader.result;
-            out = Telnet.parse(out);
-            out = out.replace(/\r/g, "");
-            outputf.innerHTML += ansi_up.ansi_to_html(out);
-            scroll();
-        });
-
-        mudReader.readAsBinaryString(event.data);
+        inQ.push(event.data);
+        flushQ();
     });
     socket.onerror=function (e) {
         outputf.innerHTML += "\n\n\nWebSocket Error: " + e.reason;

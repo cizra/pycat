@@ -33,12 +33,16 @@ input {
 #client #output {
     height: calc(100% - 70px);
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: hidden;
     padding: 10px;
     font-family: monospace;
     line-height: 14px;
     white-space: pre-wrap;
     color: #dddddd;
+}
+
+#pathificator {
+    -webkit-transform: translate3d(0, 0, 0);
 }
 
 #pathificator #pInput {
