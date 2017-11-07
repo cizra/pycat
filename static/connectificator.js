@@ -77,5 +77,6 @@ function rnum() {
 function start() {
     startSocket();
     addGmcpHandlers();
+    document.getElementById('pInput').onclick = function() { document.getElementById('pInput').select();};
     document.getElementById('pInput').oninput = function() { findRoom('pInput', 'pList');};
 }
