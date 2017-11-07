@@ -1,6 +1,7 @@
 table {border-collapse: collapse;}
 
 table tr:nth-child(even){background-color: #f2f2f2;}
+table tr:nth-child(odd){background-color: #222222;}
 
 table td, table th {
     border: 1px solid #ddd;
