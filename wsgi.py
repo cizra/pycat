@@ -46,7 +46,7 @@ def route(env, start_response):
 
 def application(env, start_response):
     try:
-        start_response('200 OK', [('Content-Type', 'text/html')])# , ('Transfer-Encoding', 'chunked')])
+        start_response('200 OK', [('Content-Type', 'text/html'), ('Access-Control-Allow-Origin', 'http://sneezymud.org')])# , ('Transfer-Encoding', 'chunked')])
         for line in route(env, start_response):
             if line[-1] != '\n':
                 line += '\n'
