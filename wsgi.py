@@ -16,32 +16,6 @@ def load():
 load()
 
 
-httpheader = """
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cizrian pathificator</title>
-<link rel="stylesheet" href="style.css">
-<script src="pathificator.js"></script>
-</head>
-"""
-
-httpfooter = '</body></html>'
-
-def frontpage():
-    body = """
-<h1>Cizrian Pathificator</h1>
-<p>Start typing to find a room. Click on a table row to activate.</p>
-<p>Room names are Case Sensitive!</p>
-<form method="POST">
-From: <input type="text" name="from" id="inputfrom" oninput="findRoom('from')"><br/>
-To: <input type="text" name="to" id="inputto" oninput="findRoom('to')"><br/>
-</form>
-<p id="path"></p>
-<p id="lag"></p>
-<table id="roomlist"></table>
-"""
-    yield httpheader + body + httpfooter
-
-
 def findRoom(roomName):
     if len(roomName) >= 3:
         return [json.dumps(m.findRoomByName(roomName))]
@@ -58,7 +32,7 @@ def pathFind(args):
 def route(env, start_response):
     path = env['REQUEST_URI']
     if path == '/':
-        yield from frontpage()
+        start_response('302 Found', [('Location', '/connectificator.html')])
     elif path.startswith('/findRoom/'):
         yield from findRoom(urllib.parse.unquote(path.split('/findRoom/')[1]))
     elif path.startswith('/pathFind/'):
