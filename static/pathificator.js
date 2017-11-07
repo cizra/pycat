@@ -1,3 +1,4 @@
+var url = window.location.href.substr(0, window.location.href.length - 1) + ':8000/';
 function getRooms(name, callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
@@ -6,7 +7,7 @@ function getRooms(name, callback) {
             callback(JSON.parse(this.responseText));
         }
     };
-    xhttp.open("GET", "findRoom/" + name, true);
+    xhttp.open("GET", url + "findRoom/" + name, true);
     xhttp.send();
 }
 
@@ -29,7 +30,7 @@ function pathfind(targetRoom, input) {
             input.innerHTML = "";
         }
     };
-    xhttp.open("GET", "pathFind/" + rnum() + "/" + targetRoom, true);
+    xhttp.open("GET", url + "pathFind/" + rnum() + "/" + targetRoom, true);
     xhttp.send();
 }
 
