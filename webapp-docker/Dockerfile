@@ -4,7 +4,8 @@ LABEL maintainer Elmo Todurov <elmo.todurov@eesti.ee>
 RUN apk update && apk add build-base boost-dev alpine-sdk python3-dev sudo uwsgi-python3
 # RUN rm -f /var/cache/apk/*
 # RUN adduser -D pycat && addgroup pycat abuild && echo 'pycat ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-RUN adduser -D webserver
+ARG UID=1000
+RUN adduser -D -u $UID webserver
 EXPOSE 8887
 
 USER webserver
