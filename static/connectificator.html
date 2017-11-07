@@ -2,10 +2,17 @@
         <title>Cizrian Connectificator</title>
         <link rel="stylesheet" href="style.css" />
         <link rel="stylesheet" href="layout.css" />
+        <script src="gmcp.js"></script>
         <script src="connectificator.js"></script>
+        <script src="pathificator.js"></script>
         <script src="ansi_up.js"></script>
     </head>
     <body onload="start()">
+        <div id='pathificator'>
+            <div id='lag'>Lag</div>
+            <input id='pInput' type='text' />
+            <table id="pList"></table>
+        </div>
         <div id='client'>
             <div id='output'>Connecting to SneezyMUD...</div>
         </div>
