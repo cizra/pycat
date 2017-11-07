@@ -29,7 +29,7 @@ function pathfind(targetRoom, input) {
             input.innerHTML = "";
         }
     };
-    xhttp.open("GET", "pathFind/100/" + targetRoom, true);
+    xhttp.open("GET", "pathFind/" + rnum() + "/" + targetRoom, true);
     xhttp.send();
 }
 

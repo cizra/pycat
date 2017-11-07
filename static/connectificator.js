@@ -62,7 +62,20 @@ function startSocket() {
     inputf.select();
 }
 
+function addGmcpHandlers() {
+    /*
+    Telnet.handle("room.info", function() {
+        console.log("In room " + Telnet.gmcp()['room']['info']['num']);
+    });
+    */
+}
+
+function rnum() {
+    return Telnet.gmcp()['room']['info']['num'];
+}
+
 function start() {
     startSocket();
+    addGmcpHandlers();
     document.getElementById('pInput').oninput = function() { findRoom('pInput', 'pList');};
 }

@@ -1,5 +1,6 @@
 var Telnet = (function(exports) {
     var gmcp = {};
+    var handlers = {};
     exports.gmcp = function() { return gmcp; };
     var gmcp_fragment = "";
     var plaintext_fragment = "";
@@ -126,7 +127,8 @@ var Telnet = (function(exports) {
     }
 
     function runOnGmcps(cmd, obj) {
-        console.log("Got GMCP " + cmd);
+        if (cmd in handlers)
+            handlers[cmd]();
     }
 
     exports.parse = function(input) {
@@ -137,5 +139,10 @@ var Telnet = (function(exports) {
         plaintext_fragment = "";
         return tmp;
     }
+
+    exports.handle = function(cmd, callable) {
+        handlers[cmd] = callable;
+    }
+
     return exports;
 })(Telnet || {});
