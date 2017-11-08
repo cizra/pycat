@@ -1,4 +1,14 @@
-var url = window.location.href.substr(0, window.location.href.length - 1) + ':8000/';
+var url = function() {
+    var parser = document.createElement('a');
+    parser.href = window.location.href;
+    // replace port with 8000, if it's unset
+    var port = ":8000";
+    if (parser.port)
+        port = ":" + parser.port;
+    console.log(parser.protocol + "//" + parser.hostname + port + "/");
+    return parser.protocol + "//" + parser.hostname + port + "/";
+}();
+
 function getRooms(name, callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
