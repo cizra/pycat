@@ -87,7 +87,7 @@ function startSocket() {
             inputf.select();
         }
     }
-    inputf.onkeypress = function() {return oninput(event);};
+    inputf.onkeypress = function(event) {return oninput(event);};
 
     inputf.select();
 }
