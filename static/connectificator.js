@@ -12,17 +12,22 @@ function capOutput() {
     outS = outS.slice(Math.max(0, outS.length - maxlen));
 }
 
+function display(processed) {
+    processed = processed.replace(/\r/g, "");
+    processed = ansi_up.ansi_to_html(processed);
+    var split = processed.split(/\n/);
+    outS.push(split.shift());
+    split.forEach(function(line){
+        outS.push('\n' + line);
+    });
+    capOutput();
+}
+
 mudReader.addEventListener("loadend", function() {
     var processed = mudReader.result;
     processed = Telnet.parse(processed);
-    if (processed) { // just GMCP?
-        processed = processed.replace(/\r/g, "");
-        processed = ansi_up.ansi_to_html(processed);
-        processed = processed.trim();
-        var split = processed.split(/\n/);
-        split.forEach(function(line){outS.push(line);});
-        capOutput();
-    }
+    if (processed) // just GMCP?
+        display(processed);
     if (inQ.length > 0) {
         mudReader.readAsBinaryString(inQ.shift());
     } else {
@@ -50,7 +55,7 @@ function send(text) {
         text = text.replace(/;/g, "\n");
     sendRaw(text + "\n");
     text.split(/\n/).forEach(function(line) {
-        outS.push('⇨' + line);
+        outS.push('⇨' + line + '\n');
     });
     capOutput();
     scroll();
@@ -58,7 +63,7 @@ function send(text) {
 }
 
 function scroll() {
-    outputf.innerHTML = outS.join('\n');
+    outputf.innerHTML = outS.join('');
     // Only scroll if the user isn't reading backlog
     if (inputf === document.activeElement)
         outputf.scrollTop = 1E20;
