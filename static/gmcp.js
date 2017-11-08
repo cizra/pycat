@@ -1,4 +1,4 @@
-var Telnet = (function(exports) {
+var Gmcp = (function(exports) {
     var gmcp = {};
     var handlers = {};
     exports.gmcp = function() { return gmcp; };
@@ -144,5 +144,13 @@ var Telnet = (function(exports) {
         handlers[cmd] = callable;
     }
 
+    exports.rnum = function() {
+        if ('room' in gmcp
+            && 'info' in gmcp['room']
+            && 'num' in gmcp['room']['info'])
+            return gmcp['room']['info']['num'];
+        return 0;
+    }
+
     return exports;
-})(Telnet || {});
+})(Gmcp || {});

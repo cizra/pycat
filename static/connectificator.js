@@ -1,44 +1,21 @@
-var maxlen = 10;
 var socket = null;
-var outputf = null;
-var inputf = null;
-var mudReaderBusy = false;
 var mudReader = new FileReader();
 var inQ = []; // binary blobs incoming from socket, waiting to be processed
-var outS = []; // line-split view of screen, bounded by vertical size
-var ansi_up = new AnsiUp;
-
-function capOutput() {
-    outS = outS.slice(Math.max(0, outS.length - maxlen));
-}
-
-function display(processed) {
-    processed = processed.replace(/\r/g, "");
-    processed = ansi_up.ansi_to_html(processed);
-    var split = processed.split(/\n/);
-    outS.push(split.shift());
-    split.forEach(function(line){
-        outS.push('\n' + line);
-    });
-    capOutput();
-}
+var ui = null;
 
 mudReader.addEventListener("loadend", function() {
-    var processed = mudReader.result;
-    processed = Telnet.parse(processed);
-    if (processed) // just GMCP?
-        display(processed);
-    if (inQ.length > 0) {
+    var mudstr = mudReader.result;
+    mudstr = Gmcp.parse(mudstr);
+    if (mudstr) // just GMCP?
+        ui.output(mudstr);
+    if (inQ.length > 0)
         mudReader.readAsBinaryString(inQ.shift());
-    } else {
-        mudReaderBusy = false;
-        window.setTimeout(scroll, 1); // release the mudReader faster, but still scroll on event
-    }
+    else
+        window.setTimeout(ui.blit, 1); // release the mudReader faster, but still scroll on event
 });
 
 function flushQ() {
-    if (!mudReaderBusy) {
-        mudReaderBusy = true;
+    if (mudReader.readyState != 1) {
         mudReader.readAsBinaryString(inQ.shift());
     }
 }
@@ -55,67 +32,39 @@ function send(text) {
         text = text.replace(/;/g, "\n");
     sendRaw(text + "\n");
     text.split(/\n/).forEach(function(line) {
-        outS.push('⇨' + line + '\n');
+        ui.output('⇨' + line + '\n');
     });
-    capOutput();
-    scroll();
-    inputf.focus();
-}
-
-function scroll() {
-    outputf.innerHTML = outS.join('');
-    // Only scroll if the user isn't reading backlog
-    if (inputf === document.activeElement)
-        outputf.scrollTop = 1E20;
+    ui.blit();
 }
 
 function startSocket() {
-    inputf = document.getElementById('inputfield');
-    outputf = document.getElementById('output');
     socket = new WebSocket('ws://' + window.location.hostname + ':7901', ['binary']);
     socket.addEventListener('message', function (event) {
         inQ.push(event.data);
         flushQ();
     });
     socket.onerror=function (e) {
-        outputf.innerHTML += "\n\n\nWebSocket Error: " + e.reason;
-        scroll();
+        ui.output("\n\n\nWebSocket Error: " + e.reason);
+        ui.blit();
     }
     socket.onclose=function(e){
-        outputf.innerHTML += "\n\n\nWebSocket Close: " + e.reason;
-        scroll();
+        ui.output("\n\n\nWebSocket Close: " + e.code + " " + e.reason);
+        ui.blit();
     }
-
-    function oninput(event) {
-        if (event.keyCode == 13) {
-            send(inputf.value);
-            inputf.select();
-        }
-    }
-    inputf.onkeypress = function(event) {return oninput(event);};
-
-    inputf.select();
 }
 
 function addGmcpHandlers() {
     /*
-    Telnet.handle("room.info", function() {
-        console.log("In room " + Telnet.gmcp()['room']['info']['num']);
+    Gmcp.handle("room.info", function() {
+        console.log("In room " + Gmcp.gmcp()['room']['info']['num']);
     });
     */
 }
 
-function rnum() {
-    return Telnet.gmcp()['room']['info']['num'];
-}
-
 function start() {
+    ui = Ui();
     startSocket();
     addGmcpHandlers();
     document.getElementById('pInput').onclick = function() { document.getElementById('pInput').select();};
     document.getElementById('pInput').oninput = function() { findRoom('pInput', 'pList');};
-    winHeight = parseInt(document.defaultView.getComputedStyle(outputf, null)['height'].replace("px", ""));
-    lineHeight = parseInt(document.defaultView.getComputedStyle(outputf, null)['line-height'].replace("px", ""));
-    var page = Math.floor(winHeight / lineHeight) + 1;
-    maxlen = page * 10;
 }

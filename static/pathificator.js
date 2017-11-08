@@ -40,7 +40,7 @@ function pathfind(targetRoom, input) {
             input.innerHTML = "";
         }
     };
-    xhttp.open("GET", url + "pathFind/" + rnum() + "/" + targetRoom, true);
+    xhttp.open("GET", url + "pathFind/" + Gmcp.rnum() + "/" + targetRoom, true);
     xhttp.send();
 }
 
