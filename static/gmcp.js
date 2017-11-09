@@ -1,10 +1,10 @@
-var Gmcp = (function(exports) {
+var Gmcp = function() {
+    var exports = {}
     var gmcp = {};
     var handlers = {};
     exports.gmcp = function() { return gmcp; };
-    var gmcp_fragment = "";
+    var gmcpIn_fragment = "";
     var plaintext_fragment = "";
-
     var state = 0;
 
     const GMCP = 0xc9;
@@ -40,29 +40,31 @@ var Gmcp = (function(exports) {
                 state = 3;
             else {
                 // echo on/off?
-                console.log("IAC junk " + c);
+                console.log("IAC junk ", c);
                 plaintext_fragment += String.fromCharCode(c);
                 state = 0;
             }
         },
         function(c) { // 2
+            var out = [];
             if (c == GMCP) {
-                console.log("IAC WILL GMCP, enabling");
-                sendRaw(new Uint8Array([IAC, DO, GMCP]));
-                var version = window.localStorage.getItem('version') || "0"
-                gmcpOut('Core.Hello { "client": "Cizrian Connectificator", "version": "' + version  + '" }');
-                gmcpOut('Core.Supports.Set ["char 1", "char.base 1", "char.maxstats 1", "char.status 1", "char.statusvars 1", "char.vitals 1", "char.worth 1", "comm 1", "comm.tick 1", "group 1", "room 1", "room.info 1"]');
+                console.log("Server requested GMCP, enabling");
+                out.push(IAC, DO, GMCP);
+                var version = window.localStorage.getItem('version') || "0";
+                gmcpify('Core.Hello { "client": "Cizrian Connectificator", "version": "' + version  + '" }').forEach(a => out.push(a));
+                gmcpify('Core.Supports.Set ["char 1", "char.base 1", "char.maxstats 1", "char.status 1", "char.statusvars 1", "char.vitals 1", "char.worth 1", "comm 1", "comm.tick 1", "group 1", "room 1", "room.info 1"]').forEach(a => out.push(a));
             } else {
-                console.log("IAC WILL junk " + c);
-                sendRaw(new Uint8Arraiy([IAC, DONT, c]));
+                console.log("IAC WILL junk ", c);
+                out.push(IAC, DONT, c);
             }
             state = 0;
+            return out;
         },
         function(c) { // 3
             if (c == GMCP) {
                 state = 4;
             } else {
-                console.log("IAC SB unknown subchannel " + c);
+                console.log("IAC SB unknown subchannel ", c);
                 state = 5;
             }
         },
@@ -70,7 +72,7 @@ var Gmcp = (function(exports) {
             if (c == IAC)
                 state = 6;
             else
-                gmcp_fragment += String.fromCharCode(c);
+                gmcpIn_fragment += String.fromCharCode(c);
         },
         function(c) { // 5
             if (c == IAC)
@@ -78,26 +80,18 @@ var Gmcp = (function(exports) {
         },
         function(c) { // 6
             if (c != SE)
-                console.log("IAC SB data IAC junk " + c);
+                console.log("IAC SB data IAC junk", c);
             state = 0;
-            handleGmcp(gmcp_fragment);
-            gmcp_fragment = "";
+            handleGmcp(gmcpIn_fragment);
+            gmcpIn_fragment = "";
         }
     ];
 
-    function gmcpOut(str) {
-        // I'm sure there's a better way to do this.
-        var byteArray = new Uint8Array(str.length + 5);
-        var header = [IAC, SB, GMCP];
-        var footer = [IAC, SE];
-        var p = 0;
-        for (i in header)
-            byteArray[p++] = header[i];
+    function gmcpify(str) {
+        var byteArray = [IAC, SB, GMCP]
         for (i in str)
-            byteArray[p++] = str[i].charCodeAt();
-        for (i in footer)
-            byteArray[p++] = footer[i];
-        sendRaw(byteArray);
+            byteArray.push(str[i].charCodeAt());
+        return byteArray.concat([IAC, SE]);
     }
 
     function handleGmcp(str) {
@@ -133,12 +127,16 @@ var Gmcp = (function(exports) {
     }
 
     exports.parse = function(input) {
+        var cmds = [];
         for (i in input) {
-            state_handlers[state](input[i].charCodeAt());
+            var reaction = state_handlers[state](input[i].charCodeAt());
+            if (reaction) {
+                reaction.forEach(a => cmds.push(a))
+            }
         }
-        tmp = plaintext_fragment;
+        var plaintext = plaintext_fragment;
         plaintext_fragment = "";
-        return tmp;
+        return [plaintext, cmds]
     }
 
     exports.handle = function(cmd, callable) {
@@ -153,5 +151,7 @@ var Gmcp = (function(exports) {
         return 0;
     }
 
+    exports.gmcpify = gmcpify;
+
     return exports;
-})(Gmcp || {});
+};

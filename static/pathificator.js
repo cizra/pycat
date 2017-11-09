@@ -1,4 +1,4 @@
-var Pathificator = function() {
+var Pathificator = function(send, gmcp) {
     var exports = {}
 
     var url = function() {
@@ -43,7 +43,7 @@ var Pathificator = function() {
                 input.innerHTML = "";
             }
         };
-        xhttp.open("GET", url + "pathFind/" + Gmcp.rnum() + "/" + targetRoom, true);
+        xhttp.open("GET", url + "pathFind/" + gmcp.rnum() + "/" + targetRoom, true);
         xhttp.send();
     }
 

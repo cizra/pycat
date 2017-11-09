@@ -1,5 +1,7 @@
 var Ui = function() {
     var exports = {};
+    var socket = null;
+    exports.init = function(socket) { this.socket = socket }
     var outS = []; // line-split view of screen, bounded by vertical size
     var inputf = document.getElementById('inputfield');
     var outputf = document.getElementById('output');
@@ -14,7 +16,6 @@ var Ui = function() {
         // Only scroll if the user isn't reading backlog
         if (inputf === document.activeElement)
             outputf.scrollTop = 1E20;
-        inputf.focus();
     };
 
     function capOutput() {
