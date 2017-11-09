@@ -61,10 +61,27 @@ function addGmcpHandlers() {
     */
 }
 
+function changelog() {
+    var changes = [
+        "Basic working client",
+        "Keypad navigation! Use your numeric keypad, with NumLock \"on\", to walk the world. Plus and Minus go down and up. 5 issues the \"look\" command."
+    ]
+    var version = changes.length;
+    var oldVersion = window.localStorage.getItem('version') || 0
+    console.assert(version >= oldVersion)
+    var changelog = "Changelog:\n";
+    for (i = oldVersion; i < version; ++i)
+        changelog += "\nv" + (i+1) + ":\n" + changes[i] + '\n';
+    if (changelog != "Changelog:\n")
+        alert(changelog);
+    window.localStorage.setItem('version', version)
+}
+
 function start() {
     ui = Ui();
     startSocket();
     addGmcpHandlers();
     document.getElementById('pInput').onclick = function() { document.getElementById('pInput').select();};
     document.getElementById('pInput').oninput = function() { findRoom('pInput', 'pList');};
+    changelog();
 }
