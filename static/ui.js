@@ -32,12 +32,30 @@ var Ui = function() {
         capOutput();
     };
 
-    inputf.onkeypress = function(event) {
-        if (event.keyCode == 13) {
+    exports.macros = {
+         97: function() {send("sw")},
+         98: function() {send("s")},
+         99: function() {send("se")},
+        100: function() {send("w")},
+        101: function() {send("l")},
+        102: function() {send("e")},
+        103: function() {send("nw")},
+        104: function() {send("n")},
+        105: function() {send("ne")},
+        107: function() {send("d")},
+        109: function() {send("u")}
+    }
+
+    inputf.onkeydown = function(e) {
+        if (e.key == "Enter") {
             send(inputf.value);
             inputf.select();
+            return false;
+        } else if (e.keyCode in exports.macros) {
+            exports.macros[e.keyCode]();
+            return false;
         }
-    };
+    }
 
     inputf.select();
     return exports;
