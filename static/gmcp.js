@@ -49,7 +49,8 @@ var Gmcp = (function(exports) {
             if (c == GMCP) {
                 console.log("IAC WILL GMCP, enabling");
                 sendRaw(new Uint8Array([IAC, DO, GMCP]));
-                gmcpOut('Core.Hello { "client": "Cizrian Connectificator", "version": "1" }');
+                var version = window.localStorage.getItem('version') || "0"
+                gmcpOut('Core.Hello { "client": "Cizrian Connectificator", "version": "' + version  + '" }');
                 gmcpOut('Core.Supports.Set ["char 1", "char.base 1", "char.maxstats 1", "char.status 1", "char.statusvars 1", "char.vitals 1", "char.worth 1", "comm 1", "comm.tick 1", "group 1", "room 1", "room.info 1"]');
             } else {
                 console.log("IAC WILL junk " + c);
