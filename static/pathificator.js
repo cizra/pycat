@@ -1,4 +1,4 @@
-var Pathificator = function(send, gmcp) {
+var Pathificator = function(send, gmcp, focusOnInput) {
     var exports = {}
 
     var url = function() {
@@ -39,6 +39,7 @@ var Pathificator = function(send, gmcp) {
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 document.getElementById('lag').innerHTML = (new Date().getTime() - start_time) + "ms";
+                focusOnInput();
                 send(this.responseText);
                 input.innerHTML = "";
             }

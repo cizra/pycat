@@ -1,4 +1,4 @@
-Socket = function(ui, gmcp) {
+Socket = function(onMudOutput, blit, gmcp) {
     var exports = {}
     var mudReader = new FileReader();
     var inQ = []; // binary blobs incoming from websock, waiting to be processed
@@ -18,11 +18,11 @@ Socket = function(ui, gmcp) {
         var mudstr = parseResult[0];
         send(new Uint8Array(parseResult[1])); // outgoing GMCP commands
         if (mudstr) // just GMCP?
-            ui.output(mudstr);
+            onMudOutput(mudstr);
         if (inQ.length > 0)
             mudReader.readAsBinaryString(inQ.shift());
         else
-            window.setTimeout(ui.blit, 1); // release the mudReader faster, but still scroll on event
+            window.setTimeout(blit, 1); // release the mudReader faster, but still scroll on event
     });
 
     function flushQ() {
@@ -37,12 +37,12 @@ Socket = function(ui, gmcp) {
         flushQ();
     });
     websock.onerror=function (e) {
-        ui.output("\n\n\nWebSocket Error: " + e.reason);
-        ui.blit();
+        onMudOutput("\n\n\nWebSocket Error: " + e.reason);
+        blit();
     }
     websock.onclose=function(e){
-        ui.output("\n\n\nWebSocket Close: " + e.code + " " + e.reason);
-        ui.blit();
+        onMudOutput("\n\n\nWebSocket Close: " + e.code + " " + e.reason);
+        blit();
     }
 
     exports.send = send;

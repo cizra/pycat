@@ -1,17 +1,3 @@
-var ui = null;
-
-function send(text) {
-    if (text[0] == ';')
-        text = text.slice(1);
-    else
-        text = text.replace(/;/g, "\n");
-    socket.send(text + "\n");
-    text.split(/\n/).forEach(function(line) {
-        ui.output('⇨' + line + '\n');
-    });
-    ui.blit();
-}
-
 function addGmcpHandlers() {
     /*
     Gmcp.handle("room.info", function() {
@@ -37,11 +23,26 @@ function changelog() {
 }
 
 function start() {
-    ui = Ui();
-    gmcp = Gmcp();
-    socket = Socket(ui, gmcp);
-    ui.init(socket);  // UI sends to socket
-    pathificator = Pathificator(send, gmcp);
+    var ui = null;
+    function send(text) {
+        if (text[0] == ';')
+            text = text.slice(1);
+        else
+            text = text.replace(/;/g, "\n");
+        socket.send(text + "\n");
+        text.split(/\n/).forEach(function(line) {
+            ui.output('⇨' + line + '\n');
+        });
+        ui.blit();
+    }
+    var gmcp = Gmcp();
+    var socket = null;
+    ui = Ui(send);
+    var socket = Socket(onMudOutput, ui.blit, gmcp);
+    function onMudOutput(str) {
+        ui.output(str)
+    }
+    var pathificator = Pathificator(send, gmcp, ui.focusOnInput);
     addGmcpHandlers();
     document.getElementById('pInput').onclick = function() { document.getElementById('pInput').select();};
     document.getElementById('pInput').oninput = function() { pathificator.findRoom('pInput', 'pList');};

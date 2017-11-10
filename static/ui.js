@@ -1,7 +1,5 @@
-var Ui = function() {
+var Ui = function(send) {
     var exports = {};
-    var socket = null;
-    exports.init = function(socket) { this.socket = socket }
     var outS = []; // line-split view of screen, bounded by vertical size
     var inputf = document.getElementById('inputfield');
     var outputf = document.getElementById('output');
@@ -56,6 +54,10 @@ var Ui = function() {
             exports.macros[e.keyCode]();
             return false;
         }
+    }
+
+    exports.focusOnInput = function() {
+        inputf.focus();
     }
 
     inputf.select();
