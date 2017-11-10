@@ -22,6 +22,8 @@ function changelog() {
     window.localStorage.setItem('version', version)
 }
 
+var triggers = null;
+
 function start() {
     var ui = null;
     function send(text) {
@@ -36,12 +38,13 @@ function start() {
         ui.blit();
     }
     var gmcp = Gmcp();
-    var socket = null;
     ui = Ui(send);
-    var socket = Socket(onMudOutput, ui.blit, gmcp);
+    /* var */ triggers = Triggers(send);
     function onMudOutput(str) {
         ui.output(str)
+        triggers.run(str)
     }
+    var socket = Socket(onMudOutput, ui.blit, gmcp);
     var pathificator = Pathificator(send, gmcp, ui.focusOnInput);
     addGmcpHandlers();
     document.getElementById('pInput').onclick = function() { document.getElementById('pInput').select();};
