@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import unittest
-from libmapper import Map
+from libmapper_py import Map
 
 class TestMapper(unittest.TestCase):
     def test_instantiate(self):

@@ -1,5 +1,5 @@
 from modules.basemodule import BaseModule
-import mapper.libmapper
+import mapper.libmapper_py
 import collections
 import json
 import os
@@ -382,10 +382,10 @@ class Mapper(BaseModule):
         try:
             with open(self.mapfname, 'r') as f:
                 ser = f.read()
-            self.m = mapper.libmapper.Map(ser)
+            self.m = mapper.libmapper_py.Map(ser)
             print("Loaded map from", self.mapfname)
         except FileNotFoundError:
-            self.m = mapper.libmapper.Map()
+            self.m = mapper.libmapper_py.Map()
             print("Created a new map")
 
         md = self.m.getMapData()
