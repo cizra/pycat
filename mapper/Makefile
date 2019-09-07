@@ -1,6 +1,6 @@
-INCLUDEPATH += -isystem /usr/include/python3.6m
+INCLUDEPATH += -isystem /usr/include/python3.7m
 CXX = g++
-LDFLAGS = -lboost_unit_test_framework -lboost_serialization -lboost_python3 -lpython3.6m
+LDFLAGS = -lboost_unit_test_framework -lboost_serialization -lboost_python37 -lpython3.7m
 OPTFLAGS ?= -O0
 CXXFLAGS += $(INCLUDEPATH) -c -std=c++14 -fPIC -Wall -Wextra -g $(OPTFLAGS) -fmax-errors=1 -Winvalid-pch
 
@@ -37,7 +37,7 @@ unittest: test.o libmapper.so
 .PHONY: test
 test: unittest libmapper.so libmapper_py.so
 	LD_LIBRARY_PATH=`pwd` ./unittest
-	LD_PRELOAD=libboost_serialization.so:libboost_python3.so:libpython3.6m.so:libstdc++.so.6 ./test.py
+	LD_PRELOAD=libboost_serialization.so:libboost_python37.so:libpython3.7m.so:libstdc++.so.6 ./test.py
 
 .PHONY: clean
 clean:
