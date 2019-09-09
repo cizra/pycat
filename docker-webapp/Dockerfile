@@ -10,4 +10,4 @@ EXPOSE 8887
 
 USER webserver
 WORKDIR /home/webserver
-CMD cd pycat/mapper && export LD_PRELOAD=libboost_serialization.so:libboost_python3.so:libpython3.6m.so::libstdc++.so.6:libmapper.so && make test && cd .. && uwsgi --plugin python3 wsgi.json
+CMD cd pycat/mapper && export LD_PRELOAD=libboost_serialization.so:libboost_python37.so:libpython3.7m.so::libstdc++.so.6:libmapper.so && make test && cd .. && uwsgi --plugin python3 wsgi.json
