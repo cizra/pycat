@@ -366,7 +366,7 @@ class Mapper(BaseModule):
 
         do(here, there)
         do(there, here)
-        print(self.draw())
+        self.show(self.draw())
 
     def inc(self, args):
         self.exitLen(args[0], 2)
@@ -386,7 +386,7 @@ class Mapper(BaseModule):
             print("Loaded map from", self.mapfname)
         except FileNotFoundError:
             self.m = mapper.libmapper_py.Map()
-            print("Created a new map")
+            self.mud.log("Created a new map")
 
         md = self.m.getMapData()
         if md:
@@ -443,8 +443,7 @@ class Mapper(BaseModule):
         self.go(self.world.state['autoVisitTarget'])
 
     def areas(self, args):
-        from pprint import pprint
-        pprint(self.data)
+        self.show(pprint.pformat(self.data))
 
     def delExits(self, args):
         value = self.world.gmcp['room']['info']
@@ -497,7 +496,7 @@ class Mapper(BaseModule):
             return
 
         if len(words) == 1:
-            print(self.draw())
+            self.show(self.draw())
             return True
 
         cmd = words[1]

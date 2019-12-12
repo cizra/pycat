@@ -11,7 +11,7 @@ from select import select
 
 # returns anonymous pipes (readableFromClient, writableToClient)
 def proxy(bindAddr, listenPort):
-    sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind((bindAddr, listenPort))
     sock.listen(5)

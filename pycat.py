@@ -1,42 +1,52 @@
 #!/usr/bin/env python3
 
-from pprint import pprint
+from proxy import proxy
 from select import select
 import importlib
 import json
+import os
+import pprint
 import re
 import sys
 import telnetlib
+import threading
 import traceback
 telnetlib.GMCP = b'\xc9'
-
-
-def log(*args):
-    sys.stdout.write("     ----- ")
-    print(*args)
-    pass
 
 
 class Session(object):
     def __init__(self, world_module, arg):
         self.mud_encoding = 'iso-8859-1'
+        self.client_encoding = 'utf-8'
         self.gmcp = {}
         self.world_module = world_module
         self.arg = arg
         self.world = world_module.getClass()(self, self.arg)
         try:
+            self.socketToPipeR, self.pipeToSocketW, self.stopFlag, runProxy = proxy('0.0.0.0', 4000)
+            self.pipeToSocketW = os.fdopen(self.pipeToSocketW, 'wb')
+            self.socketToPipeR = os.fdopen(self.socketToPipeR, 'rb')
+            self.proxyThread = threading.Thread(target=runProxy)
+            self.proxyThread.start()
             host_port = self.world.getHostPort()
+            self.log("Connecting")
             self.telnet = self.connect(*host_port)
+            self.log("Connected")
         except:
+            self.log("Shutting down")
+            self.stopFlag.set()
             self.world.quit()
             raise
 
     def join(self):
         self.thr.join()
 
-    def log(*args):
-        global log
-        log(*args[1:])
+    def log(self, *args, **kwargs):
+        line = pprint.pformat(args) + pprint.pformat(kwargs)
+        self.pipeToSocketW.write("---------\n".encode(self.client_encoding))
+        self.pipeToSocketW.write(line.encode(self.client_encoding))
+        self.pipeToSocketW.write(b"\n")
+        self.pipeToSocketW.flush()
 
     def strip_ansi(self, line):
         return re.sub(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', '', line)
@@ -47,7 +57,7 @@ class Session(object):
     def iac(self, sock, cmd, option):
         if cmd == telnetlib.WILL:
             if option == telnetlib.GMCP:
-                log("Enabling GMCP")
+                self.log("Enabling GMCP")
                 sock.sendall(telnetlib.IAC + telnetlib.DO + option)
                 self.gmcpOut('Core.Hello { "client": "Cizra", "version": "1" }')
                 supportables = ['char 1', 'char.base 1', 'char.maxstats 1', 'char.status 1', 'char.statusvars 1', 'char.vitals 1', 'char.worth 1', 'comm 1', 'comm.tick 1', 'group 1', 'room 1', 'room.info 1']
@@ -55,7 +65,7 @@ class Session(object):
                 self.gmcpOut('request room')
                 self.gmcpOut('request char')
             elif option == telnetlib.TTYPE:
-                log("Sending terminal type 'Cizra'")
+                self.log("Sending terminal type 'Cizra'")
                 sock.sendall(telnetlib.IAC + telnetlib.DO + option +
                         telnetlib.IAC + telnetlib.SB + telnetlib.TTYPE + telnetlib.BINARY + b'Cizra' + telnetlib.IAC + telnetlib.SE)
 
@@ -102,10 +112,12 @@ class Session(object):
         print("> ", line)
         self.telnet.write((line + '\n').encode(self.mud_encoding))
 
-    def handle_input(self):
+    def handle_from_telnet(self):
         try:
             data = self.telnet.read_very_eager()
         except:
+            self.log("EOF on telnet")
+            self.stopFlag.set()
             self.world.quit()
             raise
         try:
@@ -128,19 +140,32 @@ class Session(object):
                 if replacement is not None:
                     line = replacement
             prn.append(line)
-        sys.stdout.write('\n'.join(prn))
-        sys.stdout.flush()
+        self.pipeToSocketW.write('\n'.join(prn).encode(self.mud_encoding))
+        self.pipeToSocketW.flush()
 
 
-    def handle_output(self):
+    def show(self, line):
+        self.pipeToSocketW.write(line.encode(self.client_encoding))
+        self.pipeToSocketW.flush()
+
+
+    def handle_from_pipe(self):
         try:
-            data = input()
+            data = self.socketToPipeR.readline().decode(self.mud_encoding)[:-1]
+            if data[-1] == '\r':
+                data = data[:-1]
         except EOFError:
+            self.log("EOF in pipe")
+            self.stopFlag.set()
             self.world.quit()
             raise
+        self.handle_output_line(data)
 
+
+    def handle_output_line(self, data):
+        pprint.pprint(data)
         if data == '#reload' and self.world:
-            log('Reloading world')
+            self.log('Reloading world')
             try:
                 state = self.world.state
                 gmcp = self.world.gmcp
@@ -166,16 +191,16 @@ class Session(object):
     def run(self):
         try:
             while True:
-                try:
-                    fds, _, _ = select([self.telnet.get_socket(), sys.stdin], [], [])
-                except KeyboardInterrupt:
-                    pass
+                fds, _, _ = select([self.telnet.get_socket(), self.socketToPipeR], [], [])
                 for fd in fds:
                     if fd == self.telnet.get_socket():
-                        self.handle_input()
-                    elif fd == sys.stdin:
-                        self.handle_output()
+                        self.handle_from_telnet()
+                    elif fd == self.socketToPipeR:
+                        self.handle_from_pipe()
+        except Exception as e:
+            self.log("Exception in run():", e)
         finally:
+            self.log("Closing")
             self.telnet.close()
 
 

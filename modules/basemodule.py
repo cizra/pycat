@@ -6,6 +6,9 @@ class BaseModule(object):
     def send(self, line):
         return self.mud.send(line)
 
+    def show(self, line):
+        return self.mud.show(line)
+
     def log(self, *args, **kwargs):
         return self.mud.log(*args, **kwargs)
 

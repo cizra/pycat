@@ -7,8 +7,7 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 
-// MUD mapper
-// Uses Boost's astar_search for pathfinding
+// MUD mapper, Python wrapper
 class MapPy : public Map {
 	public:
 		using Map::Map;

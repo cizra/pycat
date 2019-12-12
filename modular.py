@@ -160,8 +160,11 @@ class ModularClient(TimerMixin):
     def send(self, *args):
         self.mud.send(*args)
 
-    def log(self, *args):
-        self.mud.log(*args)
+    def log(self, *args, **kwargs):
+        self.mud.log(*args, **kwargs)
+
+    def show(self, *args):
+        self.mud.show(*args)
 
     def getTimers(self):
         return {}

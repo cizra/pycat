@@ -32,6 +32,7 @@ def goMine(mud, _):
     mud.send('mastermine')
 
 def buyBread(mud, _):
+    return
     mud.send('recall')
     mud.send('run 2s w n')
     mud.send('buy 120 bread')

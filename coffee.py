@@ -45,13 +45,13 @@ def showHones(mud, _):
                 remove.add(skill)
             else:
                 found = True
-                mud.log("{}: {}s remaining".format(skill, 300 - int(now - honetime)))
+                mud.show("{}: {}s remaining".format(skill, 300 - int(now - honetime)))
         for skill in remove:
             del mud.state['hones'][skill]
         if not mud.state['hones']:
             del mud.state['hones']
     if not found:
-        mud.log("No skills honed recently")
+        mud.show("No skills honed recently")
 
 
 ALIASES = {
@@ -74,6 +74,7 @@ TRIGGERS = {
         'YOU ARE DYING OF THIRST!': 'drink barrel\nquit\ny',
         'YOU ARE DYING OF HUNGER!': 'eat bread\nquit\ny',
         'You start .*\.': trackTimeStart,
+        'You study .*\.': trackTimeStart,
         'You are done (.*)\.': lambda mud, matches: mud.mud.log("The task took {}s".format(time.time() - mud.state['task_start_time'])),
         'You become better at (.+).': honed,
         }
@@ -120,6 +121,7 @@ class Coffee(modular.ModularClient):
 
         self.aliases.update(ALIASES)
         self.triggers.update(TRIGGERS)
+        self.triggers.update({r'\(Enter your character name to login\)': name})
 
         if name == 'zerleha':
             self.triggers.update({
@@ -168,6 +170,9 @@ class Coffee(modular.ModularClient):
         return self.gmcp['char']['status']['level']
 
     def exprate(self):
+        if 'tnl' not in self.gmcp['char']['status']:
+            return
+
         if 'exprate_prev' not in self.state:
             self.state['exprate_prev'] = self.gmcp['char']['status']['tnl']
         else:
