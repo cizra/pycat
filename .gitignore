@@ -1,12 +1,15 @@
 *.swp
 *.log
 *.gch
+*.pyc
 __pycache__
 /mapper/*.o
 /mapper/unittest
 /mapper/libmapper.so
+/mapper/libmapper_py.so
 
 # Fully mapped areas should probably end up in Git
 /*.map
 
 /mapdraw
+/passwords.json

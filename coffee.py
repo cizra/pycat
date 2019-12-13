@@ -78,6 +78,8 @@ TRIGGERS = {
         'You are done (.*)\.': lambda mud, matches: mud.mud.log("The task took {}s".format(time.time() - mud.state['task_start_time'])),
         'You become better at (.+).': honed,
         }
+with open('passwords.json', 'rb') as pws:
+    TRIGGERS.update(json.load(pws))
 
 
 class Coffee(modular.ModularClient):
