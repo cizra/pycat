@@ -25,7 +25,6 @@ class Session(object):
         try:
             self.socketToPipeR, self.pipeToSocketW, self.stopFlag, runProxy = proxy('0.0.0.0', 4000)
             self.pipeToSocketW = os.fdopen(self.pipeToSocketW, 'wb')
-            self.socketToPipeR = os.fdopen(self.socketToPipeR, 'rb')
             self.proxyThread = threading.Thread(target=runProxy)
             self.proxyThread.start()
             host_port = self.world.getHostPort()
@@ -150,16 +149,26 @@ class Session(object):
 
 
     def handle_from_pipe(self):
+        data = b''  # to handle partial lines
         try:
-            data = self.socketToPipeR.readline().decode(self.mud_encoding)[:-1]
-            if data[-1] == '\r':
-                data = data[:-1]
+            data += os.read(self.socketToPipeR, 4096)
+            lines = data.split(b'\n')
+            if lines[-1] != '':  # received partial line, don't process
+                data = lines[-1]
+            else:
+                data = b''
+            lines = lines[:-1]  # chop off either the last empty line, or the partial line
+
+            for line in lines:
+                line = line.decode(self.client_encoding)
+                if line[-1] == '\r':
+                    line = line[:-1]
+                self.handle_output_line(line)
         except EOFError:
             self.log("EOF in pipe")
             self.stopFlag.set()
             self.world.quit()
             raise
-        self.handle_output_line(data)
 
 
     def handle_output_line(self, data):
