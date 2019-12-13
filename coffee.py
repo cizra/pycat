@@ -172,7 +172,7 @@ class Coffee(modular.ModularClient):
         return self.gmcp['char']['status']['level']
 
     def exprate(self):
-        if 'tnl' not in self.gmcp['char']['status']:
+        if 'char' not in self.gmcp or 'status' not in self.gmcp['char'] or 'tnl' not in self.gmcp['char']['status']:
             return
 
         if 'exprate_prev' not in self.state:
