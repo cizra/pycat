@@ -1,0 +1,15 @@
+$config {packet patch} 0.1
+$split
+
+$macro {\eOx} {n}
+$macro {\eOv} {e}
+$macro {\eOr} {s}
+$macro {\eOt} {w}
+$macro {\eOk} {d}
+$macro {\eOm} {u}
+
+$macro {\eOp} {$echo {keypad 0}}
+$macro {\eOu} {$echo {keypad 5}}
+$macro {\eOo} {$echo {keypad /}}
+$macro {\eOj} {$echo {keypad *}}
+$macro {\eOn} {$echo {keypad .}}

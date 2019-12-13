@@ -1,3 +1,2 @@
 $ses s ::1 4000
-$config {packet patch} 0.1
-$split
+$read dummy.tt
