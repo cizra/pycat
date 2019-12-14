@@ -103,7 +103,7 @@ class Coffee(modular.ModularClient):
                 'logging': (modules.logging.Logging, [self.logfname]),
                 'mapper': (modules.mapper.Mapper, [False, self.mapfname]),
                 }
-        if name == 'grumpy':
+        if name == 'grumpy' or name == 'vassal' or name == 'robot':
             import modules.gaoler
             importlib.reload(modules.gaoler)
             mods['gaoler'] = (modules.gaoler.Gaoler, [])
