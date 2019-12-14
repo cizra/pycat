@@ -91,18 +91,15 @@ class Coffee(modular.ModularClient):
 
         import modules.logging
         import modules.eval
-        import modules.repeat
         import modules.mapper
         importlib.reload(modular)
         importlib.reload(modules.logging)
         importlib.reload(modules.eval)
-        importlib.reload(modules.repeat)
         importlib.reload(modules.mapper)
 
         self.modules = {}
         mods = {
                 'eval': (modules.eval.Eval, []),
-                'repeat': (modules.repeat.Repeat, []),
                 'logging': (modules.logging.Logging, [self.logfname]),
                 'mapper': (modules.mapper.Mapper, [False, self.mapfname]),
                 }
