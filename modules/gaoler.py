@@ -224,163 +224,244 @@ weap_skills = [
         ]
 
 marm_by_level = {
-        28: 5,
-        29: 5,
-        30: 9,
-        57: 21,
-        58: 27,
-        59: 27,
-        60: 29,
-        61: 31,
-        62: 31,
-        63: 31,
-        64: 31,
-        65: 31,
-        66: 31,
-        67: 56,
-        68: 56,
-        69: 56,
-        70: 56,
-        71: 56,
-        72: 56,
-        73: 56,
-        74: 56,
-        75: 56,
-        76: 56,
-        77: 90,
-        78: 97,
-        79: 97,
-        80: 97,
-        81: 100,
-        82: 100,
-        83: 100,
-        84: 100,
-        85: 100,
-        86: 100,
-        87: 112,
-        88: 112,
-        89: 112,
-        90: 112,
-        91: 112,
+        90: 197,
+        89: 194,
+        88: 191,
+        87: 189,
+        86: 186,
+        85: 183,
+        84: 181,
+        83: 179,
+        82: 177,
+        81: 174,
+        80: 171,
+        79: 168,
+        78: 166,
+        77: 163,
+        76: 161,
+        75: 157,
+        74: 154,
+        73: 151,
+        72: 148,
+        71: 146,
+        70: 144,
+        69: 141,
+        68: 140,
+        67: 138,
+        66: 135,
+        65: 133,
+        64: 130,
+        63: 128,
+        62: 126,
+        61: 122,
+        60: 119,
+        59: 116,
+        58: 112,
+        57: 109,
         }
 
 marm_skills = [
-        "embossed fullplate gauntlets",  # 23 10
-        "embossed fullplate mantle",  # 23 10
-        "embossed fullplate bracer",  # 24 10
-        "embossed fullplate vambrace",  # 24 10
-        "embossed fullplate locking gauntlets",  # 26 10
-        "embossed fullplate girdle",  # 27 10
-        "embossed fullplate leggings",  # 30 33
-        "embossed fullplate pauldrons",  # 30 33
-        "beavered-helm",  # 30 22
-        "embossed fullplate rearbraces",  # 30 33
-        "Galeo",  # 57 28
-        "Battleplate Greaves",  # 57 28
-        "Battleplate Sabottons",  # 57 28
-        "Kabuto",  # 57 28
-        "Mirmillo",  # 57 28
-        "Yugake",  # 57 14
-        "Wakibiki",  # 57 14
-        "Doublemail Gloves",  # 57 14
-        "Doublemail Collar",  # 57 14
-        "Doublemail Mantle",  # 57 14
-        "Battleplate Gauntlets",  # 57 14
-        "Battleplate Handguards",  # 57 14
-        "Battleplate Collar",  # 57 14
-        "Battleplate Mantle",  # 57 14
-        "Battleplate Mitts",  # 57 14
-        "Battleplate Boots",  # 58 28
-        "Kote",  # 58 14
-        "Doublemail Cuffs",  # 58 14
-        "Battleplate Bracer",  # 58 14
-        "Battleplate Vambrace",  # 58 14
-        "Battleplate Lowerarm Cannon",  # 58 14
-        "Lorica Segmenta",  # 60 63
-        "Battleplate Locking Gauntlets",  # 60 14
-        "Doublemail Belt",  # 61 14
-        "Battleplate Girdle",  # 61 14
-        "Doublemail Jacket",  # 67 135
-        "Battleplate Hauberk",  # 67 135
-        "Doublemail Hauberk",  # 67 13
-        "Doublemail Coat",  # 67 13
-        "Battleplate Coat",  # 67 13
-        "Battleplate Jacket",  # 67 13
-        "Haramaki-Do",  # 67 90
-        "Doublemail Shirt",  # 67 90
-        "Doublemail Jerkin",  # 67 90
-        "Doublemail Vest",  # 67 90
-        "Battleplate Jerkin",  # 67 90
-        "Battleplate Vest",  # 67 90
-        "Doublemail Sleeves",  # 67 45
-        "Doublemail Leggings",  # 67 45
-        "Doublemail Skirt",  # 67 45
-        "Battleplate Sleeves",  # 67 45
-        "Battleplate Rearbraces",  # 67 45
-        "Battleplate Upperarm Cannons ",  # 67 45
-        "Battleplate Pauldrons",  # 67 45
-        "Battleplate Leggings",  # 67 45
-        "Battleplate Leg Cannons",  # 67 45
-        "Battleplate Armbands",  # 67 45
-        "Battleplate Skirt",  # 67 45
-        "Doublemail Coif",  # 67 30
-        "Dragon helm",  # 67 30
-        "Demon Armor",  # 77 510
-        "Hallowed Vestments",  # 77 510
-        "Ancient Coat",  # 77 144
-        "Ancient Jacket",  # 77 144
-        "Ancient Hauberk",  # 77 144
-        "Do-Maru",  # 77 96 
-        "Ancient Vest",  # 77 96 
-        "Ancient Jerkin",  # 77 96 
-        "Ancient Sleeves",  # 77 48 
-        "Ancient Rearbraces",  # 77 48 
-        "Ancient Upperarm Cannons",  # 77 48 
-        "Ancient Pauldrons",  # 77 48 
-        "Ancient Leggings",  # 77 48 
-        "Ancient Leg Cannons",  # 77 48 
-        "Ancient Armbands",  # 77 48 
-        "Ancient Skirt",  # 77 48 
-        "Ancient Helmet",  # 77 32 
-        "Casque",  # 77 32 
-        "Ancient Socks",  # 77 32 
-        "Ancient Greaves",  # 77 32 
-        "Ancient Sabottons",  # 77 32 
-        "Demonic Greaves",  # 77 32 
-        "Ancient Gauntlets",  # 77 16 
-        "Ancient Locking Gauntlets",  # 77 16 
-        "Ancient Handguards",  # 77 16 
-        "Demonic Gauntlets",  # 77 16 
-        "Demonic Locking Gauntlets",  # 77 16 
-        "Sacred Gauntlets",  # 77 16 
-        "Sacred Locking Gauntlets",  # 77 16 
-        "Ancient Collar",  # 77 16 
-        "Ancient Mantle",  # 77 16 
-        "Demonic Collar",  # 77 16 
-        "Sacred Mantle",  # 77 16 
-        "Ancient Mitts",  # 77 16 
-        "Ancient Boots",  # 78 32 
-        "Sacred Boots",  # 78 32 
-        "Ancient Bracer",  # 78 16 
-        "Ancient Vambrace",  # 78 16 
-        "Ancient Lowerarm Cannon",  # 78 16 
-        "Demonic Bracer",  # 78 16 
-        "Sacred Vambrace",  # 78 16 
-        "Ancient Girdle",  # 81 16 
-        "Demonic Girdle",  # 81 16 
-        "Sacred Girdle",  # 81 16 
-        "Demonic Coat",  # 87 153
-        "Sacred Armament",  # 87 153
-        "Demonic Hauberk",  # 87 153
-        "Sacred Jacket",  # 87 153
-        "Demonic Jerkin",  # 87 102
-        "Sacred Shirt",  # 87 102
-        "Demonic Armbands",  # 87 51 
-        "Sacred Pauldrons",  # 87 51 
-        "Demonic Leggings",  # 87 51 
-        "Sacred Skirt",  # 87 51 
-        "Demon helm",  # 87 34 
-        "Sacred Crown",  # 87 34 
+        # TODO: filter out mithril and other special reqs. Don't forget to update marm_by_level.
+        "oops index should be zero based",
+        "Spiked Banded Armbands", # 12 15
+        "Spiked Banded Vest", # 13 30
+        "Spiked Banded Sleeves", # 14 15
+        "Spiked Banded Handguards", # 14 5
+        "Spiked Banded Vambrace", # 14 3
+        "Spiked Banded Leggings", # 15 15
+        "Spiked Banded Shirt", # 16 30
+        "Spiked Banded Rearbraces", # 16 15
+        "Spiked Banded Mitts", # 16 5
+        "Spiked Banded Bracer", # 16 3
+        "Spiked Banded Greaves", # 17 15
+        "Spiked Banded Boots", # 17 10
+        "Spiked Banded Mantle", # 17 5
+        "Spiked Banded Skirt", # 18 15
+        "Spiked Banded Pauldrons", # 18 15
+        "PickelHaube", # 18 10
+        "Spiked Banded Sabotons", # 18 10
+        "Spiked Banded Gauntlets", # 18 5
+        "Spiked Banded Girdle", # 18 5
+        "Spiked Banded Lowerarm Cannon", # 18 3
+        "Spiked Banded Jerkin", # 19 30
+        "Spiked Banded Leg Cannons", # 19 15
+        "Spiked Banded Collar", # 19 5
+        "Spiked Banded Upperarm Cannons", # 20 15
+        "spiked buckler", # 27 8
+        "Embossed Fullplate Mantle", # 29 5
+        "embossed plate cuirass", # 30 30
+        "Embossed Fullplate Rearbraces", # 30 15
+        "Embossed Fullplate Leggings", # 30 15
+        "Embossed Fullplate Bracer", # 30 3
+        "Casque", # 31 10
+        "lantern shield", # 31 8
+        "Embossed Fullplate Gauntlets", # 31 5
+        "Embossed Fullplate Pauldrons", # 32 15
+        "Morion", # 32 10
+        "Embossed Fullplate Vambrace", # 32 3
+        "Embossed Fullplate Girdle", # 33 5
+        "Embossed Fullplate Locking Gauntlets", # 33 5
+        "embossed chanfron", # 34 40
+        "Do-Maru", # 34 30
+        "Dwarven Plate Armbands", # 34 15
+        "Embossed Fullplate Sabotons", # 35 10
+        "Dwarven Plate Helm", # 35 10
+        "Dwarven Plate Collar", # 35 5
+        "Dwarven Plate Skirt", # 36 15
+        "Dwarven Plate Boots", # 36 10
+        "Cabasset", # 36 10
+        "Beavered-Helm", # 37 10
+        "Dwarven Plate Gauntlets", # 37 5
+        "Dwarven Plate Girdle", # 37 5
+        "Dwarven Plate Lowerarm Cannon", # 38 3
+        "dwarven plate chanfron", # 39 40
+        "Dwarven Plate Jerkin", # 39 30
+        "Dwarven Plate Leg Cannons", # 39 15
+        "Dwarven Plate Gorget", # 39 5
+        "Dwarven Plate Upperarm Cannons", # 40 15
+        "parma", # 40 15
+        "Featherweight Chainmail Mantle", # 40 3
+        "Steam-Powered Plate Mantle", # 41 5
+        "Featherweight Chainmail Gloves", # 41 3
+        "Featherweight Chainmail Cuffs", # 41 2
+        "Featherweight Chainmail Shirt", # 42 15
+        "Featherweight Chainmail Sleeves", # 42 8
+        "Featherweight Chainmail Leggings", # 42 8
+        "Hara-Ate", # 43 30
+        "Featherweight Chainmail Socks", # 43 5
+        "Featherweight Chainmail Coif", # 43 5
+        "Featherweight Chainmail Collar", # 43 3
+        "Featherweight Chainmail Jacket", # 44 23
+        "Featherweight Chainmail Vest", # 44 15
+        "Galeo", # 44 10
+        "Steam-Powered Plate Vest", # 45 30
+        "Legionary Helmet", # 45 10
+        "Steam-Powered Plate Pauldrons", # 46 15
+        "Steam-Powered Plate Boots", # 46 10
+        "Featherweight Chainmail Skirt", # 46 8
+        "Featherweight Chainmail Coat", # 47 23
+        "Steam-Powered Plate Gauntlets", # 47 5
+        "Featherweight Chainmail Belt", # 47 3
+        "Doublemail Mantle", # 48 5
+        "Steam-Powered Plate Lowerarm Cannon", # 48 3
+        "Featherweight Chainmail Hauberk", # 49 23
+        "Steam-Powered Plate Leg Cannons", # 49 15
+        "Featherweight Chainmail Jerkin", # 49 15
+        "featherweight chainmail chanfron", # 50 40
+        "Steam-Powered Plate Upperarm Cannons", # 50 15
+        "fayum", # 50 15
+        "Haramaki-Do", # 51 30
+        "Haidate", # 51 15
+        "manica lamminata", # 51 3
+        "lorica hamata", # 52 30
+        "Mempo", # 52 5
+        "Ude-Ate", # 52 3
+        "Sode", # 53 15
+        "ocreae", # 53 15
+        "Armet", # 53 10
+        "Steam-Powered Plate Girdle", # 53 5
+        "lorica squamata", # 54 30
+        "coolus helmet", # 54 10
+        "kogake", # 54 10
+        "Kote", # 54 3
+        "kabuto", # 55 10
+        "Yugake", # 55 5
+        "lorica muscalata", # 56 30
+        "pteruges", # 56 15
+        "Wakibiki", # 56 5
+        "scutum", # 57 15
+        "Battleplate Mantle", # 57 5
+        "Doublemail Gloves", # 57 5
+        "Battleplate Armbands", # 58 15
+        "Battleplate Leggings", # 58 15
+        "Doublemail Cuffs", # 58 3
+        "Doublemail Shirt", # 59 30
+        "Battleplate Sleeves", # 59 15
+        "Doublemail Leggings", # 59 15
+        "Doublemail Belt", # 59 5
+        "Doublemail Sleeves", # 60 15
+        "Battleplate Handguards", # 60 5
+        "Battleplate Bracer", # 60 3
+        "Battleplate Greaves", # 61 15
+        "Doublemail Socks", # 61 10
+        "Doublemail Collar", # 61 5
+        "Battleplate Rearbraces", # 62 15
+        "Doublemail Coif", # 62 10
+        "Battleplate Collar", # 62 5
+        "Battleplate Mitts", # 62 5
+        "Battleplate Vest", # 63 30
+        "Mirmillo", # 63 10
+        "Dragon helm", # 64 10
+        "Battleplate Vambrace", # 64 3
+        "Battleplate Pauldrons", # 65 15
+        "Battleplate Boots", # 65 10
+        "Battleplate Gauntlets", # 65 5
+        "Doublemail Vest", # 66 30
+        "Doublemail Skirt", # 66 15
+        "Battleplate Skirt", # 67 15
+        "Battleplate Girdle", # 67 5
+        "Battleplate Lowerarm Cannon", # 67 3
+        "Doublemail Jerkin", # 68 30
+        "Battleplate Leg Cannons", # 68 15
+        "Battleplate Jerkin", # 69 30
+        "battleplate chanfron", # 70 40
+        "Battleplate Upperarm Cannons", # 70 15
+        "Battleplate Locking Gauntlets", # 70 5
+        "jousting shield", # 71 15
+        "Ancient Mantle", # 71 5
+        "Ancient Armbands", # 72 15
+        "Battleplate Sabotons", # 72 10
+        "Ancient Sleeves", # 73 15
+        "Ancient Leggings", # 73 15
+        "Ancient Handguards", # 73 5
+        "Ancient Greaves", # 74 15
+        "Ancient Collar", # 74 5
+        "Ancient Bracer", # 74 3
+        "Ancient Socks", # 75 10
+        "Ancient Helmet", # 75 10
+        "Ancient Mitts", # 75 5
+        "Ancient Vest", # 76 30
+        "Ancient Rearbraces", # 76 15
+        "Demon helm", # 76 10
+        "Ancient Vambrace", # 76 3
+        "Ancient Boots", # 77 10
+        "montefortino helmet", # 77 10
+        "Ancient Skirt", # 78 15
+        "Ancient Gauntlets", # 78 5
+        "Ancient Girdle", # 78 5
+        "Ancient Pauldrons", # 79 15
+        "Ancient Lowerarm Cannon", # 79 3
+        "Ancient Jerkin", # 80 30
+        "Ancient Upperarm Cannons", # 80 15
+        "Ancient Leg Cannons", # 80 15
+        "ancient chanfron", # 81 40
+        "war-door", # 81 15
+        "Ancient Locking Gauntlets", # 81 5
+        "Demonic Armbands", # 82 15
+        "Ancient Sabotons", # 82 10
+        "Sacred Mantle", # 82 5
+        "Sacred Shirt", # 83 30
+        "Demonic Leggings", # 83 15
+        "Demonic Gauntlets", # 84 5
+        "Demonic Bracer", # 84 3
+        "imperial helmet", # 85 10
+        "Demonic Collar", # 85 5
+        "Sacred Crown", # 86 10
+        "Sacred Gauntlets", # 86 5
+        "Sacred Vambrace", # 86 3
+        "pavise", # 87 15
+        "Sacred Skirt", # 87 15
+        "Demonic Boots", # 87 10
+        "Sacred Boots", # 88 10
+        "Demonic Locking Gauntlets", # 88 5
+        "Demonic Jerkin", # 89 30
+        "Demonic Girdle", # 89 5
+        "Sacred Locking Gauntlets", # 89 5
+        "Demonic Hauberk", # 90 45
+        "Sacred Pauldrons", # 90 15
+        "Sacred Girdle", # 90 5
+        "sacred chanfron", # 91 40
+        "demonic chanfron", # 91 40
 ]
 
 mweap_by_level = {
@@ -581,6 +662,146 @@ black_skills = [
         "hooded lantern",
         "lantern",
         ]
+
+
+# unused
+lweap_skills = [
+        "legendary butter knife", # 60 1
+        "legendary club", # 61 12
+        "legendary spear", # 61 12
+        "legendary khopesh", # 61 10
+        "legendary mallet", # 61 8
+        "legendary throwing iron", # 61 2
+        "legendary staff", # 62 15
+        "legendary tulwar", # 62 14
+        "legendary flail", # 62 12
+        "legendary hand ax", # 62 8
+        "legendary knife", # 62 2
+        "legendary shillelagh", # 63 8
+        "legendary sickle", # 63 8
+        "legendary machete", # 63 6
+        "legendary throwing knife", # 63 2
+        "legendary large axe", # 64 18
+        "legendary sai", # 64 5
+        "legendary throwing axe", # 64 4
+        "legendary chefs knife", # 64 3
+        "legendary glaive", # 65 22
+        "legendary orc blade", # 65 16
+        "legendary short sword", # 65 10
+        "legendary boomerang", # 65 4
+        "legendary halberd", # 66 24
+        "legendary flamberge", # 66 24
+        "legendary two-headed flail", # 66 15
+        "legendary hatchet", # 66 8
+        "legendary nunchaku", # 66 8
+        "legendary dagger", # 66 6
+        "legendary broad axe", # 67 22
+        "legendary military fork", # 67 18
+        "legendary sceptre", # 67 12
+        "legendary short staff", # 67 10
+        "legendary long sword", # 67 10
+        "legendary foil", # 67 2
+        "legendary maul", # 68 30
+        "legendary axe", # 68 10
+        "legendary cutlass", # 68 8
+        "legendary serrated knife", # 68 4
+        "legendary craftsmans hammer", # 68 4
+        "legendary shuriken", # 68 2
+        "legendary spiked club", # 69 15
+        "legendary yari", # 69 14
+        "legendary gladius", # 69 10
+        "legendary wakizashi", # 69 10
+        "legendary giant axe", # 70 50
+        "legendary fauchard", # 70 24
+        "legendary two-handed club", # 70 20
+        "legendary claymore", # 70 14
+        "legendary gnout", # 70 12
+        "legendary poignard", # 70 7
+        "legendary bill-guisarme", # 71 28
+        "legendary long staff", # 71 16
+        "legendary kama", # 71 6
+        "legendary epee", # 71 6
+        "legendary dart", # 71 1
+        "legendary bardiche", # 72 36
+        "legendary giant sword", # 72 30
+        "legendary kusari-gama", # 72 12
+        "legendary tomahawk", # 72 6
+        "legendary dirk", # 72 5
+        "legendary sledgehammer", # 73 40
+        "legendary light lance", # 73 16
+        "legendary mace", # 73 12
+        "legendary rapier", # 73 6
+        "legendary throwing hammer", # 73 4
+        "legendary chain", # 74 25
+        "legendary double axe", # 74 16
+        "legendary crys-knife", # 74 6
+        "legendary great axe", # 75 27
+        "legendary voulge", # 75 18
+        "legendary morning star", # 75 16
+        "legendary bastard sword", # 75 14
+        "legendary partisan", # 76 26
+        "legendary military pick", # 76 11
+        "legendary jewelers hammer", # 76 3
+        "legendary throwing spike", # 76 1
+        "legendary cudgel", # 77 14
+        "legendary quarterstaff", # 77 12
+        "legendary shamshir", # 77 12
+        "legendary weighted axe", # 77 6
+        "legendary great maul", # 78 50
+        "legendary pike", # 78 20
+        "legendary twohanded sword", # 78 20
+        "legendary tabar", # 78 18
+        "legendary scourge", # 78 10
+        "legendary rondel", # 78 6
+        "legendary kyoketsu-shogi", # 78 6
+        "legendary grand sceptre", # 79 16
+        "legendary falchion", # 79 12
+        "legendary katar", # 79 8
+        "legendary herculean club", # 80 30
+        "legendary heavy lance", # 80 30
+        "legendary battle dart", # 80 1
+        "legendary battle axe", # 81 25
+        "legendary jo staff", # 81 8
+        "legendary drussus", # 81 8
+        "legendary manriki-gusari", # 81 3
+        "legendary barbed whip", # 82 18
+        "legendary crowbill", # 82 14
+        "legendary stiletto", # 82 10
+        "legendary hammer", # 82 10
+        "legendary javelin", # 82 8
+        "legendary martel de fer", # 83 40
+        "legendary trident", # 83 22
+        "legendary scimitar", # 83 16
+        "legendary flanged mace", # 83 14
+        "legendary bec de corbin", # 84 22
+        "legendary no-dachi", # 84 20
+        "legendary three-sectioned staff", # 84 15
+        "legendary bearded axe", # 85 20
+        "legendary jitte", # 85 5
+        "legendary pixie blade", # 85 3
+        "legendary ranseur", # 86 30
+        "legendary war axe", # 86 14
+        "legendary cat-o-nine tails", # 86 14
+        "legendary weighted knife", # 86 2
+        "legendary bo staff", # 87 14
+        "legendary cat claws", # 87 10
+        "legendary katana", # 87 10
+        "legendary pilum", # 87 8
+        "legendary scythe", # 88 20
+        "legendary war sceptre", # 88 18
+        "legendary lucern hammer", # 88 18
+        "legendary main gauche", # 88 4
+        "legendary executioners axe", # 89 20
+        "legendary warhammer", # 89 12
+        "legendary sabre", # 89 8
+        "legendary dwarven thrower", # 89 4
+        "legendary naginata", # 90 35
+        "legendary half-moon", # 90 25
+        "legendary zweihander", # 90 24
+        "legendary three-headed flail", # 90 18
+        "legendary hurlbat", # 90 8
+]
+
 
 def skill_by_level(lvl):
     if lvl <= 7:
