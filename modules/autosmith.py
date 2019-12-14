@@ -920,7 +920,7 @@ def mined(mud, matches):
     return 'mastermine bundle all {resource}\nget {resource} bundle\n{path}\ndrink sink\ndrop {resource} bundle\nlook {resource} bundle\n{rpath}\nmastermine'.format(resource=resource, path=path, rpath=rpath)
 
 
-class Gaoler(BaseModule):
+class AutoSmith(BaseModule):
     def getAliases(self):
         return {
                 'smith': smith,
@@ -967,4 +967,4 @@ class Gaoler(BaseModule):
                 }
 
 def getClass():
-    return Gaoler
+    return AutoSmith
