@@ -1,12 +1,16 @@
 $config {packet patch} 0.1
 $split
 
-$macro {\eOx} {n}
-$macro {\eOv} {e}
-$macro {\eOr} {s}
-$macro {\eOt} {w}
-$macro {\eOk} {d}
-$macro {\eOm} {u}
+$macro {\eOx} {$echo n;n}
+$macro {\eOv} {$echo e;e}
+$macro {\eOr} {$echo s;s}
+$macro {\eOt} {$echo w;w}
+$macro {\eOk} {$echo d;d}
+$macro {\eOm} {$echo u;u}
+$macro {\eOq} {$echo sw;sw}
+$macro {\eOw} {$echo nw;nw}
+$macro {\eOy} {$echo ne;ne}
+$macro {\eOs} {$echo se;se}
 
 $macro {\eOp} {$echo {keypad 0}}
 $macro {\eOu} {$echo {keypad 5}}
