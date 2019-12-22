@@ -1,5 +1,5 @@
 $config {packet patch} 0.1
-$split
+$config repeat on
 
 $macro {\eOx} {$echo n;n}
 $macro {\eOv} {$echo e;e}
@@ -17,3 +17,5 @@ $macro {\eOu} {$echo {keypad 5}}
 $macro {\eOo} {$echo {keypad /}}
 $macro {\eOj} {$echo {keypad *}}
 $macro {\eOn} {$echo {keypad .}}
+
+$delay 1 {$split}

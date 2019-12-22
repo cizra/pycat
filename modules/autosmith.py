@@ -44,183 +44,187 @@ def buyBread(mud, _):
     mud.send('speculate')
 
 carve_by_level = {
-        28: 5,
-        29: 6,
-        30: 7,
+        8: 16,
+        7: 13,
+        6: 10,
         }
 
 carve_skills = [
-        "chopstick",
-        "chopstick",
-        "chopstick",
-        "chopstick",
-        "chopstick",
-        "ceremonial dagger",
-        "chest",
-        "crib",
+        "cup",
+        "cup",
+        "cup",
+        "cup",
+        "cup",
+        "wheel",
+        "small box",
+        "mug",
+        "small bed",
+        "plaque",
+        "spoon",
+        "ladder",
+        "small crib",
+        "mace",
+        "small desk",
+        "small table",
+        "stake",
         ]
 
 weap_by_level = {
-        7: 48,
-        8: 54,
-        9: 61,
-        10: 68,
-        11: 75,
-        12: 79,
-        13: 84,
-        14: 87,
-        15: 94,
-        16: 97,
-        17: 103,
-        18: 107,
-        19: 112,
-        20: 115,
-        21: 119,
-        22: 122,
-        23: 125,
-        24: 128,
-        25: 131,
-        26: 131,
-        27: 131,
-        28: 131,
-        29: 131,
-        30: 131,
-        31: 131,
+        7: 36,
+        8: 42,
+        9: 46,
+        10: 51,
+        11: 56,
+        12: 59,
+        13: 62,
+        14: 64,
+        15: 67,
+        16: 71,
+        17: 75,
+        18: 82,
+        19: 85,
+        20: 88,
+        21: 92,
+        22: 97,
+        23: 101,
+        24: 104,
+        25: 107,
+        26: 111,
+        27: 115,
+        28: 119,
+        29: 122,
+        30: 127,
         }
 
 weap_skills = [
-      "Butter Knife",  # 0 1
-      "Dizzy Boff Stick",  # 1 20
-      "Club",  # 1 12
-      "Spear",  # 1 12
-      "Khopesh",  # 1 12
-      "Short Staff",  # 1 10
-      "Sickle",  # 1 8
-      "Shillelagh",  # 1 8
-      "Mallet",  # 1 8
-      "Throwing Iron",  # 1 2
-      "Throwing Knife",  # 1 2
-      "Tulwar",  # 2 14
-      "Nunchaku",  # 2 8
-      "Boomerang",  # 2 8
-      "Craftsmans Hammer",  # 2 4
-      "Knife",  # 2 2
-      "Hand ax",  # 3 8
-      "Throwing Hammer",  # 3 8
-      "Machete",  # 3 6
-      "Sai",  # 3 5
-      "Chefs Knife",  # 3 3
-      "Glaive",  # 4 22
-      "Double Axe",  # 4 16
-      "Cudgel",  # 4 14
-      "Flail",  # 4 12
-      "Gnout",  # 4 12
-      "Dagger",  # 4 6
-      "Manriki-Gusari",  # 4 6
-      "Flamberge",  # 5 36
-      "Chain",  # 5 25
-      "Long Staff",  # 5 16
-      "Military Pick",  # 5 11
-      "Short Sword",  # 5 10
-      "Serrated Knife",  # 5 4
-      "Throwing Spike",  # 5 4
-      "Jewelers Hammer",  # 5 3
-      "Dart",  # 5 2
-      "Halberd",  # 6 24
-      "Orc Blade",  # 6 16
-      "Axe",  # 6 10
-      "Poignard",  # 6 7
-      "Long Sword",  # 7 20
-      "Military Fork",  # 7 18
-      "Morning Star",  # 7 16
-      "Two-headed Flail",  # 7 15
-      "Hammer",  # 7 10
-      "Dirk",  # 7 5
-      "Throwing Axe",  # 7 4
-      "Foil",  # 7 2
-      "Yari",  # 8 14
-      "Warhammer",  # 8 12
-      "Hatchet",  # 8 8
-      "Cutlass",  # 8 8
-      "Battle Dart",  # 8 4
-      "Balanced Knife",  # 8 2
-      "Spiked Club",  # 9 15
-      "QuarterStaff",  # 9 12
-      "Scourge",  # 9 10
-      "Gladius",  # 9 10
-      "Wakizashi",  # 9 10
-      "Katar",  # 9 8
-      "Kama",  # 9 6
-      "Maul",  # 10 30
-      "Claymore",  # 10 26
-      "Fauchard",  # 10 24
-      "Large Axe",  # 10 18
-      "Kusari-Gama",  # 10 12
-      "Cat Claws",  # 10 10
-      "Epee",  # 10 6
-      "Bill-guisarme",  # 11 28
-      "Crowbill",  # 11 14
-      "Jo Staff",  # 11 8
-      "Kyoketsu-Shogi",  # 11 6
-      "Rapier",  # 11 6
-      "Tomahawk",  # 11 6
-      "Shuriken",  # 11 2
-      "Bardiche",  # 12 36
-      "Bastard Sword",  # 12 24
-      "Broad Axe",  # 12 22
-      "Shamshir",  # 12 12
-      "Great Maul",  # 13 50
-      "Three-sectioned staff",  # 13 15
-      "Javelin",  # 13 8
-      "Crys-knife",  # 13 6
-      "Balanced Axe",  # 13 6
-      "butter knife",  # 14 18
-      "Light Lance",  # 14 16
-      "Falchion",  # 14 12
-      "Giant Sword",  # 15 50
-      "Scimitar",  # 15 16
-      "War Axe",  # 15 14
-      "Mace",  # 15 12
-      "Sceptre",  # 15 12
-      "Drussus",  # 15 8
-      "Rondel",  # 15 6
-      "Giant Axe",  # 16 50
-      "Stiletto",  # 16 10
-      "Pilum",  # 16 8
-      "TwoHanded Sword",  # 17 30
-      "Great Axe",  # 17 27
-      "Three-headed Flail",  # 17 18
-      "Voulge",  # 17 18
-      "Bo Staff",  # 17 14
-      "Pixie Blade",  # 17 3
-      "Partisan",  # 18 26
-      "Tabar",  # 18 18
-      "Hurlbat",  # 18 8
-      "Main Gauche",  # 18 4
-      "Sledgehammer",  # 19 40
-      "Herculean Club",  # 19 30
-      "Pike",  # 19 20
-      "Katana",  # 19 16
-      "Cat-o-nine tails",  # 19 14
-      "Heavy Lance",  # 20 30
-      "Battle Axe",  # 20 25
-      "Grand Sceptre",  # 20 16
-      "Martel de Fer",  # 21 40
-      "Trident",  # 21 22
-      "Flanged Mace",  # 21 14
-      "Sabre",  # 21 8
-      "Half-moon",  # 22 25
-      "Bec de Corbin",  # 22 22
-      "Lucern Hammer",  # 22 18
-      "Ranseur",  # 23 30
-      "Bearded Axe",  # 23 20
-      "Jitte",  # 23 5
-      "No-Dachi",  # 24 30
-      "Scythe",  # 24 20
-      "War Sceptre",  # 24 18
-      "Zweihander",  # 25 36
-      "Naginata",  # 25 35
-      "Executioners Axe",  # 25 25
+        "zero-based index",
+        "butter knife", # 0 1 
+        "dizzy boff stick", # 1 20 
+        "club", # 1 12 
+        "spear", # 1 12 
+        "khopesh", # 1 10 
+        "mallet", # 1 8 
+        "throwing iron", # 1 2 
+        "staff", # 2 15 
+        "tulwar", # 2 14 
+        "flail", # 2 12 
+        "hand ax", # 2 8 
+        "knife", # 2 2 
+        "shillelagh", # 3 8 
+        "sickle", # 3 8 
+        "machete", # 3 6 
+        "throwing knife", # 3 2 
+        "large axe", # 4 18 
+        "sai", # 4 5 
+        "throwing axe", # 4 4 
+        "chefs knife", # 4 3 
+        "glaive", # 5 22 
+        "orc blade", # 5 16 
+        "short sword", # 5 10 
+        "boomerang", # 5 4 
+        "halberd", # 6 24 
+        "flamberge", # 6 24 
+        "two-headed flail", # 6 15 
+        "hatchet", # 6 8 
+        "nunchaku", # 6 8 
+        "dagger", # 6 6 
+        "broad axe", # 7 22 
+        "military fork", # 7 18 
+        "sceptre", # 7 12 
+        "short staff", # 7 10 
+        "long sword", # 7 10 
+        "foil", # 7 2 
+        "maul", # 8 30 
+        "axe", # 8 10 
+        "cutlass", # 8 8 
+        "serrated knife", # 8 4 
+        "craftsmans hammer", # 8 4 
+        "shuriken", # 8 2 
+        "spiked club", # 9 15 
+        "yari", # 9 14 
+        "gladius", # 9 10 
+        "wakizashi", # 9 10 
+        "fauchard", # 10 24 
+        "two-handed club", # 10 20 
+        "claymore", # 10 14 
+        "gnout", # 10 12 
+        "poignard", # 10 7 
+        "bill-guisarme", # 11 28 
+        "long staff", # 11 16 
+        "epee", # 11 6 
+        "dart", # 11 1 
+        "bardiche", # 12 36 
+        "giant sword", # 12 30 
+        "kusari-gama", # 12 12 
+        "dirk", # 12 5 
+        "light lance", # 13 16 
+        "mace", # 13 12 
+        "rapier", # 13 6 
+        "chain", # 14 25 
+        "crys-knife", # 14 6 
+        "voulge", # 15 18 
+        "morning star", # 15 16 
+        "bastard sword", # 15 14 
+        "partisan", # 16 26 
+        "military pick", # 16 11 
+        "jewelers hammer", # 16 3 
+        "throwing spike", # 16 1 
+        "cudgel", # 17 14 
+        "quarterstaff", # 17 12 
+        "shamshir", # 17 12 
+        "weighted axe", # 17 6 
+        "great maul", # 18 50 
+        "pike", # 18 20 
+        "twohanded sword", # 18 20 
+        "tabar", # 18 18 
+        "scourge", # 18 10 
+        "rondel", # 18 6 
+        "kyoketsu-shogi", # 18 6 
+        "grand sceptre", # 19 16 
+        "falchion", # 19 12 
+        "katar", # 19 8 
+        "herculean club", # 20 30 
+        "heavy lance", # 20 30 
+        "battle dart", # 20 1 
+        "battle axe", # 21 25 
+        "jo staff", # 21 8 
+        "drussus", # 21 8 
+        "manriki-gusari", # 21 3 
+        "barbed whip", # 22 18 
+        "crowbill", # 22 14 
+        "stiletto", # 22 10 
+        "hammer", # 22 10 
+        "javelin", # 22 8 
+        "martel de fer", # 23 40 
+        "trident", # 23 22 
+        "scimitar", # 23 16 
+        "flanged mace", # 23 14 
+        "bec de corbin", # 24 22 
+        "no-dachi", # 24 20 
+        "three-sectioned staff", # 24 15 
+        "bearded axe", # 25 20 
+        "jitte", # 25 5 
+        "pixie blade", # 25 3 
+        "ranseur", # 26 30 
+        "war axe", # 26 14 
+        "cat-o-nine tails", # 26 14 
+        "weighted knife", # 26 2 
+        "bo staff", # 27 14 
+        "cat claws", # 27 10 
+        "katana", # 27 10 
+        "pilum", # 27 8 
+        "scythe", # 28 20 
+        "war sceptre", # 28 18 
+        "lucern hammer", # 28 18 
+        "main gauche", # 28 4 
+        "executioners axe", # 29 25 
+        "warhammer", # 29 12 
+        "sabre", # 29 8 
+        "naginata", # 30 35 
+        "half-moon", # 30 25 
+        "zweihander", # 30 24 
+        "three-headed flail", # 30 18 
+        "hurlbat", # 30 8 
         ]
 
 marm_by_level = {
@@ -805,7 +809,9 @@ lweap_skills = [
 
 def skill_by_level(lvl):
     if lvl <= 7:
-        return 'black supple', black_by_level, black_skills
+        # return 'black supple', black_by_level, black_skills
+        # return 'black supple', black_by_level, black_skills
+        return 'carve light', carve_by_level, carve_skills
     elif 8 <= lvl and lvl < 26:
         return 'weap agile', weap_by_level, weap_skills
         # return 's\narmors agile ringmail collar\narmors agile ringmail collar\narmors agile ringmail collar\narmors agile ringmail collar\narmors agile ringmail collar\nn\nweap agile', weap_by_level, weap_skills
@@ -929,6 +935,8 @@ class AutoSmith(BaseModule):
 
     def getTriggers(self):
         return {
+            'You are done scrapping.': 'scrap agile',
+            'You don\'t have enough here to get anything from.': 'get agile\nscrap agile',
             'You are thirsty.': 'drink sink',
             'You are hungry.': 'eat bread',
             # 'You are done building a fire.': 'chop',

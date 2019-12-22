@@ -15,7 +15,7 @@ telnetlib.GMCP = b'\xc9'
 
 
 class Session(object):
-    def __init__(self, world_module, arg):
+    def __init__(self, world_module, port, arg):
         self.mud_encoding = 'iso-8859-1'
         self.client_encoding = 'utf-8'
         self.gmcp = {}
@@ -23,7 +23,7 @@ class Session(object):
         self.arg = arg
         self.world = world_module.getClass()(self, self.arg)
         try:
-            self.socketToPipeR, self.pipeToSocketW, self.stopFlag, runProxy = proxy('0.0.0.0', 4000)
+            self.socketToPipeR, self.pipeToSocketW, self.stopFlag, runProxy = proxy('::1', port)
             self.pipeToSocketW = os.fdopen(self.pipeToSocketW, 'wb')
             self.proxyThread = threading.Thread(target=runProxy)
             self.proxyThread.start()
@@ -214,13 +214,14 @@ class Session(object):
 
 
 def main():
-    if len(sys.argv) != 2 and len(sys.argv) != 3:
-        print("Usage: {} worldmodule (without .py) [arg]".format(sys.argv[0]))
+    if len(sys.argv) < 3 or len(sys.argv) > 4:
+        print("Usage: {} worldmodule (without .py) port [arg]".format(sys.argv[0]))
         exit(1)
 
     world_module = importlib.import_module(sys.argv[1])
-    arg = sys.argv[2] if len(sys.argv) == 3 else None
-    ses = Session(world_module, arg)
+    port = int(sys.argv[2])
+    arg = sys.argv[3] if len(sys.argv) == 4 else None
+    ses = Session(world_module, port, arg)
     ses.run()
 
 

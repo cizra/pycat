@@ -66,6 +66,7 @@ ALIASES = {
         }
 
 TRIGGERS = {
+        'Grumpy wants you to try to teach him about .*\. It will': 'y',
         'You feel a little cleaner, but are still very dirty.': 'bathe',
         'You feel a little cleaner.': 'bathe',
         'You feel a little cleaner; almost perfect.': 'bathe',
@@ -93,22 +94,27 @@ class Coffee(modular.ModularClient):
 
         import modules.logging
         import modules.eval
-        import modules.mapper
+        # import modules.mapper
         importlib.reload(modular)
         importlib.reload(modules.logging)
         importlib.reload(modules.eval)
-        importlib.reload(modules.mapper)
+        # importlib.reload(modules.mapper)
 
         self.modules = {}
         mods = {
                 'eval': (modules.eval.Eval, []),
                 'logging': (modules.logging.Logging, [self.logfname]),
-                'mapper': (modules.mapper.Mapper, [False, self.mapfname]),
+                # 'mapper': (modules.mapper.Mapper, [False, self.mapfname]),
                 }
-        if name == 'grumpy' or name == 'vassal' or name == 'robot':
-            import modules.gaoler
-            importlib.reload(modules.gaoler)
-            mods['gaoler'] = (modules.gaoler.Gaoler, [])
+        if name == 'grumpy':
+            import modules.scholar
+            importlib.reload(modules.scholar)
+            mods['scholar'] = (modules.scholar.Scholar, [])
+        elif name == 'vassal' or name == 'robot':
+            import modules.autosmith
+            importlib.reload(modules.autosmith)
+            mods['autosmith'] = (modules.autosmith.AutoSmith, [])
+
         for modname, module in mods.items():
             try:
                 constructor, args = module
@@ -130,6 +136,15 @@ class Coffee(modular.ModularClient):
                 'You are hungry.': 'eat bread',
                 'You are thirsty.': 'drink drum',
                 })
+        if name == 'punchee':  # group leader
+            self.aliases.update({
+                'waa': 'sta\nwake cizra\nwake basso',
+                })
+        if name == 'basso' or name == 'cizra':  # followers
+            self.triggers.update({
+                    'Punchee lays down and takes a nap.': 'sleep',
+                    })
+
         if name == 'cizra':
             self.triggers.update({
                     '(\w+): A closed door': lambda mud, matches: 'open ' + matches[0],
@@ -194,8 +209,12 @@ class Coffee(modular.ModularClient):
                 self.log("Rested!")
 
         if cmd == 'char.vitals' and 'maxstats' in self.gmcp['char']:
-            if self.gmcp['char']['status']['pos'] == 'Sleeping' and self.gmcp['char']['vitals']['hp'] == self.gmcp['char']['maxstats']['maxhp']:
-                # self.log("Healed!")
+            if 'prevhp' in self.state and self.gmcp['char']['status']['pos'] == 'Sleeping':
+                hp = self.gmcp['char']['vitals']['hp']
+                maxhp = self.gmcp['char']['maxstats']['maxhp']
+                if hp == maxhp and self.state['prevhp'] < maxhp:
+                    self.log("Healed!")
+                self.state['prevhp'] = hp
                 pass
 
         if cmd == 'char.vitals' and 'maxstats' in self.gmcp['char']:
