@@ -1,0 +1,2 @@
+$ses s ::1 4002
+$read dummy.tt
