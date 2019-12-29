@@ -5,7 +5,7 @@ import re
 import time
 
 
-# At level 1, train scholar
+# At level 1, train scholar, practice write
 # At level 2, kill a monster in mud school
 # At level 3, practice write, gain herbology, engraving and embroidering
 # At level 4, gain combat log
@@ -44,14 +44,16 @@ skills_by_level = {
 def practiceOne(mud):
     level = mud.level() - 1
     mud.log("practiceOne")
-    practiceImpl(mud, level, 10, -1)
+    practiceImpl(mud, level, 9, -1)
 
 def practiceTwo(mud):
     mud.log("practiceTwo")
-    practiceImpl(mud, 10, 0, -1)
+    practiceImpl(mud, 9, 0, -1)
 
 def practiceImpl(mud, begin, end, step):
-    # TODO: only work in the right room
+    if mud.gmcp['room']['info']['num'] != 1741703288:
+        mud.log("Not running Scholar script - must be in Pecking Place")
+        return
     mud.send("sta")
 
     for i in range(begin, end, step):
