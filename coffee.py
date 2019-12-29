@@ -32,7 +32,7 @@ def honed(mud, groups):
     if 'hones' not in mud.state:
         mud.state['hones'] = {}
     mud.state['hones'][skill] = time.time()
-    mud.timers["hone_" + skill] = mud.mkdelay(301, lambda: mud.log("You can now hone " + skill))
+    mud.timers["hone_" + skill] = mud.mkdelay(301, lambda m: mud.log("You can now hone " + skill))
 
 
 def showHones(mud, _):
@@ -185,7 +185,7 @@ class Coffee(modular.ModularClient):
     def level(self):
         return self.gmcp['char']['status']['level']
 
-    def exprate(self):
+    def exprate(self, mud):
         if 'char' not in self.gmcp or 'status' not in self.gmcp['char'] or 'tnl' not in self.gmcp['char']['status']:
             return
 

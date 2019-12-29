@@ -45,7 +45,10 @@ class TimerMixin(object):
                     remove.append(name)
                 else:
                     update(name, period)
-                fn()
+                try:
+                    fn(self)
+                except Exception as e:
+                    self.log(e)
 
         for name in remove:
             del self.timers[name]
