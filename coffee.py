@@ -190,9 +190,9 @@ class Coffee(modular.ModularClient):
             return
 
         if 'exprate_prev' not in self.state:
-            self.state['exprate_prev'] = self.gmcp['char']['status']['tnl']
+            self.state['exprate_prev'] = self.gmcp['char']['base']['perlevel'] - self.gmcp['char']['status']['tnl']
         else:
-            now = self.gmcp['char']['status']['tnl']
+            now = self.gmcp['char']['base']['perlevel'] - self.gmcp['char']['status']['tnl']
             self.log("Exp per hour: {}".format(self.state['exprate_prev'] - now))
             self.state['exprate_prev'] = now
 
