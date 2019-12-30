@@ -618,9 +618,11 @@ class Mapper(BaseModule):
             exits = self.m.getRoomExits(id)  # retain custom exits
             for direction, target in value['exits'].items():
                 tgt = str(target)
-                exits[direction.lower()] = {'tgt': tgt}
-                if not self.m.getRoomData(tgt):  # doesn't exist yet, insert stub for easy pathfinding 
-                    self.m.addRoom(tgt, None, None, {})
+                dir = direction.lower()
+                if dir not in exits:
+                    exits[dir] = {'tgt': tgt}
+                if not self.m.getRoomName(tgt):  # doesn't exist yet, insert stub for easy pathfinding 
+                    self.m.addRoom(tgt, None, {}, {})
             if 'exit_kw' in value:
                 for direction, door in value['exit_kw'].items():
                     exits['open {door} {direction};{direction}'.format(door=door, direction=direction)] = exits[direction.lower()]
@@ -633,29 +635,3 @@ class Mapper(BaseModule):
                     self.log("Autovisiting, but changed areas")
                 else:
                     self.autoVisit(['exit'] if 'autoVisitArea' not in self.world.state else None)
-
-if __name__ == '__main__':
-    m = Map()
-    m.addRoom(1, 'Room1', 'data1', {'e': {'tgt': 2}})
-    m.addRoom(2, 'Other', 'data2', {'w': {'tgt': 1}})
-
-    m.setMapData('yo')
-    assert(m.getMapData() == 'yo')
-
-    assert(m.getRoomName(1) == "Room1")
-    assert(m.getRoomName(2) == "Other")
-    assert(m.getRoomData(1) == "data1")
-    assert(m.getRoomData(2) == "data2")
-    assert(m.findRoomByName("he") == 2)
-    assert(m.findRoomByName("om") == 1)
-    assert(m.getRoomCoords(1) == (0, 0, 0))
-    assert(m.getRoomExits(1) == {'e': {'tgt': 2}})
-    assert(m.getRoomExits(2) == {'w': {'tgt': 1}})
-
-    m.setExitData(1, 'e', 'ex1')
-    m.setExitData(2, 'w', 'ex2')
-    assert(m.getExitData(1, 'e') == 'ex1')
-    assert(m.getExitData(2, 'w') == 'ex2')
-
-    assert(m.findPath(1, 2) == ['e'])
-    assert(m.findPath(2, 1) == ['w'])
