@@ -64,17 +64,25 @@ def practiceImpl(mud, begin, end, step):
     mud.send("sleep")
     return
 
+def learnFrom(mud, matches):
+    if 'learn' not in mud.state:
+        mud.state['learn'] = {}
+    mud.state['learn']['from'] = matches[0]
 
-def startLearning(world, matches):
-    world.state['learn'] = {'learner': matches[0]}
-    world.send("study brock " + matches[1])
+def startLearning(mud, matches):
+    if 'learn' not in mud.state:
+        mud.state['learn'] = {}
+    mud.state['learn']['learner'] = matches[0]
+    if 'from' not in mud.state['learn']:
+        mud.state['learn']['from'] = 'guildmaster'
+    mud.send("study {} {}".format(mud.state['learn']['from'], matches[1]))
 
 
 def failedLearning(world, matches):
     if 'learn' not in world.state:
         return
     world.state['learn']['failed'] = True
-    world.send("study brock " + matches[0])
+    world.send("study {} {}".format(world.state['learn']['from'], matches[0]))
 
 def doneLearning(world, matches):
     if 'learn' not in world.state:
@@ -86,11 +94,24 @@ def doneLearning(world, matches):
     else:
         del state['failed']
 
+def tryAgainTeaching(world, matches):
+    if 'learn' not in world.state:
+        return
+    if 'times' not in world.state['learn']:
+        world.state['learn']['times'] = 0
+    world.state['learn']['times'] += 1
+    if world.state['learn']['times'] < 10: 
+        world.send("teach " + world.state['learn']['learner'] + " " + matches[0])
+
 def doneTeaching(world, matches):
     world.send('study forget ' + matches[0])
     del world.state['learn']
 
 class Scholar(BaseModule):
+    def getAliases(self):
+        return {
+                '#learnfrom (.+)': learnFrom,
+                }
 
     def getTriggers(self):
         return {
@@ -100,8 +121,11 @@ class Scholar(BaseModule):
             'You are now in Add Text mode.': '\nq\ny',
 
             "(.+) whispers to you 'teach me (.+)'.": startLearning,
-            "Guildmaster Brock fails to teach you (.+).": failedLearning, 
-            'You are done learning (.+) from Guildmaster Brock.': doneLearning,
+            ".+ fails to teach you (.+).": failedLearning, 
+            'You are done learning (.+) from (.+).': doneLearning,
+            'You already know (.+).': doneLearning,
+            "You don't seem to know (.+).": tryAgainTeaching,
+            ".+ has not learned the pre-requisites to (.+) yet.": doneTeaching,
             "You teach .+ '(.+)'": doneTeaching,
             }
 
