@@ -88,8 +88,6 @@ class Map(object):
         while roomq:
             room = roomq.popleft()
             if room not in visited:  # A given room might end up in the queue through different paths
-                if room == there:
-                    return paths[room]
                 ex = self.m['rooms'][room]['exits']
                 for exDir in ex:
                     tgt = ex[exDir]['tgt']
@@ -98,6 +96,8 @@ class Map(object):
                     else:
                         paths[tgt].append(exDir)
                     roomq.append(tgt)
+                if room == there:
+                    return paths[there]
             visited.add(room)
 
 
@@ -193,9 +193,13 @@ class Mapper(BaseModule):
             self.log("Already there!")
             return ''
         then = time.time()
-        path = assemble(self.m.findPath(here, there))
-        self.log("{} (found in {} ms)".format(path, (time.time() - then)*1000))
-        return path
+        raw = self.m.findPath(here, there)
+        if raw:
+            path = assemble(raw)
+            self.log("{} (found in {} ms)".format(path, (time.time() - then)*1000))
+            return path
+        else:
+            self.log("Path not found in {} ms".format((time.time() - then)*1000))
 
     def path(self, there):
         return self.path2(self.current(), there)
@@ -302,10 +306,11 @@ class Mapper(BaseModule):
                     tgt = tgt['tgt']
                     if d in ['n', 'e', 's', 'w', 'u', 'd', 'ne', 'se', 'sw', 'nw'] or re.match(r'open .+;[neswud]+', d):
                         dataD = self.m.getRoomData(tgt)
-                        exists = True
-                        if not dataD:
-                            exists = False
-                        nextArea = dataD['zone'] if 'zone' in dataD else None
+                        exists = False
+                        nextArea = None
+                        if dataD:
+                            exists = True
+                            nextArea = dataD['zone'] if 'zone' in dataD else None
                         sameAreas = self.drawAreas or nextArea == area
 
                         if not exists or not sameAreas:
@@ -612,6 +617,7 @@ class Mapper(BaseModule):
             exits = self.m.getRoomExits(id)  # retain custom exits
             for direction, target in value['exits'].items():
                 exits[direction.lower()] = {'tgt': str(target)}
+                self.m.addRoom(str(target), None, None, {})
             if 'exit_kw' in value:
                 for direction, door in value['exit_kw'].items():
                     exits['open {door} {direction};{direction}'.format(door=door, direction=direction)] = exits[direction.lower()]
