@@ -23,6 +23,12 @@ class Map(object):
     def serialize(self):
         return json.dumps(self.m)
 
+    def getBookmarks(self):
+        return self.m['bookmarks']
+
+    def setBookmarks(self, bm):
+        self.m['bookmarks'] = bm
+
     def addRoom(self, num, name, data, exits):
         num = str(num)
         self.m['rooms'][num] = {
@@ -49,7 +55,7 @@ class Map(object):
 
     def getRoomCoords(self, num):
         num = str(num)
-        log("Warning: room coords not impl")
+        # log("Warning: room coords not impl")
         return (0, 0, 0)
 
     def getRoomExits(self, num):
@@ -63,9 +69,9 @@ class Map(object):
 
     def getExitData(self, num, direction):
         num = str(num)
-        if 'data' not in self.m['rooms'][source]['exits'][direction]:
+        if 'data' not in self.m['rooms'][num]['exits'][direction]:
             return {}
-        return self.m['rooms'][source]['exits'][direction]['data']
+        return self.m['rooms'][num]['exits'][direction]['data']
 
     def findRoomByName(self, name):
         for num in self.m['rooms']:
@@ -90,7 +96,7 @@ class Map(object):
                     if tgt not in paths:
                         paths[tgt] = [exDir]
                     else:
-                        paths[tgt].append[exDir]
+                        paths[tgt].append(exDir)
                     roomq.append(tgt)
             visited.add(room)
 
@@ -174,8 +180,8 @@ class Mapper(BaseModule):
             }))
 
     def path2(self, here, there):
-        if there in self.m['bookmarks']:
-            there = self.m['bookmarks'][there]
+        if there in self.m.getBookmarks():
+            there = self.m.getBookmarks()[there]
         else:
             try:
                 there = int(there)
@@ -200,11 +206,11 @@ class Mapper(BaseModule):
             self.send(path.replace(';', '\n'))
 
     def bookmarks(self, args):
-        self.log('Bookmarks:\n' + pprint.pformat(self.m['bookmarks']))
+        self.log('Bookmarks:\n' + pprint.pformat(self.m.getBookmarks()))
 
     def bookmark(self, args):
         arg = ' '.join(args)
-        self.m['bookmarks'][arg] = self.current()
+        self.m.getBookmarks()[arg] = self.current()
         self.bookmarks([])
 
     def getExitData(self, source, to):
@@ -485,7 +491,7 @@ class Mapper(BaseModule):
             exits = self.m.getRoomExits(room)
             for d, tgt in exits.items():
                 tgt = tgt['tgt']
-                edata = self.m.getExitData(room, tgt)
+                edata = self.m.getExitData(room, d)
                 rdataS = self.m.getRoomData(tgt)
                 if 'lock' not in edata:
                     if not rdataS:  # unexplored
