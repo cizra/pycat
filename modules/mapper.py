@@ -82,7 +82,7 @@ class Map(object):
         here = str(here)
         there = str(there)
         visited = set()
-        paths = {}
+        paths = {here: []}
         roomq = collections.deque()
         roomq.append(here)
         while roomq:
@@ -91,10 +91,7 @@ class Map(object):
                 ex = self.m['rooms'][room]['exits']
                 for exDir in ex:
                     tgt = ex[exDir]['tgt']
-                    if tgt not in paths:
-                        paths[tgt] = [exDir]
-                    else:
-                        paths[tgt].append(exDir)
+                    paths[tgt] = paths[room] + [exDir]
                     roomq.append(tgt)
                 if room == there:
                     return paths[there]
@@ -163,7 +160,7 @@ class Mapper(BaseModule):
         self.log('\n'.join(strs))
 
     def current(self):
-        return self.world.gmcp['room']['info']['num']
+        return str(self.world.gmcp['room']['info']['num'])
 
     def here(self, args):
         if args:
@@ -422,7 +419,7 @@ class Mapper(BaseModule):
         if not tgt:
             self.mud.log("Exit doesn't exist")
             return
-        self.addExitData(self.current(), tgt, {'lock': int(level)})
+        self.addExitData(self.current(), direction, {'lock': int(level)})
         return self.here([self.current()])
 
     def getRoomByDirection(self, direction):
@@ -431,21 +428,24 @@ class Mapper(BaseModule):
         if direction.lower() not in exits:
             self.log("No such direction")
             return None
-        return exits[direction.lower()]
+        return exits[direction.lower()]['tgt']
 
     def exitLen(self, direction, increment):
         here = self.current()
         there = self.getRoomByDirection(direction)
 
         def do(here, there):
-            data = self.m.getExitData(here, there)
-            # Oops, must have stored it as string :( TODO: correct in files and remove this code
-
-            data['len'] = int(data['len']) if 'len' in data else 1
-            data['len'] += increment
-            if data['len'] <= 1:
-                data['len'] = 1
-            self.m.setExitData(here, there, data)
+            exits = self.m.getRoomExits(here)
+            for dir, tgt in exits.items():
+                if tgt['tgt'] == there:
+                    data = self.m.getExitData(here, dir)
+                    if 'len' not in data:
+                        data['len'] = 1
+                    data['len'] += increment
+                    if data['len'] <= 1:
+                        data['len'] = 1
+                    self.m.setExitData(here, dir, data)
+                    break
 
         do(here, there)
         do(there, here)
@@ -497,15 +497,15 @@ class Mapper(BaseModule):
             for d, tgt in exits.items():
                 tgt = tgt['tgt']
                 edata = self.m.getExitData(room, d)
-                rdataS = self.m.getRoomData(tgt)
+                rdata = self.m.getRoomData(tgt)
                 if 'lock' not in edata:
-                    if not rdataS:  # unexplored
+                    if not rdata:  # unexplored
                         if one:
                             return [tgt]
                         else:
                             out.append(tgt)
                     else:
-                        sameZone = not inArea or rdataS['zone'] == startArea
+                        sameZone = not inArea or rdata['zone'] == startArea
                         if (unvisited and tgt not in self.world.state['visited'] and sameZone):
                             out.append(tgt)
                         else:
@@ -548,6 +548,7 @@ class Mapper(BaseModule):
                 'read': self.load,
                 'help': self.help,
                 'here': self.here,
+                'add': self.bookmark,
                 'bookmark': self.bookmark,
                 'name': self.bookmark,
                 'bookmarks': self.bookmarks,
@@ -616,8 +617,10 @@ class Mapper(BaseModule):
             data = dict(zone=value['zone'], terrain = value['terrain'])
             exits = self.m.getRoomExits(id)  # retain custom exits
             for direction, target in value['exits'].items():
-                exits[direction.lower()] = {'tgt': str(target)}
-                self.m.addRoom(str(target), None, None, {})
+                tgt = str(target)
+                exits[direction.lower()] = {'tgt': tgt}
+                if not self.m.getRoomData(tgt):  # doesn't exist yet, insert stub for easy pathfinding 
+                    self.m.addRoom(tgt, None, None, {})
             if 'exit_kw' in value:
                 for direction, door in value['exit_kw'].items():
                     exits['open {door} {direction};{direction}'.format(door=door, direction=direction)] = exits[direction.lower()]
