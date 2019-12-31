@@ -11,14 +11,19 @@ import time
 def log(*args, **kwargs):
     print(*args, **kwargs)
 
+def roomnr(x):
+    # CoffeeMud, Mob Factory exits are negative but room IDs are positive
+    return str(abs(x))
 
 # Room IDs are strings (JSON keys must be)
 class Map(object):
     def __init__(self, serialized=None):
         if serialized:
             self.m = json.loads(serialized)
+            if 'areas' not in self.m:
+                self.m['areas'] = {}
         else:
-            self.m = {'data': {}, 'bookmarks': {}, 'rooms': {}}
+            self.m = {'areas': {}, 'bookmarks': {}, 'rooms': {}}
 
     def serialize(self):
         return json.dumps(self.m)
@@ -37,6 +42,9 @@ class Map(object):
                 'exits': exits,
                 }
 
+    def roomExists(self, num):
+        return num in self.m['rooms']
+
     def getRoomName(self, num):
         num = str(num)
         return self.m['rooms'][num]['name']
@@ -47,11 +55,15 @@ class Map(object):
             return {}
         return self.m['rooms'][num]['data']
 
-    def setMapData(self, data):
-        self.m['data'] = data
+    def addArea(self, area, room):
+        if area not in self.m['areas']:
+            self.m['areas'][area] = room
 
-    def getMapData(self):
-        return self.m['data']
+    def setAreaStart(self, area, room):
+        self.m['areas'][area] = room
+
+    def getAreas(self):
+        return self.m['areas']
 
     def getRoomCoords(self, num):
         num = str(num)
@@ -73,10 +85,23 @@ class Map(object):
             return {}
         return self.m['rooms'][num]['exits'][direction]['data']
 
-    def findRoomByName(self, name):
+    def findRoomsByName(self, name, zone=None):
+        out = []
         for num in self.m['rooms']:
-            if self.m['rooms'][num]['name'].find(name) != -1:
-                return num
+            if 'name' in self.m['rooms'][num] and self.m['rooms'][num]['name'] and self.m['rooms'][num]['name'].find(name) != -1 and (not zone or self.m['rooms'][num]['data']['zone'] and zone == self.m['rooms'][num]['data']['zone'] == zone):
+                out.append((num, self.m['rooms'][num]['name'], self.m['rooms'][num]['data']['zone']))
+        return out
+
+    def findRoomsByZone(self, zone):
+        out = []
+        for num in self.m['rooms']:
+            if 'data' in self.m['rooms'][num] and self.m['rooms'][num]['data'] and 'zone' in self.m['rooms'][num]['data'] and self.m['rooms'][num]['data']['zone'] == zone:
+                out.append(num)
+        return out
+
+    def delRoom(self, room):
+        if room in self.m['rooms']:
+            del self.m['rooms'][room]
 
     def findPath(self, here, there):
         here = str(here)
@@ -160,7 +185,10 @@ class Mapper(BaseModule):
         self.log('\n'.join(strs))
 
     def current(self):
-        return str(self.world.gmcp['room']['info']['num'])
+        return roomnr(self.world.gmcp['room']['info']['num'])
+
+    def currentZone(self):
+        return self.m.getRoomData(self.current())['zone']
 
     def here(self, args):
         if args:
@@ -168,17 +196,26 @@ class Mapper(BaseModule):
         else:
             this = self.current()
 
+        bm = None
+        for name, dest in self.m.getBookmarks().items():
+            if dest == this:
+                bm = name
+                break
+
         self.log('\n' + pprint.pformat({
             'num': this,
             'name': self.m.getRoomName(this),
             'data': self.m.getRoomData(this),
             'coords': self.m.getRoomCoords(this),
             'exits': self.m.getRoomExits(this),
+            'bookmark': bm,
             }))
 
     def path2(self, here, there):
         if there in self.m.getBookmarks():
             there = self.m.getBookmarks()[there]
+        elif there in self.m.getAreas():
+            there = self.m.getAreas()[there]
         else:
             try:
                 there = int(there)
@@ -211,8 +248,11 @@ class Mapper(BaseModule):
 
     def bookmark(self, args):
         arg = ' '.join(args)
-        self.m.getBookmarks()[arg] = self.current()
-        self.bookmarks([])
+        if arg:
+            self.m.getBookmarks()[arg] = self.current()
+            self.bookmarks([])
+        else:
+            return self.bookmarks()
 
     def getExitData(self, source, to):
         return self.m.getExitData(source, to)
@@ -266,7 +306,7 @@ class Mapper(BaseModule):
             out.append([' '] * columns)
 
         # The only room coordinates that matter are the start room's -- the rest get calculated by tracing paths.
-        startX, startY, startZ = self.m.getRoomCoords(self.current())
+        startX, startY, startZ = (0, 0, 0)  # self.m.getRoomCoords(self.current())
         centerX, centerY = (columns-1)//2, (lines-1)//2
         data = self.m.getRoomData(self.current())
         area = data['zone']
@@ -279,8 +319,8 @@ class Mapper(BaseModule):
         def getExitLen(source, to):
             exitData = self.getExitData(source, to)
             if not exitData or 'len' not in exitData:
-                return 1
-            return int(exitData['len'])
+                return 0
+            return int(exitData['len'] * 2)
 
         def fits(x, y):
             return 0 <= x and x < columns and 0 <= y and y < lines-1
@@ -313,7 +353,7 @@ class Mapper(BaseModule):
                         if not exists or not sameAreas:
                             exitLen = 1
                         else:
-                            exitLen = getExitLen(room, d)
+                            exitLen = getExitLen(room, d) + 1
 
                         exX = drawX
                         exY = drawY
@@ -389,29 +429,34 @@ class Mapper(BaseModule):
 
     def startExit(self, args):
         self.exitKw = ' '.join(args)
+        nr = roomnr(self.world.gmcp['room']['info']['num'])
         room = self.world.gmcp['room']['info']
         self.exitFrom = {}
         self.exitFrom['exits'] = {}
-        self.exitFrom['id'] = room['num']
+        self.exitFrom['id'] = nr
         self.exitFrom['name'] = room['name']
         self.exitFrom['data'] = dict(zone=room['zone'], terrain = room['terrain'])
         exits = {}
         for k, v in room['exits'].items():
-            self.exitFrom['exits'][k.lower()] = v
+            self.exitFrom['exits'][k.lower()] = {'tgt': roomnr(v)}
         self.log("Type '#map endexit' when you're in the right room, or #map endexit abort")
-        self.send(self.exitKw.replace(';', '\n'))
+        self.exitKw = self.exitKw.replace(';', '\n')
+        self.exitKw = self.exitKw.replace('~', '\n')
+        self.log("Exit: " + repr(self.exitKw))
+        self.send(self.exitKw)
 
     def endExit(self, args):
         if len(args) == 1:
             self.log("Aborted.")
             return
-        self.exitFrom['exits'][self.exitKw] = self.current()
+        self.exitFrom['exits'][self.exitKw] = {'tgt': self.current()}
         self.m.addRoom(
                 self.exitFrom['id'],
                 self.exitFrom['name'],
                 self.exitFrom['data'],
                 self.exitFrom['exits'])
         self.exitKw = None
+        self.log("Done.")
 
     def lockExit(self, args):
         direction, level = args if len(args) > 1 else (args[0], -1)
@@ -421,6 +466,9 @@ class Mapper(BaseModule):
             return
         self.addExitData(self.current(), direction, {'lock': int(level)})
         return self.here([self.current()])
+
+    def startRoom(self, args):
+        self.m.setAreaStart(self.currentZone(), self.current())
 
     def getRoomByDirection(self, direction):
         here = self.current()
@@ -440,10 +488,10 @@ class Mapper(BaseModule):
                 if tgt['tgt'] == there:
                     data = self.m.getExitData(here, dir)
                     if 'len' not in data:
-                        data['len'] = 1
+                        data['len'] = 0
                     data['len'] += increment
-                    if data['len'] <= 1:
-                        data['len'] = 1
+                    if data['len'] <= 0:
+                        data['len'] = 0
                     self.m.setExitData(here, dir, data)
                     break
 
@@ -452,10 +500,10 @@ class Mapper(BaseModule):
         self.show(self.draw())
 
     def inc(self, args):
-        self.exitLen(args[0], 2)
+        self.exitLen(args[0], 1)
 
     def dec(self, args):
-        self.exitLen(args[0], -2)
+        self.exitLen(args[0], -1)
 
     def load(self, args):
         # TODO: memory usage and map size can be reduced by storing
@@ -471,10 +519,9 @@ class Mapper(BaseModule):
             self.m = Map()
             print("Created a new map")
 
-        md = self.m.getMapData()
-
     def find(self, args):
-        self.log('\n' + pprint.pformat(self.m.findRoomByName(args[0])))
+        res = self.world.state['map-find-result'] = self.m.findRoomsByName(args[0])
+        self.mud.log(pprint.pformat(res))
 
     def currentArea(self):
         return self.m.getRoomData(self.current())['zone']
@@ -517,18 +564,36 @@ class Mapper(BaseModule):
     def autoVisit(self, args=None):
         if not args or args[0] != 'exit':
             self.world.state['autoVisitArea'] = self.currentArea()
-        self.world.state['autoVisitTarget'] = self.unmapped(False, 'autoVisitArea' in self.world.state, True)[0]
-        self.go(self.world.state['autoVisitTarget'])
+        unmapped = self.unmapped(False, 'autoVisitArea' in self.world.state, True)
+        if unmapped:
+            self.world.state['autoVisitTarget'] = unmapped[0]
+            self.log("Visiting " + unmapped[0])
+            self.go(self.world.state['autoVisitTarget'])
+        else:
+            self.log("Done!")
 
     def areas(self, args):
-        self.show(pprint.pformat(self.m['data']))
+        for name, num in self.m.getAreas().items():
+            self.show("{}\t{}\n".format(num, name))
 
     def delExits(self, args):
         value = self.world.gmcp['room']['info']
-        id = value['num']
+        id = roomnr(value['num'])
         data = dict(zone=value['zone'], terrain = value['terrain'])
         name = value['name']
         self.m.addRoom(id, name, data, {})
+
+    def delZone(self, args):
+        if args:
+            zone = ' '.join(args)
+        else:
+            zone = self.currentZone()
+        self.log("Deleting " + zone)
+        rooms = self.m.findRoomsByZone(zone)
+        self.log(rooms)
+        for room in rooms:
+            self.m.delRoom(room)
+        self.log(zone + " deleted")
 
     def __init__(self, mud, drawAreas, mapfname, spacesInRun=True):
         super().__init__(mud)
@@ -552,8 +617,8 @@ class Mapper(BaseModule):
                 'bookmark': self.bookmark,
                 'name': self.bookmark,
                 'bookmarks': self.bookmarks,
-                'path': lambda args: self.path(args[0]),
-                'go': lambda args: self.go(args[0]),
+                'path': lambda args: self.path(' '.join(args)),
+                'go': lambda args: self.go(' '.join(args)),
                 'save': self.save,
                 'write': self.save,
                 'startexit': self.startExit,
@@ -561,7 +626,9 @@ class Mapper(BaseModule):
                 'inc': self.inc,
                 'dec': self.dec,
                 'delexits': self.delExits,
+                'delzone': self.delZone,
                 'dump': lambda args: self.log(self.m.m),
+                'startroom': self.startRoom,
                 }
 
         # for creating custom exits
@@ -609,19 +676,20 @@ class Mapper(BaseModule):
 
 
         if cmd == 'room.info':
-            id = value['num']
+            id = roomnr(value['num'])
             if 'visited' not in self.world.state:
                 self.world.state['visited'] = set()
             self.world.state['visited'].add(id)
             name = value['name']
+            self.m.addArea(value['zone'], id)
             data = dict(zone=value['zone'], terrain = value['terrain'])
             exits = self.m.getRoomExits(id)  # retain custom exits
             for direction, target in value['exits'].items():
-                tgt = str(target)
+                tgt = roomnr(target)
                 dir = direction.lower()
                 if dir not in exits:
                     exits[dir] = {'tgt': tgt}
-                if not self.m.getRoomName(tgt):  # doesn't exist yet, insert stub for easy pathfinding 
+                if not self.m.roomExists(tgt):  # doesn't exist yet, insert stub for easy pathfinding 
                     self.m.addRoom(tgt, None, {}, {})
             if 'exit_kw' in value:
                 for direction, door in value['exit_kw'].items():
@@ -635,3 +703,4 @@ class Mapper(BaseModule):
                     self.log("Autovisiting, but changed areas")
                 else:
                     self.autoVisit(['exit'] if 'autoVisitArea' not in self.world.state else None)
+            # self.show(self.draw())
