@@ -123,7 +123,7 @@ class Map(object):
             visited.add(room)
 
 
-def assemble(cmds1):
+def assemble(cmds1, mode="go"):
     # return ';'.join(paths)
     cmds = []
     for cmd in cmds1:
@@ -156,7 +156,7 @@ def assemble(cmds1):
         if len(out) == 1:
             return out;
         else:
-            return "run " + out;
+            return mode + " " + out;
 
     out = []
     directions = []  # accumulates directions between non-directions
@@ -211,8 +211,12 @@ class Mapper(BaseModule):
             'bookmark': bm,
             }))
 
-    def path2(self, here, there):
-        if there in self.m.getBookmarks():
+    def path2(self, here, there, mode):
+        self.log(there)
+        if there.isdigit() and int(there) > 0 and 'map-find-result' in self.world.state and len(self.world.state['map-find-result']) >= int(there):
+            self.log("Pathing to {}th item = {}".format(int(there)-1, self.world.state['map-find-result'][int(there) - 1][0]))
+            there = self.world.state['map-find-result'][int(there) - 1][0]
+        elif there in self.m.getBookmarks():
             there = self.m.getBookmarks()[there]
         elif there in self.m.getAreas():
             there = self.m.getAreas()[there]
@@ -229,17 +233,17 @@ class Mapper(BaseModule):
         then = time.time()
         raw = self.m.findPath(here, there)
         if raw:
-            path = assemble(raw)
+            path = assemble(raw, mode)
             self.log("{} (found in {} ms)".format(path, (time.time() - then)*1000))
             return path
         else:
             self.log("Path not found in {} ms".format((time.time() - then)*1000))
 
-    def path(self, there):
-        return self.path2(self.current(), there)
+    def path(self, there, mode):
+        return self.path2(self.current(), there, mode)
 
-    def go(self, room):
-        path = self.path(room)
+    def go(self, room, mode):
+        path = self.path(room, mode)
         if path:
             self.send(path.replace(';', '\n'))
 
@@ -520,8 +524,13 @@ class Mapper(BaseModule):
             print("Created a new map")
 
     def find(self, args):
-        res = self.world.state['map-find-result'] = self.m.findRoomsByName(args[0])
-        self.mud.log(pprint.pformat(res))
+        res = self.world.state['map-find-result'] = self.m.findRoomsByName(' '.join(args))
+        res.sort(key=lambda x: x[1])
+        res.sort(key=lambda x: x[2])
+        count = 1
+        for nr, name, area in res:
+            self.show("{count}\t{nr}\t{name}\t\t{area}\n".format(count=count, nr=nr, name=name, area=area))
+            count += 1
 
     def currentArea(self):
         return self.m.getRoomData(self.current())['zone']
@@ -568,12 +577,13 @@ class Mapper(BaseModule):
         if unmapped:
             self.world.state['autoVisitTarget'] = unmapped[0]
             self.log("Visiting " + unmapped[0])
-            self.go(self.world.state['autoVisitTarget'])
+            self.go(self.world.state['autoVisitTarget'], 'go')
         else:
             self.log("Done!")
 
     def areas(self, args):
-        for name, num in self.m.getAreas().items():
+        for name in sorted(self.m.getAreas().keys()):
+            num = self.m.getAreas()[name]
             self.show("{}\t{}\n".format(num, name))
 
     def delExits(self, args):
@@ -605,7 +615,7 @@ class Mapper(BaseModule):
                 'lock': self.lockExit,
                 'unmapped': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(False, True, False)])),
                 'unvisited': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(True, True, False)])),
-                'gounmapped': lambda args: self.go(self.unmapped(False, True, True)[0]),
+                'gounmapped': lambda args: self.go(self.unmapped(False, True, True)[0], 'go'),
                 'av': self.autoVisit,
                 'areas': self.areas,
                 'find': self.find,
@@ -617,8 +627,9 @@ class Mapper(BaseModule):
                 'bookmark': self.bookmark,
                 'name': self.bookmark,
                 'bookmarks': self.bookmarks,
-                'path': lambda args: self.path(' '.join(args)),
-                'go': lambda args: self.go(' '.join(args)),
+                'path': lambda args: self.path(' '.join(args), 'go'),
+                'go': lambda args: self.go(' '.join(args), 'go'),
+                'run': lambda args: self.go(' '.join(args), 'run'),
                 'save': self.save,
                 'write': self.save,
                 'startexit': self.startExit,
