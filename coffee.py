@@ -94,15 +94,17 @@ class Coffee(modular.ModularClient):
 
         import modules.logging
         import modules.eval
+        import modules.mapper
         importlib.reload(modular)
         importlib.reload(modules.logging)
         importlib.reload(modules.eval)
+        importlib.reload(modules.mapper)
 
         self.modules = {}
         mods = {
                 'eval': (modules.eval.Eval, []),
                 'logging': (modules.logging.Logging, [self.logfname]),
-                # 'mapper': (modules.mapper.Mapper, [False, self.mapfname]),
+                'mapper': (modules.mapper.Mapper, [False, self.mapfname]),
                 }
         if name == 'grumpy':
             import modules.scholar
@@ -113,8 +115,6 @@ class Coffee(modular.ModularClient):
             importlib.reload(modules.autosmith)
             mods['autosmith'] = (modules.autosmith.AutoSmith, [])
         elif name == 'punchee':
-            import modules.mapper
-            importlib.reload(modules.mapper)
             mods['mapper'] = (modules.mapper.Mapper, [False, 'coffee.map'])
 
         for modname, module in mods.items():
