@@ -18,4 +18,8 @@ $macro {\eOo} {$echo {keypad /}}
 $macro {\eOj} {$echo {keypad *}}
 $macro {\eOn} {$echo {keypad .}}
 
+$rem for PuTTY
+$macro {\eOl} {$echo d;d}
+$macro {\eOS} {$echo u;u}
+
 $delay 1 {$split}
