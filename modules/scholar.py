@@ -5,12 +5,14 @@ import re
 import time
 
 
+# start with at least 10 charisma, max int and wis
 # At level 1, train scholar, practice write
-# At level 2, kill a monster in mud school
-# At level 3, practice write, gain herbology, engraving and embroidering
+# At level 2, write book
+# At level 3, gain engraving and embroidering
 # At level 4, gain combat log
 # At level 5, gain organizing
 # At level 7, gain find home
+# At level 9, gain wilderness lore
 # At level 11, gain book naming
 # At level 13, gain find ship
 # At level 14, gain make maps
@@ -21,8 +23,8 @@ import time
 # TODO: book loaning
 
 skills_by_level = {
-        1: ['herb herb', 'wlp'],
-        2: ['label book', 'engrave drum drum', 'embroider belt belt'],
+        1: ['herb herb'],
+        2: ['label book', 'engrave bowl bowl', 'embroider belt belt'],
         3: ['light fire', 'combatlog self', 'combatlog stop'],
         4: ['organ room name'],
         # 5: ['smokesig testing testing 1 2 3'],
@@ -40,6 +42,10 @@ skills_by_level = {
         29: ['mherb herb'],
         }
 
+def write(mud, matches=None):
+    mud.send('stand')
+    mud.send('write book "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"')
+    mud.send('sleep')
 
 def practiceOne(mud):
     level = mud.level() - 1
@@ -54,14 +60,20 @@ def practiceImpl(mud, begin, end, step):
     if mud.gmcp['room']['info']['num'] != 1741703288:
         mud.log("Not running Scholar script - must be in Pecking Place")
         return
-    mud.send("sta")
 
+    out = []
     for i in range(begin, end, step):
         if i in skills_by_level:
             for skill in skills_by_level[i]:
-                mud.send(skill)
+                out.append(skill)
 
-    mud.send("sleep")
+    # don't wake when too low-level to actually do anything
+    if out:
+        mud.send("sta")
+        for elem in out:
+            mud.send(elem)
+        mud.send("sleep")
+
     return
 
 def learnFrom(mud, matches):
@@ -127,12 +139,16 @@ class Scholar(BaseModule):
             "You don't seem to know (.+).": tryAgainTeaching,
             ".+ has not learned the pre-requisites to (.+) yet.": doneTeaching,
             "You teach .+ '(.+)'": doneTeaching,
+            "You attempt to write on .*, but mess up.": write,
+            'You are hungry.': 'sta\neat bread\nsleep',
+            'You are thirsty.': 'stand\nn\ndrink sink\ndrink sink\ndrink sink\ndrink sink\ns\nsleep',
             }
 
     def getTimers(self):
         return {
-                "practiceOne": (False, 605, 15, practiceOne),
-                "practiceTwo": (False, 605, 315, practiceTwo),
+                "practiceOne": (False, 5+2*600, 60, practiceOne),
+                "practiceTwo": (False, 5+1*600, 615, practiceTwo),
+                "write": (False, 605, 15, write),
                 }
 
 def getClass():

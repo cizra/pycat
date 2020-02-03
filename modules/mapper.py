@@ -211,7 +211,7 @@ class Mapper(BaseModule):
             'bookmark': bm,
             }))
 
-    def path2(self, here, there, mode):
+    def path2(self, here, there, mode='go'):
         self.log(there)
         if there.isdigit() and int(there) > 0 and 'map-find-result' in self.world.state and len(self.world.state['map-find-result']) >= int(there):
             self.log("Pathing to {}th item = {}".format(int(there)-1, self.world.state['map-find-result'][int(there) - 1][0]))
@@ -239,7 +239,7 @@ class Mapper(BaseModule):
         else:
             self.log("Path not found in {} ms".format((time.time() - then)*1000))
 
-    def path(self, there, mode):
+    def path(self, there, mode='go'):
         return self.path2(self.current(), there, mode)
 
     def go(self, room, mode):

@@ -920,9 +920,9 @@ def speculateDone(mud, _):
 
 def mined(mud, matches):
     resource = matches[0]
-    here = mud.gmcp['room']['info']['num']
-    path = mud.modules['mapper'].path(-565511209)
-    rpath = mud.modules['mapper'].path2(-565511209, here)
+    here = mud.modules['mapper'].current()
+    path = mud.modules['mapper'].path('565511209')
+    rpath = mud.modules['mapper'].path2('565511209', here)
     return 'mastermine bundle all {resource}\nget {resource} bundle\n{path}\ndrink sink\ndrop {resource} bundle\nlook {resource} bundle\n{rpath}\nmastermine'.format(resource=resource, path=path, rpath=rpath)
 
 
