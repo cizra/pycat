@@ -1,2 +1,0 @@
-Run it with
-LD_PRELOAD=libboost_serialization.so:libboost_python-py35.so:libpython3.5m.so
