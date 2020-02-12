@@ -45,7 +45,7 @@ def showHones(mud, _):
                 remove.add(skill)
             else:
                 found = True
-                mud.show("{}: {}s remaining".format(skill, 300 - int(now - honetime)))
+                mud.show("{}: {}s remaining\n".format(skill, 300 - int(now - honetime)))
         for skill in remove:
             del mud.state['hones'][skill]
         if not mud.state['hones']:

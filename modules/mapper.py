@@ -573,6 +573,11 @@ class Mapper(BaseModule):
     def autoVisit(self, args=None):
         if not args or args[0] != 'exit':
             self.world.state['autoVisitArea'] = self.currentArea()
+        if args and args[0] == 'stop':
+            del self.world.state['autoVisitTarget'] 
+            del self.world.state['autoVisitArea'] 
+            self.log("Stopped autovisit")
+            return
         unmapped = self.unmapped(False, 'autoVisitArea' in self.world.state, True)
         if unmapped:
             self.world.state['autoVisitTarget'] = unmapped[0]

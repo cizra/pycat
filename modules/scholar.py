@@ -8,7 +8,7 @@ import time
 # start with at least 10 charisma, max int and wis
 # At level 1, train scholar, practice write
 # At level 2, write book
-# At level 3, gain engraving and embroidering
+# At level 3, gain engraving and embroidering, prac herbology
 # At level 4, gain combat log
 # At level 5, gain organizing
 # At level 7, gain find home
