@@ -12,6 +12,13 @@ importlib.reload(modules.eval)
 importlib.reload(modules.repeat)
 importlib.reload(modules.mapper)
 
+ALIASES={
+        'sc': 'score'
+        }
+
+TRIGGERS={
+        r'^You are thirsty\.$': 'drink waterskin'
+        }
 
 class Sample(modular.ModularClient):
     def __init__(self, mud, name):
@@ -41,10 +48,8 @@ class Sample(modular.ModularClient):
         self.aliases.update(ALIASES)
         self.triggers.update(TRIGGERS)
 
-
-
     def getHostPort(self):
-        return '172.17.0.1', 7902
+        return 'sneezymud.org', 7900
 
 def getClass():
     return Sample
