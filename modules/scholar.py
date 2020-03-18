@@ -10,7 +10,7 @@ import time
 # At level 2, write book
 # At level 3, gain engraving and embroidering, prac herbology
 # At level 4, gain combat log
-# At level 5, gain organizing
+#(# At level 5, gain organizing)
 # At level 7, gain find home
 # At level 9, gain wilderness lore
 # At level 11, gain book naming
@@ -127,8 +127,6 @@ class Scholar(BaseModule):
 
     def getTriggers(self):
         return {
-            'You are thirsty.': 'drink barrel',
-            'You are hungry.': 'eat bread',
             'Enter the name of the chapter:': '',
             'You are now in Add Text mode.': '\nq\ny',
 
@@ -142,6 +140,7 @@ class Scholar(BaseModule):
             "You attempt to write on .*, but mess up.": write,
             'You are hungry.': 'sta\neat bread\nsleep',
             'You are thirsty.': 'stand\nn\ndrink sink\ndrink sink\ndrink sink\ndrink sink\ns\nsleep',
+            r'(Grumpy|Grumpier|Grumpiest) wants to teach you .*\.  Is this Ok .y.N..': 'y',
             }
 
     def getTimers(self):

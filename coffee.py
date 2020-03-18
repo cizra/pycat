@@ -80,6 +80,7 @@ TRIGGERS = {
         'You study .*\.': trackTimeStart,
         'You are done (.*)\.': lambda mud, matches: mud.mud.log("The task took {}s".format(time.time() - mud.state['task_start_time'])),
         'You become better at (.+).': honed,
+        '.* subtly sets something on the ground.': 'get bag\nput bag box\nexam box',
         }
 with open('passwords.json', 'rb') as pws:
     TRIGGERS.update(json.load(pws))
