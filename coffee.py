@@ -66,16 +66,18 @@ ALIASES = {
         }
 
 TRIGGERS = {
+        'Midgaard, a most excellent small city to start in.': 'say Midgaard',
+        "Mrs. Pippet says to you 'If ye're still wanting to go to Midgaard then say": 'say Ready to go!',
         'Grumpy wants you to try to teach him about .*\. It will': 'y',
         'You feel a little cleaner, but are still very dirty.': 'bathe',
         'You feel a little cleaner.': 'bathe',
         'You feel a little cleaner; almost perfect.': 'bathe',
         'You are no longer hungry.': '!',
         'You are no longer thirsty.': '!',
-        'You are starved, and near death.  EAT SOMETHING!': 'eat bread\nquit\ny',
-        'You are dehydrated, and near death.  DRINK SOMETHING!': 'drink sink\nquit\ny',
-        'YOU ARE DYING OF THIRST!': 'drink barrel\nquit\ny',
-        'YOU ARE DYING OF HUNGER!': 'eat bread\nquit\ny',
+        'You are starved, and near death.  EAT SOMETHING!': 'sta\neat bread\nquit\ny',
+        'You are dehydrated, and near death.  DRINK SOMETHING!': 'sta\ndrink sink\nquit\ny',
+        'YOU ARE DYING OF THIRST!': 'sta\ndrink barrel\nquit\ny',
+        'YOU ARE DYING OF HUNGER!': 'sta\neat bread\nquit\ny',
         'You start .*\.': trackTimeStart,
         'You study .*\.': trackTimeStart,
         'You are done (.*)\.': lambda mud, matches: mud.mud.log("The task took {}s".format(time.time() - mud.state['task_start_time'])),
