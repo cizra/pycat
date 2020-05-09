@@ -15,6 +15,15 @@ def roomnr(x):
     # CoffeeMud, Mob Factory exits are negative but room IDs are positive
     return str(abs(x))
 
+reverse = {
+        'n': 's',
+        'e': 'w',
+        's': 'n',
+        'w': 'e',
+        'u': 'd',
+        'd': 'u'
+        }
+
 # Room IDs are strings (JSON keys must be)
 class Map(object):
     def __init__(self, serialized=None):
@@ -431,6 +440,40 @@ class Mapper(BaseModule):
             f.write(self.m.serialize())
         self.log("Serialized map to", self.mapfname)
 
+    def door(self, args):
+        if len(args) != 1:
+            self.log("Usage: #map door [n/e/s/w/u/d]")
+            return
+        direction = args[0]
+        if direction not in "neswud":
+            self.log("Usage: #map door [n/e/s/w/u/d]")
+            return
+
+        srcNr = self.current()
+        exitsInSrcRoom = self.m.getRoomExits(srcNr)
+        exitsInSrcRoom["open {direction}\n{direction}".format(direction=direction)] = exitsInSrcRoom[direction]
+
+        dstNr = exitsInSrcRoom[direction]['tgt']
+        exitsInDstRoom = self.m.getRoomExits(dstNr)
+        exitsInDstRoom["open {direction}\n{direction}".format(direction=reverse[direction])] = exitsInDstRoom[reverse[direction]]
+
+        self.log(exitsInSrcRoom)
+        self.log(exitsInDstRoom)
+
+        self.m.addRoom(
+                srcNr,
+                self.m.getRoomName(srcNr),
+                self.m.getRoomData(srcNr),
+                exitsInSrcRoom)
+
+        self.m.addRoom(
+                dstNr,
+                self.m.getRoomName(dstNr),
+                self.m.getRoomData(dstNr),
+                exitsInDstRoom)
+
+        self.log("Added custom exit, both ways: open {direction};{direction}".format(direction=direction))
+
     def startExit(self, args):
         self.exitKw = ' '.join(args)
         nr = roomnr(self.world.gmcp['room']['info']['num'])
@@ -440,7 +483,6 @@ class Mapper(BaseModule):
         self.exitFrom['id'] = nr
         self.exitFrom['name'] = room['name']
         self.exitFrom['data'] = dict(zone=room['zone'], terrain = room['terrain'])
-        exits = {}
         for k, v in room['exits'].items():
             self.exitFrom['exits'][k.lower()] = {'tgt': roomnr(v)}
         self.log("Type '#map endexit' when you're in the right room, or #map endexit abort")
@@ -450,7 +492,7 @@ class Mapper(BaseModule):
         self.send(self.exitKw)
 
     def endExit(self, args):
-        if len(args) == 1:
+        if len(args) != 0:
             self.log("Aborted.")
             return
         self.exitFrom['exits'][self.exitKw] = {'tgt': self.current()}
@@ -637,6 +679,7 @@ class Mapper(BaseModule):
                 'run': lambda args: self.go(' '.join(args), 'run'),
                 'save': self.save,
                 'write': self.save,
+                'door': self.door,
                 'startexit': self.startExit,
                 'endexit': self.endExit,
                 'inc': self.inc,
