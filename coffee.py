@@ -66,6 +66,7 @@ ALIASES = {
         }
 
 TRIGGERS = {
+        "A set of wooden footholds lead up to the top of the coach": 'u\nsay high road',
         'Midgaard, a most excellent small city to start in.': 'say Midgaard',
         "Mrs. Pippet says to you 'If ye're still wanting to go to Midgaard then say": 'say Ready to go!',
         'Grumpy wants you to try to teach him about .*\. It will': 'y',
@@ -78,11 +79,14 @@ TRIGGERS = {
         'You are dehydrated, and near death.  DRINK SOMETHING!': 'sta\ndrink sink\nquit\ny',
         'YOU ARE DYING OF THIRST!': 'sta\ndrink barrel\nquit\ny',
         'YOU ARE DYING OF HUNGER!': 'sta\neat bread\nquit\ny',
+        'Quit -- are you sure .y.N..': 'y',
         'You start .*\.': trackTimeStart,
         'You study .*\.': trackTimeStart,
         'You are done (.*)\.': lambda mud, matches: mud.mud.log("The task took {}s".format(time.time() - mud.state['task_start_time'])),
         'You become better at (.+).': honed,
         '.* subtly sets something on the ground.': 'get bag\nput bag box\nexam box',
+        "The mayor says, 'I'll give you 1 minute.  Go ahead....ask for your reward.'": 'say reward',
+        "The mayor says 'Hello .*. Hope you are enjoying your stay.'": 'drop box\nThese obligations have been met.',
         }
 with open('passwords.json', 'rb') as pws:
     TRIGGERS.update(json.load(pws))
@@ -109,7 +113,7 @@ class Coffee(modular.ModularClient):
                 'logging': (modules.logging.Logging, [self.logfname]),
                 'mapper': (modules.mapper.Mapper, [False, self.mapfname]),
                 }
-        if name == 'grumpy' or name == 'grumpier' or name == 'grumpiest':
+        if name == 'grumpy' or (False and name == 'grumpier') or name == 'grumpiest':
             import modules.scholar
             importlib.reload(modules.scholar)
             mods['scholar'] = (modules.scholar.Scholar, [])
@@ -174,15 +178,6 @@ class Coffee(modular.ModularClient):
                     'You begin to float back down.': 'cast fly',
                     'Your skin softens.': 'cast stoneskin',
                     })
-        if name == 'rhubard' or name == 'bombard':
-            self.triggers.update({
-                'Drab appears!': 'fol drab',
-                'Drab recalls body and spirit to the Java Plane!': 'recall',
-                'Drab lays down and takes a nap.': 'sleep',
-                'Drab mounts a gelding.': 'mount 2.gelding',
-                'Drab dismounts a gelding.': 'dismo',
-                'Drab takes a drink from a fountain.': 'drink fount',
-                })
 
     def getHostPort(self):
         return 'coffeemud.net', 2323

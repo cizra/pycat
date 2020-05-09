@@ -129,6 +129,10 @@ class Scholar(BaseModule):
 
     def getTriggers(self):
         return {
+            '^You have 64 points remaining.': 'wis 15\nint 15\ncha 7\ncon 15\nstr 12\n ',
+            '^Please choose from the following Classes:': 'apprentice',
+            '^Is Apprentice correct': 'y',
+            '^You have remorted back to level 1!': 'run n w\ntrain scholar\ntrain int\ntrain int\ntrain int\ntrain int\nprac write\nrun e s\nsay help',
             'Enter the name of the chapter:': '',
             'You are now in Add Text mode.': '\nq\ny',
 
