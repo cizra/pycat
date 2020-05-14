@@ -18,7 +18,6 @@ class Session(object):
     def __init__(self, world_module, port, arg):
         self.mud_encoding = 'iso-8859-1'
         self.client_encoding = 'utf-8'
-        self.gmcp = {}
         self.world_module = world_module
         self.arg = arg
         self.world = world_module.getClass()(self, self.arg)
