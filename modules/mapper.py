@@ -428,7 +428,7 @@ class Mapper(BaseModule):
         return outstr
 
     def quit(self, args=None):
-        self.save([self.mapfname])
+        # self.save([self.mapfname])
         if 'visited' not in self.world.state:
             self.world.state['visited'] = set()
         self.log("Visited {} rooms today!".format(len(self.world.state['visited'])))
