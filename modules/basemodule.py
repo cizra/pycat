@@ -2,7 +2,6 @@ class BaseModule(object):
 
     def __init__(self, mud):
         self.mud = mud
-        self.state = mud.state
 
     def send(self, line):
         return self.mud.send(line)
