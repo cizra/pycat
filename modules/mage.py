@@ -140,8 +140,8 @@ class Mage(BaseModule):
             '^Please choose from the following Classes:': 'mage',
             '^Is Mage correct': 'y',
             '^You have remorted back to level 1!': 'run n w\ntrain int\ntrain int\ntrain int\ntrain int',
-            'You are hungry.': 'sta\neat bread\nsleep',
-            'You are thirsty.': 'stand\nn\ndrink sink\ndrink sink\ndrink sink\ndrink sink\ns\nsleep',
+            'You are hungry.': 'eat bread',
+            'You are thirsty.': 'drink buffalo',
             r'(Grumpy|Grumpier|Grumpiest) wants to teach you .*\.  Is this Ok .y.N..': 'y',
             }
 
