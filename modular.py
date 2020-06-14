@@ -36,9 +36,14 @@ class TimerMixin(object):
             self.timers[name] = (timer[0], timer[1], rem_time, timer[3])
             return rem_time
 
+        # deep copy timers to permit editing timers inside timers (changes dict size)
+        tmp_timers = {}
+        for name, timer in self.timers.items():
+            tmp_timers[name] = timer
+
         remove = []
         try:
-            for name, timer in self.timers.items():
+            for name, timer in tmp_timers.items():
                 oneshot, period, remaining, fn = timer
                 remaining = update(name, remaining - delta)
                 if remaining < 0:
