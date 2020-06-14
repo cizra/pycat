@@ -21,5 +21,6 @@ $macro {\eOn} {$echo {keypad .}}
 $rem for PuTTY
 $macro {\eOl} {$echo d;d}
 $macro {\eOS} {$echo u;u}
+$macro {\eOQ} {#map}
 
 $delay 1 {$split}
