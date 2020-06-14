@@ -64,18 +64,15 @@ def practiceImpl(mud, begin, end, step):
         return
 
     out = []
+    lag = 1
+    mud.send("stand")
     for i in range(begin, end, step):
         if i in skills_by_level:
             for skill in skills_by_level[i]:
-                out.append(skill)
-
-    # don't wake when too low-level to actually do anything
-    if out:
-        mud.send("sta")
-        for elem in out:
-            mud.send(elem)
-        mud.send("sleep")
-
+                mud.log("scholar " + skill)
+                mud.timers["scholar_" + skill] = mud.mkdelay(lag, lambda m, skill=skill: mud.send(skill))
+                lag += 1
+    mud.timers["scholar_sleep"] = mud.mkdelay(lag, lambda m: mud.send("sleep"))
     return
 
 def learnFrom(mud, matches):
