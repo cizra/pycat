@@ -864,16 +864,22 @@ class Coffee(modular.ModularClient):
                 'You are hungry.': 'eat bread',
                 'You are thirsty.': 'drink drum',
                 })
-        if name == 'punchee':  # group leader
+        elif name == 'grumpier':  # monk
+            self.aliases.update({
+                'kk( +.+)?': lambda mud, groups: self.stackToLag('gouge\ntrip\nax\nkick\nbodyflip\nbodytoss\nemote is done with stacking `kk`.', groups[0]),
+                })
+            # self.triggers.update({
+             #    'You is done with stacking `(.+)`.': lambda mud, groups: self.stackToLag('gouge\ntrip\nax\nkick\nbodyflip\nbodytoss\nemote is done with stacking `kk`.', groups[0]),
+              #   })
+        elif name == 'punchee':  # group leader
             self.aliases.update({
                 'waa': 'sta\nwake cizra\nwake basso',
                 })
-        if name == 'basso' or name == 'cizra':  # followers
+        elif name == 'basso' or name == 'cizra':  # followers
             self.triggers.update({
                     'Punchee lays down and takes a nap.': 'sleep',
                     })
-
-        if name == 'cizra':
+        elif name == 'cizra':
             self.triggers.update({
                     '(\w+): A closed door': lambda mud, matches: 'open ' + matches[0],
                     '(\w+) : A closed door': lambda mud, matches: 'open ' + matches[0],
@@ -897,6 +903,16 @@ class Coffee(modular.ModularClient):
                     'You begin to float back down.': 'cast fly',
                     'Your skin softens.': 'cast stoneskin',
                     })
+
+    def stackToLag(self, cmds, target):
+        lag = 0
+        cmd = cmds.split('\n')[0]
+        if target:
+            cmd = cmd + target
+        self.send(cmd)
+        for cmd in cmds.split('\n')[1:]:
+            self.timers["stackToLag" + cmd] = self.mkdelay(lag, lambda m, cmd=cmd: self.mud.send(cmd))
+            lag += 2
 
     def getHostPort(self):
         return 'coffeemud.net', 2323
