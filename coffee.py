@@ -765,6 +765,7 @@ def showHones(mud, _):
 
 
 ALIASES = {
+        'newcharsetup': 'prompt %T ^N^h%h/%Hh^q ^m%m/%Mm^q ^v%v/%Vv^q %aa %-LEVELL %Xtnl %z^N %E %B\ny\ncolorset\n16\nblue\nwhite\n\nautodraw on\nautoimprove on\nautogold on',
         'home': lambda mud, _: mud.modules['mapper'].go('1115504774', 'go'),
         'rt vassendar': 'run 4s d w d 2w d 2n 2e\nopen s\ns\nopen d\nrun 5d\nopen w\nw\nrun 8n w 2s 6w\nopen w\nrun 11w 3n 3w\nopen w\nrun 5w\nrun 3n 5w',
         'rt wgate': 'run 2s 3w\nopen w\nw',
