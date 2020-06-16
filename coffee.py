@@ -777,6 +777,9 @@ ALIASES = {
         }
 
 TRIGGERS = {
+        r'(Grumpy|Grumpier|Grumpiest) wants to teach you .*\.  Is this Ok .y.N..': 'y',
+        '.* is DEAD!!!': 'look in body',
+        'You parry ': 'disarm',
         'You attempt to disarm .* and fail!': 'disarm',
 	'A floating log gets caught on the bank.  It is large enough to enter and ride': 'enter log\ne',
 	'A turtle shell gets caught on the rock.  It is large enough to enter.': 'enter shell\nn',

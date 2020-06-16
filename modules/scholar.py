@@ -144,7 +144,6 @@ class Scholar(BaseModule):
             "You attempt to write on .*, but mess up.": write,
             'You are hungry.': 'sta\neat bread\nsleep',
             'You are thirsty.': 'stand\nn\ndrink sink\ndrink sink\ndrink sink\ndrink sink\ns\nsleep',
-            r'(Grumpy|Grumpier|Grumpiest) wants to teach you .*\.  Is this Ok .y.N..': 'y',
             }
 
     def getTimers(self):
