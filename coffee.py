@@ -830,7 +830,7 @@ class Coffee(modular.ModularClient):
                 'logging': (modules.logging.Logging, [self.logfname]),
                 'mapper': (modules.mapper.Mapper, [False, self.mapfname]),
                 }
-        if name == 'grumpy' or (False and name == 'grumpier') or name == 'grumpiest':
+        if name == 'grumpy' or (False and name == 'grumpier') or name == 'grumpiest' or name == 'dhtnseriao' or name == 'dhtnserioa' or name == 'dhtnseroia':
             import modules.scholar
             importlib.reload(modules.scholar)
             mods['scholar'] = (modules.scholar.Scholar, [])
