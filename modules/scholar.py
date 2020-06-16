@@ -24,7 +24,7 @@ import time
 
 skills_by_level = {
         1: ['herb herb'],
-        2: ['label book', 'engrave bowl bowl', 'embroider belt belt'],
+        2: ['label book', 'engrave bowl bowl', 'embroider sock sock'],
         3: ['light fire', 'combatlog self', 'combatlog stop'],
         4: ['organ room name'],
         # 5: ['smokesig testing testing 1 2 3'],
