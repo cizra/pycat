@@ -418,7 +418,6 @@ honeToType = {
 	'Wizards Chest': 'spell',
 	'Word of Recall': 'spell',
 	'Youth': 'spell',
-
 	'Acid Rain': 'chants',
 	'Acid Ward': 'chants',
 	'Air Wall': 'chants',
@@ -547,7 +546,7 @@ honeToType = {
 	'Howlers Moon': 'chants',
 	'Illusionary Forest': 'chants',
 	'Killer Vine': 'chants',
-	'Know Plants': 'chants',
+	# 'Know Plants': 'chants', - scholar
 	'Labyrinth': 'chants',
 	'Land Legs': 'chants',
 	'Land Lungs': 'chants',
@@ -725,7 +724,6 @@ honeToType = {
 	'Wind Snatcher': 'chants',
 	'Worms': 'chants',
 	'Yearning': 'chants',
-
         }
 
 def honed(mud, groups):
