@@ -12,7 +12,7 @@ import time
 # At level 4, gain combat log
 #(# At level 5, gain organizing)
 # At level 7, gain find home
-# At level 9, gain wilderness lore
+# At level 10, gain wilderness lore
 # At level 11, gain book naming
 # At level 13, gain find ship
 # At level 14, gain make maps

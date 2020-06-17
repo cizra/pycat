@@ -74,6 +74,9 @@ class TimerMixin(object):
         self.stopflag.set()
         self.timer_thread.join()
 
+    def setTimerRemaining(self, timer, remainingTime):
+        self.timers[timer] = (self.timers[timer][0], self.timers[timer][1], remainingTime, self.timers[timer][3])
+
 
 class ModularClient(TimerMixin):
     def __init__(self, mud):

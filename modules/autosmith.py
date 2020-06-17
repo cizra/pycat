@@ -967,11 +967,18 @@ class AutoSmith(BaseModule):
             'You mess up carving .*': failSmithing,
             'Your speculate attempt failed.': speculateFailed,
             'You are done skinning and butchering the body of .*': 'butcher corpse',
+            '[99 %] Shearing': 'quit\ny',
             }
 
+    def honeTimer(self, mud):
+        mud.state['hone_on_success'] = lambda: [mud.setTimerRemaining('hone', 305), mud.send('sleep')]
+        mud.state['honing'] = ('textile wool 1', 1)
+        self.send("stand\ntextile wool 1")
+        
     def getTimers(self):
         return {
-                # "hone": self.mktimer(60*5 + 5, lambda: self.send("irrig title On a pond\nexcav title On a pond\nlandscap title On a pond\nrun 2e\nmarm Spiked Banded Handguards\nrun 2w\nmasterfish\nspeculate"))
+                "hone": self.mktimer(60*5 + 5, self.honeTimer),
+                # "quit": self.mkdelay(17000, lambda mud: mud.send('quit\ny')),
                 }
 
 def getClass():
