@@ -112,6 +112,14 @@ class Map(object):
         if room in self.m['rooms']:
             del self.m['rooms'][room]
 
+
+    def isLocked(self, exit):
+        if 'data' not in exit:
+            return False
+        if 'lock' not in exit['data']:
+            return False
+        return True  # TODO: check level
+
     def findPath(self, here, there):
         here = str(here)
         there = str(there)
@@ -124,6 +132,8 @@ class Map(object):
             if room not in visited:  # A given room might end up in the queue through different paths
                 ex = self.m['rooms'][room]['exits']
                 for exDir in ex:
+                    if self.isLocked(ex[exDir]):
+                        continue
                     tgt = ex[exDir]['tgt']
                     paths[tgt] = paths[room] + [exDir]
                     roomq.append(tgt)
