@@ -22,5 +22,6 @@ $rem for PuTTY
 $macro {\eOl} {$echo d;d}
 $macro {\eOS} {$echo u;u}
 $macro {\eOQ} {#map}
+$macro {\e[12~} {#map}
 
 $delay 1 {$split}
