@@ -971,9 +971,10 @@ class AutoSmith(BaseModule):
             }
 
     def honeTimer(self, mud):
+        cmd = 'knit diaper'
         mud.state['hone_on_success'] = lambda: [mud.setTimerRemaining('hone', 305), mud.send('sleep')]
-        mud.state['honing'] = ('textile wool 1', 1)
-        self.send("stand\ntextile wool 1")
+        mud.state['honing'] = (cmd, 1)
+        self.send("stand\n{} 1".format(cmd))
         
     def getTimers(self):
         return {
