@@ -971,16 +971,39 @@ class AutoSmith(BaseModule):
             }
 
     def honeTimer(self, mud):
-        cmd = 'knit diaper'
-        mud.state['hone_on_success'] = lambda: [mud.setTimerRemaining('hone', 305), mud.send('sleep')]
+        if 'honeSkills' not in mud.state:
+            mud.state['honeSkills'] = ['constr title foo', 'gemdig', 'masonry title blarg', 'search', 'mastermine']
+        
+        skillToCmd = ['Construction', 'Gem Digging', 'Masonry', 'Searching', 'Master Mining']
+
+        def onHoneSuccess(skill):
+            skills = mud.state['honeSkills']
+            if mud.state['honeMultiple'] < len(skills):
+                cmd = skills[mud.state['honeMultiple']]
+                mud.state['honing'] = (cmd, 1)
+                mud.send(cmd)
+                if skill in mud.state['skillLevels'] and mud.state['skillLevels'][skill] >= 99 and skill in skillToCmd:
+                    mud.log("Removing " + skill + " from hone list")
+                    del mud.state['honeSkills'][skillToCmd.index(skill)]
+            else:
+                mud.setTimerRemaining('hone', 301)
+                mud.send('sleep')
+            mud.state['honeMultiple'] += 1
+
+        mud.state['honeMultiple'] = 0
+        cmd = 'dye diaper red'
+        # mud.state['hone_on_success'] = lambda: [mud.setTimerRemaining('hone', 305), mud.send('leep')]
+        mud.state['hone_on_success'] = onHoneSuccess
         mud.state['honing'] = (cmd, 1)
-        self.send("stand\n{} 1".format(cmd))
+        self.send("stand\n{}".format(cmd))
         
     def getTimers(self):
-        return {
+        if False:
+            return {
                 "hone": self.mktimer(60*5 + 5, self.honeTimer),
-                # "quit": self.mkdelay(17000, lambda mud: mud.send('quit\ny')),
                 }
+        else:
+            return {}
 
 def getClass():
     return AutoSmith

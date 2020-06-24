@@ -744,7 +744,7 @@ def honed(mud, groups):
     mud.state['hones'][skill] = time.time()
 
     if 'hone_on_success' in mud.state:
-        mud.state['hone_on_success']()
+        mud.state['hone_on_success'](skill)
     mud.timers["hone_" + skill] = mud.mkdelay(301, lambda m: mud.log("You can now hone " + skill))
 
 
