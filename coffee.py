@@ -767,6 +767,15 @@ def showHones(mud, _):
         mud.show("No skills honed recently")
 
 
+def setSkillLevel(mud, groups):
+    if 'skillLevels' not in mud.state:
+        mud.state['skillLevels'] = {}
+
+    level = int(groups[0])
+    skill = groups[1]
+
+    mud.state['skillLevels'][skill] = level
+
 ALIASES = {
         'newcharsetup': 'prompt %T ^N^h%h/%Hh^q ^m%m/%Mm^q ^v%v/%Vv^q %aa %-LEVELL %Xtnl %z^N %E %B\ny\ncolorset\n16\nblue\nwhite\n\nautodraw on\nautoimprove on\nautogold on',
         'home': lambda mud, _: mud.modules['mapper'].go('1115504774', 'go'),
@@ -807,6 +816,7 @@ TRIGGERS = {
         '.* subtly sets something on the ground.': 'get bag\nput bag box\nexam box',
         "The mayor says, 'I'll give you 1 minute.  Go ahead....ask for your reward.'": 'say reward',
         "The mayor says 'Hello .*. Hope you are enjoying your stay.'": 'drop box\nThese obligations have been met.',
+        '\[(\d+) %\] (.+)': setSkillLevel,
         }
 with open('passwords.json', 'rb') as pws:
     TRIGGERS.update(json.load(pws))
