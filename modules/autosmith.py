@@ -25,10 +25,6 @@ def nothingToChop(mud, _):
     dirs = list(mud.gmcp['room']['info']['exits'].keys())
     return random.choice(dirs) + '\n' + 'chop'
 
-def getWater(mud, _):
-    mud.modules['mapper'].go(-420699692)
-    mud.send('fill barrel sink\ndrink sink\ndrink sink\ns\ne\nforage')
-
 def goMine(mud, _):
     mud.modules['mapper'].go(-565509103)
     mud.send('mastermine')
@@ -251,7 +247,6 @@ class AutoSmith(BaseModule):
             'You don\'t see \'bread\' here.': buyBread,
             'You don\'t seem to have \'bread\'.': buyBread,
             # 'You can\'t see to do that!': 'light fire',
-            'A wood barrel is empty.': getWater,
             'You need to stand up!': 'stand\nmastermine',
             'If you don\'t do something, you will be logged out in 5 minutes!': 'stand\nmastermine',
             'You don\'t think this is a good place to mine.': goMine,
@@ -266,7 +261,6 @@ class AutoSmith(BaseModule):
             'You mess up carving .*': failSmithing,
             'Your speculate attempt failed.': speculateFailed,
             'You are done skinning and butchering the body of .*': 'butcher corpse',
-            '[99 %] Shearing': 'quit\ny',
             }
 
     def honeTimer(self, mud):
