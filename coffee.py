@@ -811,7 +811,7 @@ TRIGGERS = {
         'Quit -- are you sure .y.N..': 'y',
         'You start .*\.': trackTimeStart,
         'You study .*\.': trackTimeStart,
-        'You are done (.*)\.': lambda mud, matches: mud.mud.log("The task took {}s".format(time.time() - mud.state['task_start_time'])),
+        'You are done (.*)\.': lambda mud, matches: mud.mud.log("The task took {}s".format(time.time() - (mud.state['task_start_time'] if 'task_start_time' in mud.state else 0))),
         'You become better at (.+).': honed,
         '.* subtly sets something on the ground.': 'get bag\nput bag box\nexam box',
         "The mayor says, 'I'll give you 1 minute.  Go ahead....ask for your reward.'": 'say reward',
