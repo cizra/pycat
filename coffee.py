@@ -792,6 +792,7 @@ ALIASES = {
         }
 
 TRIGGERS = {
+        'You fall asleep from exhaustion!!': 'stand\nsleep',
         r'(Grumpy|Grumpier|Grumpiest) wants to teach you .*\.  Is this Ok .y.N..': 'y',
         '.* is DEAD!!!': 'look in body',
         'You parry ': 'disarm',
