@@ -745,7 +745,10 @@ def honed(mud, groups):
 
     if 'hone_on_success' in mud.state:
         mud.state['hone_on_success'](skill)
-    mud.timers["hone_" + skill] = mud.mkdelay(301, lambda m: mud.log("You can now hone " + skill))
+
+    if skill in mud.state['skillLevels'] and mud.state['skillLevels'][skill] > 99:
+        return
+    mud.timers["hone_again_notification_for_" + skill] = mud.mkdelay(301, lambda m: mud.log("You can now hone " + skill))
 
 
 def showHones(mud, _):
@@ -816,7 +819,7 @@ TRIGGERS = {
         '.* subtly sets something on the ground.': 'get bag\nput bag box\nexam box',
         "The mayor says, 'I'll give you 1 minute.  Go ahead....ask for your reward.'": 'say reward',
         "The mayor says 'Hello .*. Hope you are enjoying your stay.'": 'drop box\nThese obligations have been met.',
-        '\[(\d+) %\] (.+)': setSkillLevel,
+        '^\[(\d  |\d\d |\d\d\d)%\] ([^[]+)$': setSkillLevel,
         }
 with open('passwords.json', 'rb') as pws:
     TRIGGERS.update(json.load(pws))
@@ -868,6 +871,9 @@ class Coffee(modular.ModularClient):
         super().__init__(mud)
 
         self.aliases.update(ALIASES)
+        self.aliases.update({
+            '#autohone ([^,]+), (.+)': lambda mud, groups: self.startAutoHone(groups[0], groups[1]),
+                })
         self.triggers.update(TRIGGERS)
         self.triggers.update({r'\(Enter your character name to login\)': name})
 
@@ -977,6 +983,25 @@ class Coffee(modular.ModularClient):
                 # self.log("Full mana!")
                 if self.name == 'hippie':
                     self.send("sta\nchant speed time\ndrink sink\nsleep")
+
+    def startAutoHone(self, skill, cmd):
+        self.log("Autohoning {} as {}".format(skill, cmd))
+        self.timers['autohone_' + cmd] = self.mktimernow(60*5 + 1, lambda mud: self.honeTimer(skill, cmd))
+
+    def honeTimer(self, skill, cmd):
+        def onHoneSuccess(skillHoned):
+            if skill == skillHoned:
+                if skill in self.state['skillLevels'] and self.state['skillLevels'][skill] >= 99:
+                    self.log("Removing " + skill + " from autohone")
+                    del self.timers['autohone_' + cmd]
+                else:
+                    self.setTimerRemaining('autohone_' + cmd, 301)
+                    self.send('sleep')
+
+        # multi-hone timers need work
+        self.state['hone_on_success'] = onHoneSuccess
+        self.state['honing'] = (cmd, 1)
+        self.send('sta\n{}'.format(cmd))
 
 
 def getClass():

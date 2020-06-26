@@ -217,6 +217,7 @@ def scrapeItems(mud, groups):
     craftPerLevel[0] = filler.name
 
     mud.state['smithables_' + skill] = craftPerLevel
+    mud.log("Done")
 
 
 class AutoSmith(BaseModule):

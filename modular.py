@@ -67,6 +67,10 @@ class TimerMixin(object):
         return (oneshot, period, period, fn)
 
     @staticmethod
+    def mktimernow(period, fn, oneshot=False):
+        return (oneshot, period, 0, fn)
+
+    @staticmethod
     def mkdelay(delay, fn):
         return (True, delay, delay, fn)
 
