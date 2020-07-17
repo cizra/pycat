@@ -291,7 +291,7 @@ class Mapper(BaseModule):
         if sizeX and sizeY:
             columns, lines = sizeX, sizeY
         else:
-            columns, lines = shutil.get_terminal_size((21, 22))
+            columns, lines = 60, 100  # shutil.get_terminal_size((21, 22))
 
         def adjustExit(x, y, d, prev):
             m = re.match(r'open .+;(.+)', d)

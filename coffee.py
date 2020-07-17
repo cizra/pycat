@@ -737,7 +737,7 @@ def honed(mud, groups):
     else:
         honeType = 'skill'
 
-    mud.send(honeType + " " + skill)
+    mud.timers["honed_skill_scrape_" + cmd] = mud.mkdelay(1, lambda m: mud.send(honeType + ' ' + skill))
 
     if 'hones' not in mud.state:
         mud.state['hones'] = {}
@@ -776,11 +776,12 @@ def setSkillLevel(mud, groups):
 
     level = int(groups[0])
     skill = groups[1]
+    mud.log('scraped {} at {}'.format(skill, level))
 
     mud.state['skillLevels'][skill] = level
 
 ALIASES = {
-        'newcharsetup': 'prompt %T ^N^h%h/%Hh^q ^m%m/%Mm^q ^v%v/%Vv^q %aa %-LEVELL %Xtnl %z^N %E %B\ny\ncolorset\n16\nblue\nwhite\n\nautodraw on\nautoimprove on\nautogold on',
+        'newcharsetup': 'prompt %T ^N^h%h/%Hh^q ^m%m/%Mm^q ^v%v/%Vv^q %aa %-LEVELL %Xtnl %z^N %E %B\ny\ncolorset\n16\nblue\nwhite\n\nautodraw on\nautoimprove on\nautogold on\nalias define on open n~n\nalias define oe open e~e\nalias define ow open w~w\nalias define os open s~s\nalias define od open d~d\nalias define ou open u~u',
         'home': lambda mud, _: mud.modules['mapper'].go('1115504774', 'go'),
         'rt vassendar': 'run 4s d w d 2w d 2n 2e\nopen s\ns\nopen d\nrun 5d\nopen w\nw\nrun 8n w 2s 6w\nopen w\nrun 11w 3n 3w\nopen w\nrun 5w\nrun 3n 5w',
         'rt wgate': 'run 2s 3w\nopen w\nw',
@@ -792,6 +793,7 @@ ALIASES = {
         }
 
 TRIGGERS = {
+        'You slip on the cold wet ground.': 'stand',
         'You fall asleep from exhaustion!!': 'stand\nsleep',
         r'(Grumpy|Grumpier|Grumpiest) wants to teach you .*\.  Is this Ok .y.N..': 'y',
         '.* is DEAD!!!': 'look in body',
@@ -799,7 +801,7 @@ TRIGGERS = {
         'You attempt to disarm .* and fail!': 'disarm',
 	'A floating log gets caught on the bank.  It is large enough to enter and ride': 'enter log\ne',
 	'A turtle shell gets caught on the rock.  It is large enough to enter.': 'enter shell\nn',
-        "A set of wooden footholds lead up to the top of the coach": 'u\nsay high road',
+        # "A set of wooden footholds lead up to the top of the coach": 'u\nsay high road',
         'Midgaard, a most excellent small city to start in.': 'say Midgaard',
         "Mrs. Pippet says to you 'If ye're still wanting to go to Midgaard then say": 'say Ready to go!',
         'Grumpy wants you to try to teach him about .*\. It will': 'y',
@@ -851,7 +853,7 @@ class Coffee(modular.ModularClient):
             import modules.scholar
             importlib.reload(modules.scholar)
             mods['scholar'] = (modules.scholar.Scholar, [])
-        elif name == 'vassal' or name == 'robot':
+        elif name == 'vassal' or name == 'robot' or name == 'landscapegoat':
             import modules.autosmith
             importlib.reload(modules.autosmith)
             mods['autosmith'] = (modules.autosmith.AutoSmith, [])
@@ -886,7 +888,7 @@ class Coffee(modular.ModularClient):
                 })
         elif name == 'grumpier':  # monk
             self.aliases.update({
-                'kk( +.+)?': lambda mud, groups: self.stackToLag('gouge\ntrip\nax\nkick\nbodyflip\nbodytoss\nemote is done with stacking `kk`.', groups[0]),
+                'kk( +.+)?': lambda mud, groups: self.stackToLag('gouge\ntrip\ndirt\nax\nkick\nbodyflip\natemi\nbodytoss\nemote is done with stacking `kk`.', groups[0]),
                 })
             # self.triggers.update({
              #    'You is done with stacking `(.+)`.': lambda mud, groups: self.stackToLag('gouge\ntrip\nax\nkick\nbodyflip\nbodytoss\nemote is done with stacking `kk`.', groups[0]),
@@ -935,7 +937,7 @@ class Coffee(modular.ModularClient):
             lag += 2.5
 
     def getHostPort(self):
-        return 'coffeemud.net', 2323
+        return 'coffeemud.net', 2324
 
     def level(self):
         return self.gmcp['char']['status']['level']

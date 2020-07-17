@@ -43,7 +43,7 @@ def buyBread(mud, _):
 
 
 def smith(mud, _):
-    if mud.name != 'vassal':
+    if mud.name != 'landscapegoat':
         return
 
     if 'task_start_time' in mud.state:
@@ -223,7 +223,7 @@ def scrapeItems(mud, groups):
 class AutoSmith(BaseModule):
     def getAliases(self):
         return {
-                'scrapeItems (.+)': scrapeItems,
+                'scrape (.+)': scrapeItems,
                 'smith': smith,
                 'autoscrap (.*)': startScrapping,
                 'specfor (.) (.*)': speculateFor,

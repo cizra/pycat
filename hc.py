@@ -14,6 +14,10 @@ class Hc(coffee.Coffee):
         super().__init__(mud, name)
         with open('passwords_hc.json', 'rb') as pws:
             self.triggers.update(json.load(pws))
+        self.triggers.update({
+            'You are hungry.': 'eat bread',
+            'You are thirsty.': 'n\ndrink sink\ndrink sink\ns\nplay tempo',
+        })
 
     def getHostPort(self):
         return 'coffeemud.net', 2325

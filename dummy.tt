@@ -18,10 +18,17 @@ $macro {\eOo} {$echo {keypad /}}
 $macro {\eOj} {$echo {keypad *}}
 $macro {\eOn} {$echo {keypad .}}
 
+
 $rem for PuTTY
 $macro {\eOl} {$echo d;d}
 $macro {\eOS} {$echo u;u}
-$macro {\eOQ} {#map}
+$macro {\eOQ} {n}
+$macro {\eOP} {u}
+$macro {\eOR} {d}
+$macro {\e[15~} {#map}
+$macro {\e[18~} {w}
+$macro {\e[19~} {s}
+$macro {\e[20~} {e}
 $macro {\e[12~} {#map}
 
 $delay 1 {$split}

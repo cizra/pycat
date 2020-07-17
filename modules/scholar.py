@@ -41,14 +41,28 @@ skills_by_level = {
         29: ['mherb herb'],
         }
 
-def write(mud, matches=None):
+def write(mud, lag=1):
     if mud.gmcp['room']['info']['num'] != 1741703288:
         mud.log("Not running Scholar script - must be in Pecking Place")
         return
 
-    mud.send('stand')
-    mud.send('write book "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"')
-    mud.timers["scholar_sleep"] = mud.mkdelay(1, lambda m: mud.send('sleep'))
+    def end(finalStr):
+        mud.log("Removing write triggers")
+        mud.send(finalStr)
+        lagSend(mud, 1, 'sleep')
+        # del mud.triggers['You are now in Add Text mode.']
+        # del mud.triggers['Menu ...A.D.L.I.E.R.S.Q.W.:']
+        # del mud.triggers['Quit without saving .N.y..']
+
+    mud.log("Adding write triggers")
+    mud.triggers['You are now in Add Text mode.'] = '\n'
+    mud.triggers['Menu ...A.D.L.I.E.R.S.Q.W.:'] = 'q'
+    mud.triggers['Quit without saving .N.y..'] = lambda mud, groups: end('y')
+    mud.triggers['Enter the name of the chapter:'] = '\nsleep'
+    mud.triggers['Enter an empty line to exit.'] = '\nblarg'
+
+    lagSend(mud, lag, 'stand')
+    lagSend(mud, lag + 1, 'write book "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"')
 
 def practiceOne(mud):
     level = mud.level() - 1
@@ -60,6 +74,13 @@ def practiceTwo(mud):
     level = mud.level() - 1
     practiceImpl(mud, level-1, 0, -2)
 
+def lagSend(mud, lag, cmd):
+    mud.log("Enqueueing " + cmd + " @ " + str(lag))
+    def logAndSend(cmd):
+        mud.log("laggy send " + cmd)
+        mud.send(cmd)
+    mud.timers["lagsend_" + cmd] = mud.mkdelay(lag, lambda m, cmd=cmd: logAndSend(cmd))
+
 def practiceImpl(mud, begin, end, step):
     if mud.gmcp['room']['info']['num'] != 1741703288:
         mud.log("Not running Scholar script - must be in Pecking Place")
@@ -69,18 +90,12 @@ def practiceImpl(mud, begin, end, step):
     lag = 1
     mud.send("stand")
 
-    def lagSend(lag, cmd):
-        mud.log("Enqueueing " + cmd + " @ " + str(lag))
-        mud.timers["scholar_" + cmd] = mud.mkdelay(lag, lambda m, cmd=cmd: mud.send(cmd))
-
     for i in range(begin, end, step):
         if i in skills_by_level:
             for skill in skills_by_level[i]:
-                lagSend(lag, skill)
+                lagSend(mud, lag, skill)
                 lag += 1
-    lagSend(lag, 'write book "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"')
-    lag += 1
-    lagSend(lag, 'sleep')
+    write(mud, lag)
     return
 
 def learnFrom(mud, matches):
@@ -140,10 +155,7 @@ class Scholar(BaseModule):
             '^Please choose from the following Classes:': 'apprentice',
             '^Is Apprentice correct': 'y',
             '^You have remorted back to level 1!': 'run n w\ntrain scholar\ntrain int\ntrain int\ntrain int\ntrain int\nprac write\nrun e s\nsay help',
-            'Enter the name of the chapter:': '',
             # 'You are now in Add Text mode.': lambda mud, groups: [mud.log("Add text handler"), mud.send('q'), mud.send('y')],
-            'Menu ...A.D.L.I.E.R.S.Q.W.:': 'q',
-            'Quit without saving .N.y..': 'y',
             "(.+) whispers to you 'teach me (.+)'.": startLearning,
             ".+ fails to teach you (.+).": failedLearning, 
             'You are done learning (.+) from (.+).': doneLearning,
@@ -151,15 +163,15 @@ class Scholar(BaseModule):
             "You don't seem to know (.+).": tryAgainTeaching,
             ".+ has not learned the pre-requisites to (.+) yet.": doneTeaching,
             "You teach .+ '(.+)'": doneTeaching,
-            "You attempt to write on .*, but mess up.": write,
+            "You attempt to write on .*, but mess up.": lambda mud, groups: write(mud, 1),
             'You are hungry.': 'sta\neat bread\nsleep',
             'You are thirsty.': 'stand\ndrink sink\ndrink sink\ndrink sink\ndrink sink\nsleep',
             }
 
     def getTimers(self):
         return {
-                "practiceOne": (False, 5+2*600, 60, practiceOne),
-                "practiceTwo": (False, 5+1*600, 615, practiceTwo),
+                "practiceOne": (False, 5+600, 60, practiceOne),
+                "practiceTwo": (False, 5+600, 615, practiceTwo),
                 }
 
 def getClass():
