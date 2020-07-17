@@ -1,2 +1,2 @@
 $ses s ::1 4003
-$read dummy.tt
+$read commonconf.tt
