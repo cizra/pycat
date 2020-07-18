@@ -94,7 +94,7 @@ class Session(object):
             current = current[nest]
         lastkey = nesting[-1]
         try:
-            val = json.loads(value_json)
+            val = json.loads(value_json, strict=False)
         except json.decoder.JSONDecodeError:
             val = {"string": value_json}
         if lastkey not in current:
