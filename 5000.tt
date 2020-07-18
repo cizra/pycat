@@ -1,0 +1,3 @@
+$ses s ::1 5000
+$read commonconf.tt
+$macro {\eOu} {#killify}

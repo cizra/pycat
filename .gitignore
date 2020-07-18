@@ -1,5 +1,6 @@
 *.swp
 *.log
+*.log.gz
 *.gch
 *.pyc
 __pycache__
@@ -14,3 +15,4 @@ __pycache__
 /mapdraw
 /passwords.json
 /passwords_hc.json
+/passwords_sneezy.json
