@@ -737,7 +737,7 @@ def honed(mud, groups):
     else:
         honeType = 'skill'
 
-    mud.timers["honed_skill_scrape_" + cmd] = mud.mkdelay(1, lambda m: mud.send(honeType + ' ' + skill))
+    mud.timers["honed_skill_scrape_" + skill] = mud.mkdelay(1, lambda m: mud.send(honeType + ' ' + skill))
 
     if 'hones' not in mud.state:
         mud.state['hones'] = {}
