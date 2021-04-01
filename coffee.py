@@ -776,7 +776,6 @@ def setSkillLevel(mud, groups):
 
     level = int(groups[0])
     skill = groups[1]
-    mud.log('scraped {} at {}'.format(skill, level))
 
     mud.state['skillLevels'][skill] = level
 
