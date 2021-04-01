@@ -386,39 +386,44 @@ class Mapper(BaseModule):
                         for _ in range(exitLen + 1):  # exitlen for the exit, +1 for the target room
                             roomX, roomY, _, _, _ = adjustExit(roomX, roomY, d, ' ')
 
-                        # Mark exits that break map (if the target room is already drawn, but not adjacent to this one)
-                        mark = False
-                        if tgt in visited:
-                            tgtX, tgtY = coordCache[tgt]
-                            if tgtX != roomX or tgtY != roomY:
-                                # print("Offset detected:", roomX - tgtX, roomY-tgtX)
-                                mark = True
+                        exitData = self.m.getExitData(room, d)
+                        if 'draw' in exitData and not exitData['draw']:
+                            nexX, nexY, _, _, _ = adjustExit(exX, exY, d, out[drawY][drawX])
+                            out[nexY][nexX] = '.'
+                        else:
+                            # Mark exits that break map (if the target room is already drawn, but not adjacent to this one)
+                            mark = False
+                            if tgt in visited:
+                                tgtX, tgtY = coordCache[tgt]
+                                if tgtX != roomX or tgtY != roomY:
+                                    # print("Offset detected:", roomX - tgtX, roomY-tgtX)
+                                    mark = True
 
-                        # draw a long exit for beautification
-                        for _ in range(exitLen):
-                            exX, exY, regularExit, hiddenExit, markedExit = adjustExit(exX, exY, d, out[drawY][drawX])
-                            if fits(exX, exY):
-                                # If the map grid element we'd occupy is already occupied, don't go there
-                                nextX, nextY, _, _, _ = adjustExit(exX, exY, d, ' ')  # Adjust again, ie. go one step further in the same direction for the target room
-                                # Don't overwrite already drawn areas
-                                free = fits(exX, exY) and (not fits(nextX, nextY) or out[nextY][nextX] == ' ') or tgt in visited
+                            # draw a long exit for beautification
+                            for _ in range(exitLen):
+                                exX, exY, regularExit, hiddenExit, markedExit = adjustExit(exX, exY, d, out[drawY][drawX])
+                                if fits(exX, exY):
+                                    # If the map grid element we'd occupy is already occupied, don't go there
+                                    nextX, nextY, _, _, _ = adjustExit(exX, exY, d, ' ')  # Adjust again, ie. go one step further in the same direction for the target room
+                                    # Don't overwrite already drawn areas
+                                    free = fits(exX, exY) and (not fits(nextX, nextY) or out[nextY][nextX] == ' ') or tgt in visited
 
-                                if mark:
-                                    out[exY][exX] = markedExit
-                                elif free and exists and sameAreas:
-                                    out[exY][exX] = regularExit
-                                else:
-                                    out[exY][exX] = hiddenExit
+                                    if mark:
+                                        out[exY][exX] = markedExit
+                                    elif free and exists and sameAreas:
+                                        out[exY][exX] = regularExit
+                                    else:
+                                        out[exY][exX] = hiddenExit
 
-                        visit = (exists
-                                and tgt not in visited
-                                and sameAreas
-                                and d not in ['u', 'd']
-                                and fits(roomX, roomY)
-                                and out[roomY][roomX] == ' '
-                                )
-                        if visit:
-                            roomq.append((roomX, roomY, tgt))
+                            visit = (exists
+                                    and tgt not in visited
+                                    and sameAreas
+                                    and d not in ['u', 'd']
+                                    and fits(roomX, roomY)
+                                    and out[roomY][roomX] == ' '
+                                    )
+                            if visit:
+                                roomq.append((roomX, roomY, tgt))
 
         # Special marking for start room:
         if out[centerY][centerX] == '▼':
@@ -525,6 +530,18 @@ class Mapper(BaseModule):
 
     def startRoom(self, args):
         self.m.setAreaStart(self.currentZone(), self.current())
+
+    def noDraw(self, args):
+        direction = args[0]
+        tgt = self.getRoomByDirection(direction)
+        if not tgt:
+            self.mud.log("Exit doesn't exist")
+            return
+        exitData = self.m.getExitData(self.current(), direction)
+        draw = 'draw' in exitData and not exitData['draw']
+        self.log("Drawing exit {} is now {}".format(direction, draw))
+        self.addExitData(self.current(), direction, {'draw': draw})
+        return self.here([self.current()])
 
     def getRoomByDirection(self, direction):
         here = self.current()
@@ -649,6 +666,7 @@ class Mapper(BaseModule):
         data = dict(zone=value['zone'], terrain = value['terrain'])
         name = value['name']
         self.m.addRoom(id, name, data, {})
+        return self.here([self.current()])
 
     def delZone(self, args):
         if args:
@@ -698,6 +716,8 @@ class Mapper(BaseModule):
                 'delzone': self.delZone,
                 'dump': lambda args: self.log(self.m.m),
                 'startroom': self.startRoom,
+                'nodraw': self.noDraw,
+                'draw': lambda args: self.show(self.draw(int(args[0]), int(args[0]))),
                 }
 
         # for creating custom exits
