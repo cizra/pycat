@@ -933,7 +933,7 @@ class Coffee(modular.ModularClient):
         self.send(cmd)
         for cmd in cmds.split('\n')[1:]:
             self.timers["stackToLag" + cmd] = self.mkdelay(lag, lambda m, cmd=cmd: self.mud.send(cmd))
-            lag += 2.5
+            lag += 2.6
 
     def getHostPort(self):
         return 'coffeemud.net', 2324
