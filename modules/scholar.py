@@ -169,6 +169,8 @@ class Scholar(BaseModule):
             ".+ has not learned the pre-requisites to (.+) yet.": doneTeaching,
             "You teach .+ '(.+)'": doneTeaching,
             "You attempt to write on .*, but mess up.": lambda mud, groups: write(mud, 1),
+            "You don't have enough movement to do that.  You are too tired.": 'sleep',
+            "You don't have enough mana to do that.": 'sleep',
             'You are hungry.': 'sta\neat bread\nsleep',
             'You are thirsty.': 'stand\ndrink sink\ndrink sink\ndrink sink\ndrink sink\nsleep',
             }
