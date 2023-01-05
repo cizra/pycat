@@ -182,7 +182,7 @@ class Coffee(modular.ModularClient):
             '#autohone ([^,]+), (.+)': lambda mud, groups: self.startAutoHone(groups[0], groups[1]),
                 })
         self.triggers.update(TRIGGERS)
-        self.triggers.update({r'\(Enter your character name to login\)': name})
+        self.oneTimeTriggers.update({r'\(Enter your character name to login\)': name})
 
         if name == 'zerleha':
             self.triggers.update({
