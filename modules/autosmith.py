@@ -180,6 +180,10 @@ def scrapeItems(mud, groups):
 
     items = []
     for line in skill_file.split('\r\n'):
+        # Format of the files is defined in corresponding skill source, eg. com/planet_ink/coffee_mud/Abilities/Common/Armorsmithing.java: 
+        # "ITEM_NAME\tITEM_LEVEL\tBUILD_TIME_TICKS\tMATERIALS_REQUIRED\t"
+        # "ITEM_BASE_VALUE\tITEM_CLASS_ID\tCODED_WEAR_LOCATION\tCONTAINER_CAPACITY\t"
+        # "BASE_ARMOR_AMOUNT\tCONTAINER_TYPE\tCODED_SPELL_LIST";
         if not line:
             continue
         columns = line.split('\t')
