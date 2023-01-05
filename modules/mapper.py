@@ -751,6 +751,10 @@ class Mapper(BaseModule):
             self.help(words[2:])
         return True
 
+    def drawMapToFile(self):
+        with open('map.txt', 'wt') as f:
+            f.write(self.draw())
+
     def handleGmcp(self, cmd, value):
         # CoffeeMUD's room.info
         # {'coord': {'cont': 0, 'id': 0, 'x': -1, 'y': -1},
@@ -802,4 +806,5 @@ class Mapper(BaseModule):
                     self.log("Autovisiting, but changed areas")
                 else:
                     self.autoVisit(['exit'] if 'autoVisitArea' not in self.world.state else None)
-            # self.show(self.draw())
+
+            self.drawMapToFile()
