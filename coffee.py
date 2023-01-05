@@ -117,7 +117,7 @@ TRIGGERS = {
         'You become better at (.+).': honed,
         '.* subtly sets something on the ground.': 'get bag\nput bag box\nexam box',
         "The mayor says, 'I'll give you 1 minute.  Go ahead....ask for your reward.'": 'say reward',
-        "The mayor says 'Hello .*. Hope you are enjoying your stay.'": 'drop box\nThese obligations have been met.',
+        "The mayor says 'Hello .*. Hope you are enjoying your stay.'": 'drop box\nsay These obligations have been met.',
         '^\[(\d  |\d\d |\d\d\d)%\] ([^[]+)$': setSkillLevel,
         }
 with open('passwords.json', 'rb') as pws:
