@@ -145,15 +145,23 @@ class Coffee(modular.ModularClient):
                 'logging': (modules.logging.Logging, [self.logfname]),
                 'mapper': (modules.mapper.Mapper, [False, self.mapfname]),
                 }
-        if name == 'grumpy' or (False and name == 'grumpier') or name == 'grumpiest' or name == 'dhtnseriao' or name == 'dhtnserioa' or name == 'dhtnseroia':
+        if name == 'grovel':
+            import modules.spellups
+            importlib.reload(modules.spellups)
+            mods['spellups'] = (modules.spellups.Spellups, [])
+        if name == 'awugray' or name == 'madcrank' or name == 'grumpy' or (False and name == 'grumpier') or name == 'grumpiest' or name == 'dhtnseriao' or name == 'dhtnserioa' or name == 'dhtnseroia':
             import modules.scholar
             importlib.reload(modules.scholar)
             mods['scholar'] = (modules.scholar.Scholar, [])
-        elif name == 'vassal' or name == 'robot' or name == 'landscapegoat':
+        elif name == 'vassal' or name == 'robot':
             import modules.autosmith
             importlib.reload(modules.autosmith)
             mods['autosmith'] = (modules.autosmith.AutoSmith, [])
-        elif name == 'magus':
+        elif name == 'landscapegoat':
+            import modules.gatherer
+            importlib.reload(modules.gatherer)
+            mods['gatherer'] = (modules.gatherer.Gatherer, [])
+        elif name == 'aslei':
             import modules.mage
             importlib.reload(modules.mage)
             mods['mage'] = (modules.mage.Mage, [])
