@@ -77,7 +77,7 @@ def setSkillLevel(mud, groups):
     mud.state['skillLevels'][skill] = level
 
 ALIASES = {
-        'newcharsetup': 'prompt %T ^N^h%h/%Hh^q ^m%m/%Mm^q ^v%v/%Vv^q %aa %-LEVELL %Xtnl %z^N %E %B\ny\ncolorset\n16\nblue\nwhite\n\nautodraw on\nautoimprove on\nautogold on\nalias define on open n~n\nalias define oe open e~e\nalias define ow open w~w\nalias define os open s~s\nalias define od open d~d\nalias define ou open u~u',
+        'newcharsetup': 'prompt %T ^N^h%h/%Hh^q ^m%m/%Mm^q ^v%v/%Vv^q %aa %-LEVELL %Xtnl %z^N %E %B\ny\ncolorset\nclantalk\npurple\nwhite\n\ncolorset\n14\ngrey\n\ncolorset\n16\nblue\nwhite\n\nautodraw on\nautoimprove on\nautogold on\nalias define on open n~n\nalias define oe open e~e\nalias define ow open w~w\nalias define os open s~s\nalias define od open d~d\nalias define ou open u~u',
         'home': lambda mud, _: mud.modules['mapper'].go('1115504774', 'go'),
         'rt vassendar': 'run 4s d w d 2w d 2n 2e\nopen s\ns\nopen d\nrun 5d\nopen w\nw\nrun 8n w 2s 6w\nopen w\nrun 11w 3n 3w\nopen w\nrun 5w\nrun 3n 5w',
         'rt wgate': 'run 2s 3w\nopen w\nw',
