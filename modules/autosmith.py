@@ -152,6 +152,10 @@ def startScrapping(mud, groups):
     mud.state['scrapping'] = groups[0]
     mud.send('scrap ' + groups[0])
 
+def stopScrapping(mud, groups):
+    del mud.state['scrapping']
+    mud.log("Removed scrap triggers")
+
 def scrapAgain(mud, groups):
     if 'scrapping' in mud.state:
         mud.send("scrap " + mud.state['scrapping'])
@@ -226,6 +230,7 @@ class AutoSmith(BaseModule):
                 'scrape (.+)': scrapeItems,
                 'smith': smith,
                 'autoscrap (.*)': startScrapping,
+                'stopscrap': stopScrapping,
                 'specfor (.) (.*)': speculateFor,
                 }
 
