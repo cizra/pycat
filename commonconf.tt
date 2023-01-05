@@ -1,5 +1,5 @@
 $config {packet patch} 0.1
-$config repeat on
+$config {repeat enter} on
 
 $macro {\eOx} {$echo n;n}
 $macro {\eOv} {$echo e;e}
@@ -30,5 +30,14 @@ $macro {\e[18~} {w}
 $macro {\e[19~} {s}
 $macro {\e[20~} {e}
 $macro {\e[12~} {#map}
+
+$rem for AlacriTTY - alt+wsad
+$macro {\e,} {$echo n;n}
+$macro {\ee} {$echo e;e}
+$macro {\eo} {$echo s;s}
+$macro {\ea} {$echo w;w}
+$macro {\e;} {$echo u;u}
+$macro {\eq} {$echo d;d}
+$macro {\e.} {#map}
 
 $delay 1 {$split}
