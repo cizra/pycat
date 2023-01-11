@@ -77,13 +77,24 @@ def setSkillLevel(mud, groups):
     mud.state['skillLevels'][skill] = level
 
 ALIASES = {
-        'newcharsetup': 'prompt %T ^N^h%h/%Hh^q ^m%m/%Mm^q ^v%v/%Vv^q %aa %-LEVELL %Xtnl %z^N %E %B\ny\ncolorset\nclantalk\npurple\nwhite\n\ncolorset\n14\ngrey\n\ncolorset\n16\nblue\nwhite\n\nautodraw on\nautoimprove on\nautogold on\nalias define on open n~n\nalias define oe open e~e\nalias define ow open w~w\nalias define os open s~s\nalias define od open d~d\nalias define ou open u~u',
+        'newcharsetup': """prompt %T ^N^h%h/%Hh^q ^m%m/%Mm^q ^v%v/%Vv^q %aa %-LEVELL %Xtnl %z^N %E %B\ny
+        colorset\nclantalk\npurple\nwhite\n\ncolorset\n14\ngrey\n
+        colorset\n16\nblue\nwhite\n
+        config copy grumpy\ny
+        alias define on open n~n
+        alias define oe open e~e
+        alias define ow open w~w
+        alias define os open s~s
+        alias define od open d~d
+        alias define ou open u~u
+        alias define un unlock n~open n~n
+        alias define ue unlock e~open e~e
+        alias define us unlock s~open s~s
+        alias define uw unlock w~open w~w
+        alias define uu unlock u~open u~u
+        alias define ud unlock d~open d~d
+        """,
         'home': lambda mud, _: mud.modules['mapper'].go('1115504774', 'go'),
-        'rt vassendar': 'run 4s d w d 2w d 2n 2e\nopen s\ns\nopen d\nrun 5d\nopen w\nw\nrun 8n w 2s 6w\nopen w\nrun 11w 3n 3w\nopen w\nrun 5w\nrun 3n 5w',
-        'rt wgate': 'run 2s 3w\nopen w\nw',
-        'rt sehaire': 'run w u 6w 2n 3w s 6w s 6w 2n 5w 5n w n w n 4w n e',
-        'rt magic-forest': 'go 2S  3w\n open w\n go 2W  U  W  S  6W  9N W  U  N  E  N  W  2D  N  E  3N  W  5N  W  N  W  N  4W  N  E',
-        'rt sengalion': 'go 2S  3w\n open w\n go 2w U  6W  2N  3W  S  6W  S  3W  7S  6E  S',
         '#hone (.+)': hone,
         '#hones': showHones,
         }
