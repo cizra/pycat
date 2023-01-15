@@ -307,31 +307,31 @@ class Mapper(BaseModule):
             m = re.match(r'open .+;(.+)', d)
             if m:
                 return adjustExit(x, y, m.group(1), prev)
-            if d == 'n':
+            if d in ['n', 'north']:
                 return x, y-1, '│', '↑', '║'
-            if d == 'w':
+            if d in ['w', 'west']:
                 return x-1, y, '─', '←', '═'
-            if d == 's':
+            if d in ['s', 'south']:
                 return x, y+1, '│', '↓', '║'
-            if d == 'e':
+            if d in ['e', 'east']:
                 return x+1, y, '─', '→', '═'
-            if d == 'd':
+            if d in ['d', 'down']:
                 if prev == '▲':
                     return x, y, '◆', '◆', '◆'
                 else:
                     return x, y, '▼', '▼', '▼'
-            if d == 'u':
+            if d in ['u', 'up']:
                 if prev == '▼':
                     return x, y, '◆', '◆', '◆'
                 else:
                     return x, y, '▲', '▲', '▲'
-            if d == 'nw':
+            if d in ['nw', 'northwest']:
                 return x-1, y-1, '\\', '\\', '\\'
-            if d == 'sw':
+            if d in ['sw', 'southwest']:
                 return x-1, y+1, '/', '/', '/'
-            if d == 'se':
+            if d in ['se', 'southeast']:
                 return x+1, y+1, '\\', '\\', '\\'
-            if d == 'ne':
+            if d in ['ne', 'northeast']:
                 return x+1, y-1, '/', '/', '/'
 
         out = []  # NB! indices are out[y][x] because the greater chunks are whole lines
@@ -374,7 +374,7 @@ class Mapper(BaseModule):
                 exits = self.m.getRoomExits(room)
                 for d, tgt in exits.items():
                     tgt = tgt['tgt']
-                    if d in ['n', 'e', 's', 'w', 'u', 'd', 'ne', 'se', 'sw', 'nw'] or re.match(r'open .+;[neswud]+', d):
+                    if d in ['n', 'e', 's', 'w', 'u', 'd', 'ne', 'se', 'sw', 'nw', 'north', 'east', 'south', 'west', 'up', 'down', 'northeast', 'southeast', 'northwest', 'southwest'] or re.match(r'open .+;[neswud]+', d):
                         dataD = self.m.getRoomData(tgt)
                         exists = False
                         nextArea = None
