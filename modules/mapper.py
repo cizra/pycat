@@ -590,7 +590,7 @@ class Mapper(BaseModule):
 
     def load(self, args):
         # TODO: memory usage and map size can be reduced by storing
-        # terrains/zones in mapdata, and referencing them by index in rooms 
+        # terrains/zones in mapdata, and referencing them by index in rooms
         if len(args) == 1:
             self.mapfname = args[0]
         try:
@@ -614,7 +614,7 @@ class Mapper(BaseModule):
     def currentArea(self):
         return self.m.getRoomData(self.current())['zone']
 
-    def unmapped(self, unvisited, inArea, one):
+    def unmapped(self, unvisited: bool, inArea: bool, one: bool):
         if 'visited' not in self.world.state:
             self.world.state['visited'] = set()
         out = []  # A set would probably be smaller, but a list is in the order of closeness.
@@ -653,8 +653,8 @@ class Mapper(BaseModule):
         if not args or args[0] != 'exit':
             self.world.state['autoVisitArea'] = self.currentArea()
         if args and args[0] == 'stop':
-            del self.world.state['autoVisitTarget'] 
-            del self.world.state['autoVisitArea'] 
+            del self.world.state['autoVisitTarget']
+            del self.world.state['autoVisitArea']
             self.log("Stopped autovisit")
             return
         unmapped = self.unmapped(False, 'autoVisitArea' in self.world.state, True)
@@ -701,6 +701,7 @@ class Mapper(BaseModule):
                 'unmapped': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(False, True, False)])),
                 'unvisited': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(True, True, False)])),
                 'gounmapped': lambda args: self.go(self.unmapped(False, True, True)[0], 'go'),
+                'goanyunmapped': lambda args: self.go((self.unmapped(False, True, True) or self.unmapped(False, False, True))[0], 'go'),
                 'av': self.autoVisit,
                 'areas': self.areas,
                 'find': self.find,
@@ -728,7 +729,7 @@ class Mapper(BaseModule):
                 'startroom': self.startRoom,
                 'nodraw': self.noDraw,
                 'draw': lambda args: self.show(self.draw(int(args[0]), int(args[0]))),
-                }
+            }
 
         # for creating custom exits
         self.exitKw = None
@@ -755,7 +756,7 @@ class Mapper(BaseModule):
         with open('map.txt', 'wt') as f:
             f.write(self.draw())
 
-    def handleGmcp(self, cmd, value):
+    def handleGmcp(self, cmd: str, value: dict):
         # CoffeeMUD's room.info
         # {'coord': {'cont': 0, 'id': 0, 'x': -1, 'y': -1},
         #   'desc': '',
@@ -777,22 +778,30 @@ class Mapper(BaseModule):
         #  'terrain': 'Temperate Building',
         #  'zone': '13'}
 
+        # LambdaMOO's Room.Info
+        # {
+        #   'area': 'Toint Town',
+        #   'exits': {'east': 2029, 'north': 442, 'south': 665, 'west': 590},
+        #   'name': 'a shaded street',
+        #   'num': 662
+        # }
 
-        if cmd == 'room.info':
+        if cmd.lower() == 'room.info':
             id = roomnr(value['num'])
             if 'visited' not in self.world.state:
                 self.world.state['visited'] = set()
             self.world.state['visited'].add(id)
             name = value['name']
-            self.m.addArea(value['zone'], id)
-            data = dict(zone=value['zone'], terrain = value['terrain'])
+            zone = value.get('zone') or value['area']
+            self.m.addArea(zone, id)
+            data = dict(zone=zone, terrain=value.get('terrain'))
             exits = self.m.getRoomExits(id)  # retain custom exits
             for direction, target in value['exits'].items():
                 tgt = roomnr(target)
                 dir = direction.lower()
                 if dir not in exits:
                     exits[dir] = {'tgt': tgt}
-                if not self.m.roomExists(tgt):  # doesn't exist yet, insert stub for easy pathfinding 
+                if not self.m.roomExists(tgt):  # doesn't exist yet, insert stub for easy pathfinding
                     self.m.addRoom(tgt, None, {}, {})
             if 'exit_kw' in value:
                 for direction, door in value['exit_kw'].items():
