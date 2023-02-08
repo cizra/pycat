@@ -7,13 +7,15 @@ import modular
 
 from modules.coffee_hones import honeToType
 
-def trackTimeStart(mud, _):
+def noHone(mud, _):
     if 'honing' in mud.state:
         skill, counter = mud.state['honing']
         mud.send(skill)
         mud.state['honing'] = (skill, counter + 1)
-        return
 
+def trackTimeStart(mud, _):
+    if 'honing' in mud.state:
+        noHone(mud, None)
     mud.state['task_start_time'] = time.time()
 
 
@@ -124,6 +126,7 @@ TRIGGERS = {
         'Quit -- are you sure .y.N..': 'y',
         'You start .*\.': trackTimeStart,
         'You study .*\.': trackTimeStart,
+        # "Grumpy already knows 'Organizing'.": noHone,
         'You are done (.*)\.': lambda mud, matches: mud.mud.log("The task took {}s".format(time.time() - (mud.state['task_start_time'] if 'task_start_time' in mud.state else 0))),
         'You become better at (.+).': honed,
         '.* subtly sets something on the ground.': 'get bag\nput bag box\nexam box',
