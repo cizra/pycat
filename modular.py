@@ -1,6 +1,7 @@
 import re
 import threading
 import time
+import traceback
 
 
 def stack(line):
@@ -55,9 +56,11 @@ class TimerMixin(object):
                         fn(self)
                     except Exception as e:
                         self.log(e)
+                        traceback.print_exc()
         except RuntimeError as e:
             # RuntimeError: dictionary changed size during iteration
             self.log(e)
+            traceback.print_exc()
 
         for name in remove:
             del self.timers[name]
@@ -182,7 +185,11 @@ class ModularClient(TimerMixin):
     def handleGmcp(self, cmd, value):
         for module in self.modules.values():
             if hasattr(module, 'handleGmcp'):
-                module.handleGmcp(cmd, value)
+                try:
+                    module.handleGmcp(cmd, value)
+                except Exception as e:
+                    self.log("Exception in handleGmcp of {}: {}".format(module, e))
+                    traceback.print_exc()
 
     def quit(self):
         for module in self.modules.values():
