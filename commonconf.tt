@@ -19,7 +19,7 @@ $macro {\eOj} {$echo {keypad *}}
 $macro {\eOn} {$echo {keypad .}}
 
 
-$rem for PuTTY
+$nop for PuTTY
 $macro {\eOl} {$echo d;d}
 $macro {\eOS} {$echo u;u}
 $macro {\eOQ} {n}
@@ -31,13 +31,25 @@ $macro {\e[19~} {s}
 $macro {\e[20~} {e}
 $macro {\e[12~} {#map}
 
-$rem for AlacriTTY - alt+wsad
+$nop for AlacriTTY - alt+wsad
 $macro {\e,} {$echo n;n}
 $macro {\ee} {$echo e;e}
 $macro {\eo} {$echo s;s}
 $macro {\ea} {$echo w;w}
 $macro {\e;} {$echo u;u}
 $macro {\eq} {$echo d;d}
+$macro {\e<} {on}
+$macro {\eE} {oe}
+$macro {\eO} {os}
+$macro {\eA} {ow}
+$macro {\e:} {ou}
+$macro {\eQ} {od}
+$macro {\e\c,} {un}
+$macro {\e\ce} {ue}
+$macro {\e\co} {us}
+$macro {\e\ca} {uw}
+$macro {\e\c;} {uu}
+$macro {\e\cq} {ud}
 $macro {\e.} {#map}
 
 $delay 1 {$split}
