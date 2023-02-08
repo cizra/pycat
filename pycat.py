@@ -60,8 +60,8 @@ class Session(object):
             if option == telnetlib.GMCP:
                 self.log("Enabling GMCP")
                 sock.sendall(telnetlib.IAC + telnetlib.DO + option)
-                self.gmcpOut('Core.Hello { "client": "Cizra", "version": "1" }')
-                supportables = ['char 1', 'char.base 1', 'char.maxstats 1', 'char.status 1', 'char.statusvars 1', 'char.vitals 1', 'char.worth 1', 'comm 1', 'comm.tick 1', 'group 1', 'room 1', 'room.info 1']
+                # self.gmcpOut('Core.Hello { "client": "Cizra", "version": "1" }')
+                supportables = ['char 1', 'char.base 1', 'char.maxstats 1', 'char.status 1', 'char.statusvars 1', 'char.vitals 1', 'char.worth 1', 'comm 1', 'comm.channel 1', 'comm.tick 1', 'group 1', 'room 1', 'room.info 1']
                 self.gmcpOut('Core.Supports.Set ' + str(supportables).replace("'", '"'))
                 self.gmcpOut('request room')
                 self.gmcpOut('request char')
@@ -71,14 +71,18 @@ class Session(object):
                         telnetlib.IAC + telnetlib.SB + telnetlib.TTYPE + telnetlib.BINARY + b'Cizra' + telnetlib.IAC + telnetlib.SE)
 
             else:
+                self.log("Unknown option offered: {}".format(ord(option)))
                 sock.sendall(telnetlib.IAC + telnetlib.DONT + option)
         elif cmd == telnetlib.SE:
             data = self.telnet.read_sb_data()
-            if data and data[0] == ord(telnetlib.GMCP):
-                try:
-                    self.handleGmcp(data[1:].decode(self.mud_encoding))
-                except Exception as e:
-                    traceback.print_exc()
+            if data:
+                if data[0] == ord(telnetlib.GMCP):
+                    try:
+                        self.handleGmcp(data[1:].decode(self.mud_encoding))
+                    except Exception as e:
+                        traceback.print_exc()
+                else:
+                    self.log("Unknown SB/SE: {}".format(data[0]))
 
     def handleGmcp(self, data):
         # this.that {JSON blob}

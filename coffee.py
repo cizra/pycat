@@ -140,20 +140,24 @@ class Coffee(modular.ModularClient):
 
         self.name = name
         self.logfname = '{}.log'.format(name)
+        self.commfname = '{}.comm'.format(name)
         self.mapfname = 'coffee.map'
 
         import modules.logging
         import modules.eval
         import modules.mapper
+        import modules.commlog
         importlib.reload(modular)
         importlib.reload(modules.logging)
         importlib.reload(modules.eval)
         importlib.reload(modules.mapper)
+        importlib.reload(modules.commlog)
 
         self.modules = {}
         mods = {
                 'eval': (modules.eval.Eval, []),
                 'logging': (modules.logging.Logging, [self.logfname]),
+                'commlog': (modules.commlog.CommLog, [self.commfname]),
                 'mapper': (modules.mapper.Mapper, [False, self.mapfname]),
                 }
         if name == 'grovel':
