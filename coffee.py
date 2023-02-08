@@ -167,11 +167,11 @@ class Coffee(modular.ModularClient):
             import modules.spellups
             importlib.reload(modules.spellups)
             mods['spellups'] = (modules.spellups.Spellups, [])
-        if name == 'awugray' or name == 'madcrank' or name == 'grumpy' or (False and name == 'grumpier') or name == 'grumpiest' or name == 'dhtnseriao' or name == 'dhtnserioa' or name == 'dhtnseroia':
+        if name in set(['awugray', 'madcrank', 'grumpy', 'grumpiest', 'amoli', 'cizra']):
             import modules.scholar
             importlib.reload(modules.scholar)
             mods['scholar'] = (modules.scholar.Scholar, [])
-        elif name == 'vassal' or name == 'robot':
+        elif name in set(['vassal', 'robot', 'busybee']):
             import modules.autosmith
             importlib.reload(modules.autosmith)
             mods['autosmith'] = (modules.autosmith.AutoSmith, [])
