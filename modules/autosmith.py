@@ -43,11 +43,13 @@ def buyBread(mud, _):
 
 
 def smith(mud, _):
-    if mud.name != 'landscapegoat':
-        return
-
     if 'task_start_time' in mud.state:
         mud.log("The task took {}s".format(time.time() - mud.state['task_start_time']))
+
+    if mud.gmcp['char']['status']['fatigue'] > 1000000:
+        mud.log("Too fatigued to work, sleeping instead")
+        mud.state['autosmith_fatigued'] = True
+        return "sleep"
 
     level = mud.level()
 
@@ -55,14 +57,14 @@ def smith(mud, _):
         mud.state['smithing'] = 0
 
     if mud.state['smithing'] == 0:
-        mud.send('get all.supple\nput all.supple trash')
+        # mud.send('get all.supple\nput all.supple trash')
         smithable = mud.state['smithables_carve'][level]
     else:
         smithable = mud.state['smithables_carve'][0]
 
     mud.state['smithing'] += 1
 
-    return "carve supple {arg}".format(arg=smithable)
+    return "carve {arg}".format(arg=smithable)
 
 def failSmithing(mud, _):
     if 'smithing' in mud.state:
@@ -307,6 +309,17 @@ class AutoSmith(BaseModule):
                 }
         else:
             return {}
+
+    def handleGmcp(self, cmd, value):
+        if cmd == 'char.status':
+            if 'autosmith_fatigued' in self.world.state and value['fatigue'] == 0:
+                if value['pos'] == 'Sleeping':
+                    self.send("stand")
+                    del self.world.state['autosmith_fatigued']
+                    self.send(smith(self.world, None))
+                else:
+                    self.log("Expected to be sleeping off fatigue, but not sleeping anymore. Cancelling smith.")
+
 
 def getClass():
     return AutoSmith
