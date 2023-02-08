@@ -399,7 +399,8 @@ class Mapper(BaseModule):
                         exitData = self.m.getExitData(room, d)
                         if 'draw' in exitData and not exitData['draw']:
                             nexX, nexY, _, _, _ = adjustExit(exX, exY, d, out[drawY][drawX])
-                            out[nexY][nexX] = '.'
+                            if nexY < len(out) and nexX < len(out[nexY]):
+                                out[nexY][nexX] = '.'
                         else:
                             # Mark exits that break map (if the target room is already drawn, but not adjacent to this one)
                             mark = False
