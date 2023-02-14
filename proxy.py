@@ -46,7 +46,10 @@ def serve(socketToPipeW, pipeToSocketR, sock, stop):
                     clientSocket.sendall(item)
                 pipeToSocketBuffer = []
             elif fd == clientSocket:
-                data = fd.recv(4096)
+                try:
+                    data = fd.recv(4096)
+                except ConnectionResetError:
+                    pass
                 if not data:  # disconnect
                     clientSocket.close()
                     clientSocket = None
