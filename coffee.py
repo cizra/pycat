@@ -281,27 +281,27 @@ class Coffee(modular.ModularClient):
                 "exprate": (False, 60*60, 30, self.exprate),
                 }
 
-    def onMaxMana(self):
-        if 'mage' in self.modules:
-            self.modules['mage'].onMaxMana()
-
     def handleGmcp(self, cmd, value):
         super().handleGmcp(cmd, value)
         if cmd == 'char.status' and 'pos' in value and 'fatigue' in value and 'maxstats' in self.gmcp['char']:
             if value['pos'] == 'Sleeping' and value['fatigue'] == 0 and self.gmcp['char']['vitals']['moves'] == self.gmcp['char']['maxstats']['maxmoves']:
                 self.log("Rested!")
-        if cmd == 'char.vitals' and 'status' in self.gmcp['char'] and 'maxstats' in self.gmcp['char']:
-            if self.gmcp['char']['status']['pos'] == 'Sleeping' and value['mana'] == self.gmcp['char']['maxstats']['maxmana']:
-                self.onMaxMana()
 
         if cmd == 'char.vitals' and 'maxstats' in self.gmcp['char']:
-            if 'prevhp' in self.state and self.gmcp['char']['status']['pos'] == 'Sleeping':
-                hp = self.gmcp['char']['vitals']['hp']
+            hp = self.gmcp['char']['vitals']['hp']
+            if 'prevhp' in self.state:
                 maxhp = self.gmcp['char']['maxstats']['maxhp']
                 if hp == maxhp and self.state['prevhp'] < maxhp:
-                    self.log("Healed!")
-                self.state['prevhp'] = hp
-                pass
+                    self.onMaxHp()
+            self.state['prevhp'] = hp
+
+        if cmd == 'char.vitals' and 'maxstats' in self.gmcp['char']:
+            mana = self.gmcp['char']['vitals']['mana']
+            if 'prevmana' in self.state:
+                maxmana = self.gmcp['char']['maxstats']['maxmana']
+                if mana == maxmana and self.state['prevmana'] < maxmana:
+                    self.onMaxMana()
+            self.state['prevmana'] = mana
 
         if cmd == 'char.vitals' and 'maxstats' in self.gmcp['char']:
             if self.gmcp['char']['status']['pos'] == 'Sleeping' and self.gmcp['char']['vitals']['mana'] > 100:

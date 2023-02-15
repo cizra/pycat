@@ -211,5 +211,17 @@ class ModularClient(TimerMixin):
     def getTimers(self):
         return {}
 
+    def onMaxHp(self):
+        for module in self.modules.values():
+            if hasattr(module, 'onMaxHp'):
+                module.onMaxHp()
+
+    def onMaxMana(self):
+        self.log("Modular on max mana")
+        for module in self.modules.values():
+            if hasattr(module, 'onMaxMana'):
+                module.onMaxMana()
+
+
 def getClass():
     return ModularClient

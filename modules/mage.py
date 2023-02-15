@@ -47,6 +47,7 @@ class Mage(BaseModule):
             self.cast(spell)
 
     def onMaxMana(self):
+        self.log("-- Max mana")
         self.send('stand')
         self.spellUp()
 
