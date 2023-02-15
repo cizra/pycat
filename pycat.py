@@ -115,7 +115,7 @@ class Session(object):
 
     def send(self, line):
         print("> ", line)
-        self.telnet.write((line + '\n').encode(self.mud_encoding))
+        self.telnet.write((line + '\n').encode(self.mud_encoding, errors='replace'))
 
     def handle_from_telnet(self):
         try:
@@ -213,7 +213,7 @@ class Session(object):
                     elif fd == self.socketToPipeR:
                         self.handle_from_pipe()
         except Exception as e:
-            self.log("Exception in run():", e)
+            traceback.print_exc()
         finally:
             self.log("Closing")
             self.telnet.close()
