@@ -231,7 +231,10 @@ def main():
     port = int(sys.argv[2])
     arg = sys.argv[3] if len(sys.argv) == 4 else None
     ses = Session(world_module, port, arg)
-    ses.run()
+    try:
+        ses.run()
+    except KeyboardInterrupt:
+        pass
 
 
 assert(__name__ == '__main__')
