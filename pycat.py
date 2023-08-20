@@ -212,8 +212,11 @@ class Session(object):
                         self.handle_from_telnet()
                     elif fd == self.socketToPipeR:
                         self.handle_from_pipe()
-        except Exception as e:
-            traceback.print_exc()
+        except Exception as error:
+            if type(error) is EOFError:
+                pass  # This simply means the telnet connection was closed.
+            else:
+                traceback.print_exc()
         finally:
             self.log("Closing")
             self.telnet.close()
