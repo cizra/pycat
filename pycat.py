@@ -234,7 +234,7 @@ def main():
     try:
         ses.run()
     except KeyboardInterrupt:
-        pass
+        raise
 
 
 assert(__name__ == '__main__')
