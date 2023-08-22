@@ -212,9 +212,11 @@ class Session(object):
                         self.handle_from_telnet()
                     elif fd == self.socketToPipeR:
                         self.handle_from_pipe()
-        except Exception as error:
+        except (Exception, KeyboardInterrupt) as error:
             if type(error) is EOFError:
                 pass  # This simply means the telnet connection was closed.
+            elif type(error) is KeyboardInterrupt:
+                raise  # pass the user's C^c up to main()
             else:
                 traceback.print_exc()
         finally:
@@ -234,7 +236,7 @@ def main():
     try:
         ses.run()
     except KeyboardInterrupt:
-        raise
+        exit(0)  # Exit on C^c
 
 
 assert(__name__ == '__main__')
