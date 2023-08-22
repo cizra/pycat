@@ -236,6 +236,7 @@ def main():
     try:
         ses.run()
     except KeyboardInterrupt:
+        print('\nConnection Terminated. Awaiting interrupt to exit program.')
         exit(0)  # Exit on C^c
 
 
