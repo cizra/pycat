@@ -511,7 +511,7 @@ class Mapper(BaseModule):
         self.exitFrom['data'] = dict(zone=room['zone'], terrain = room['terrain'])
         for k, v in room['exits'].items():
             self.exitFrom['exits'][k.lower()] = {'tgt': roomnr(v)}
-        self.log("Type '#map endexit' when you're in the right room, or #map endexit abort")
+        self.log(f"Type '{self.mud.cmd_char}map endexit' when you're in the right room, or #map endexit abort")
         self.exitKw = self.exitKw.replace(';', '\n')
         self.exitKw = self.exitKw.replace('~', '\n')
         self.log("Exit: " + repr(self.exitKw))
@@ -739,7 +739,7 @@ class Mapper(BaseModule):
     def alias(self, line):
         words = line.split(' ')
 
-        if words[0].lower() != '#map':
+        if words[0].lower() != self.mud.cmd_char + 'map':
             return
 
         if len(words) == 1:
