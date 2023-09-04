@@ -11,7 +11,12 @@ import sys
 import telnetlib
 import threading
 import traceback
-telnetlib.GMCP = b'\xc9'
+
+telnetlib.GMCP = b'\xc9'  # 201
+telnetlib.NAWS = chr(31)
+telnetlib.COMPRESS2 = chr(86)  # TODO: implement
+telnetlib.MSP = chr(90)
+telnetlib.MXP = chr(91)
 
 
 class Session(object):
@@ -44,6 +49,7 @@ class Session(object):
             line = args[0]
         else:
             line = pprint.pformat(args)
+        print(line)
         self.pipeToSocketW.write("---------\n".encode(self.client_encoding))
         self.pipeToSocketW.write(line.encode(self.client_encoding))
         self.pipeToSocketW.write(b"\n")
@@ -53,6 +59,8 @@ class Session(object):
         return re.sub(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', '', line)
 
     def gmcpOut(self, msg):
+        print("Sending GMCP:")
+        print(msg)
         self.telnet.sock.sendall(telnetlib.IAC + telnetlib.SB + telnetlib.GMCP + msg.encode(self.mud_encoding) + telnetlib.IAC + telnetlib.SE)
 
     def iac(self, sock, cmd, option):
@@ -63,13 +71,18 @@ class Session(object):
                 # self.gmcpOut('Core.Hello { "client": "Cizra", "version": "1" }')
                 supportables = ['char 1', 'char.base 1', 'char.maxstats 1', 'char.status 1', 'char.statusvars 1', 'char.vitals 1', 'char.worth 1', 'comm 1', 'comm.channel 1', 'comm.tick 1', 'group 1', 'room 1', 'room.info 1']
                 self.gmcpOut('Core.Supports.Set ' + str(supportables).replace("'", '"'))
+                #py self.mud.gmcpOut("""Core.Supports.Add ["comm.channel 1"]""")
                 self.gmcpOut('request room')
                 self.gmcpOut('request char')
             elif option == telnetlib.TTYPE:
                 self.log("Sending terminal type 'Cizra'")
                 sock.sendall(telnetlib.IAC + telnetlib.DO + option +
                         telnetlib.IAC + telnetlib.SB + telnetlib.TTYPE + telnetlib.BINARY + b'Cizra' + telnetlib.IAC + telnetlib.SE)
-
+            # elif option == b'\x5B': # MXP
+            #     self.log("Enabling MXP")
+            #     sock.sendall(telnetlib.IAC + telnetlib.DO + option)
+            elif ord(option) == 90: # MSP, I don't want that
+                sock.sendall(telnetlib.IAC + telnetlib.DONT + option)
             else:
                 self.log("Unknown option offered: {}".format(ord(option)))
                 sock.sendall(telnetlib.IAC + telnetlib.DONT + option)
@@ -104,6 +117,7 @@ class Session(object):
         if lastkey not in current:
             current[lastkey] = {}
         current[lastkey] = val
+        print("Got GMCP: {}".format(whole_key))
         self.world.handleGmcp(whole_key, val)
 
     def connect(self, host, port):
