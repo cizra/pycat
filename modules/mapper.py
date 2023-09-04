@@ -40,6 +40,9 @@ class Map(object):
     def getBookmarks(self):
         return self.m['bookmarks']
 
+    def delBookmark(self, name):
+        del self.m['bookmarks'][name]
+
     def setBookmarks(self, bm):
         self.m['bookmarks'] = bm
 
@@ -286,6 +289,11 @@ class Mapper(BaseModule):
             self.bookmarks([])
         else:
             return self.bookmarks()
+
+    def delBookmark(self, args):
+        arg = ' '.join(args)
+        self.m.delBookmark(arg)
+        self.log("Bookmark deleted")
 
     def getExitData(self, source, to):
         return self.m.getExitData(source, to)
@@ -712,8 +720,10 @@ class Mapper(BaseModule):
                 'here': self.here,
                 'add': self.bookmark,
                 'bookmark': self.bookmark,
+                'rm': self.delBookmark,
                 'name': self.bookmark,
                 'bookmarks': self.bookmarks,
+                'ls': self.bookmarks,
                 'path': lambda args: self.path(' '.join(args), 'go'),
                 'go': lambda args: self.go(' '.join(args), 'go'),
                 'run': lambda args: self.go(' '.join(args), 'run'),
