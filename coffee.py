@@ -8,6 +8,14 @@ import modular
 from modules.coffee_hones import honeToType
 from modules.CoffeeEnums import CharState
 
+# TODO: add a module for Midgaard Sewers quest
+#ACTION {A horrifying mudmonster is slowly evolving from the mud} {kill mudmonster}
+#ACTION {An ugly wererat is here, looking at you with a strange flick in his eyes.} {kill wererat}
+#ACTION {The giant mean-looking earth beetle crawls towards you.} {kill beetle}
+#ACTION {The huge hungry-looking sewer rat sits here.} {kill huge hungry-looking sewer rat}
+#ACTION {The small fierce-looking bat is hanging from the ceiling.} {kill small fierce-looking}
+#ACTION {The small hairy spider.} {kill the small hairy spider}
+
 def noHone(mud, _):
     if 'honing' in mud.state:
         skill, counter = mud.state['honing']
