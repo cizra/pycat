@@ -156,6 +156,7 @@ class Scholar(BaseModule):
             '^You regain your feet.': 'sleep',
             '^You have 58 points remaining.': 'wis 15\nint 15\ncha 7\ncon 15\nstr 6\n\n',
             '^You have 64 points remaining.': 'wis 15\nint 15\ncha 7\ncon 15\nstr 12\n\n',
+            '^You have 70 points remaining.': 'wis 15\nint 15\ncha 10\ncon 10\nstr 10\ndex 10\n\n',
             '^Please choose from the following Classes:': 'apprentice',
             '^Is Apprentice correct': 'y',
             '^You have remorted back to level 1!': 'run n w\ntrain scholar\ntrain int\ntrain int\ntrain int\ntrain int\nprac write\nrun e s\nsay help',
@@ -169,7 +170,7 @@ class Scholar(BaseModule):
             "You teach .+ '(.+)'": doneTeaching,
             "You attempt to write on .*, but mess up.": lambda mud, groups: write(mud, 1),
             "You don't have enough movement to do that.  You are too tired.": 'sleep',
-            "You don't have enough mana to do that.": 'sleep',
+            "You don't have enough mana to do that.": 'sleep until full',
             'You are hungry.': 'sta\neat bread\nsleep',
             'You are thirsty.': 'stand\ndrink sink\ndrink sink\ndrink sink\ndrink sink\nsleep',
             }
