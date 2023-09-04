@@ -104,7 +104,7 @@ ALIASES = {
 TRIGGERS = {
         'You slip on the cold wet ground.': 'stand',
         'You fall asleep from exhaustion!!': 'stand\nsleep',
-        r'(Grumpy|Grumpier|Grumpiest|Madcrank) wants to teach you .*\.  Is this Ok .y.N..': 'y',
+        r'(Grumpy|Grumpier|Madcrank|Amoli|Awugray|Grumpinator) wants to teach you .*\.  Is this Ok .y.N..': 'y',
         '.* is DEAD!!!': 'look in body',
         'You parry ': 'disarm',
         'You attempt to disarm .* and fail!': 'disarm',
@@ -167,11 +167,11 @@ class Coffee(modular.ModularClient):
             import modules.spellups
             importlib.reload(modules.spellups)
             mods['spellups'] = (modules.spellups.Spellups, [])
-        if name in set(['awugray', 'madcrank', 'grumpy', 'grumpiest', 'amoli', 'cizra']):
+        if name in set(['grumpinator', 'awugray', 'madcrank', 'grumpy', 'amoli']):
             import modules.scholar
             importlib.reload(modules.scholar)
             mods['scholar'] = (modules.scholar.Scholar, [])
-        elif name in set(['vassal', 'robot', 'busybee']):
+        elif name in set(['bubbles']):
             import modules.autosmith
             importlib.reload(modules.autosmith)
             mods['autosmith'] = (modules.autosmith.AutoSmith, [])
@@ -179,7 +179,7 @@ class Coffee(modular.ModularClient):
             import modules.gatherer
             importlib.reload(modules.gatherer)
             mods['gatherer'] = (modules.gatherer.Gatherer, [])
-        elif name == 'aslei':
+        elif name in set(['aslei', 'ovuph']):
             import modules.mage
             importlib.reload(modules.mage)
             mods['mage'] = (modules.mage.Mage, [])
