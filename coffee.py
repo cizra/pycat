@@ -6,6 +6,7 @@ import time
 import modular
 
 from modules.coffee_hones import honeToType
+from modules.CoffeeEnums import CharState
 
 def noHone(mud, _):
     if 'honing' in mud.state:
@@ -283,6 +284,12 @@ class Coffee(modular.ModularClient):
 
     def handleGmcp(self, cmd, value):
         super().handleGmcp(cmd, value)
+
+        if cmd == 'char.status':
+            if 'prevstate' in self.state and value['state'] != self.state['prevstate']:
+                self.onCharState(value['state'], self.state['prevstate'])
+            self.state['prevstate'] = value['state']
+
         if cmd == 'char.status' and 'pos' in value and 'fatigue' in value and 'maxstats' in self.gmcp['char']:
             if value['pos'] == 'Sleeping' and value['fatigue'] == 0 and self.gmcp['char']['vitals']['moves'] == self.gmcp['char']['maxstats']['maxmoves']:
                 self.log("Rested!")
@@ -327,6 +334,26 @@ class Coffee(modular.ModularClient):
         self.state['hone_on_success'] = onHoneSuccess
         self.state['honing'] = (cmd, 1)
         self.send('sta\n{}'.format(cmd))
+
+    def onMaxHp(self):
+        for module in self.modules.values():
+            if hasattr(module, 'onMaxHp'):
+                module.onMaxHp()
+
+    def onMaxMana(self):
+        for module in self.modules.values():
+            if hasattr(module, 'onMaxMana'):
+                module.onMaxMana()
+
+    def onCharState(self, state, previousState):
+        for module in self.modules.values():
+            if hasattr(module, 'onCharState'):
+                module.onCharState()
+
+        if previousState == CharState.fighting and state != CharState.fighting:
+            for module in self.modules.values():
+                if hasattr(module, 'onCombatEnd'):
+                    module.onCombatEnd()
 
 
 def getClass():

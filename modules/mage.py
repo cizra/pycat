@@ -1,12 +1,77 @@
-from modules.basemodule import BaseModule
-
 import random
 import re
 import time
 
+from modules.basemodule import BaseModule
+from modules.CoffeeEnums import CharState
+
+class States(object):
+    pass
+
+class State(object):
+    def __init__(self, world):
+        self.world = world
+
+    def onEnter(self):
+        pass
+
+    def act(self):
+        pass
+
+    def transition(self, state):
+        States.currentState = state
+        state.onEnter()
+
+
+class Regen(State):
+    def onEnter(self):
+        self.world.log("-- Entering Regen state\n")
+        self.world.send("rm")
+
+    def act(self):
+        self.world.log("-- Act in Regen state\n")
+        vitals = self.world.gmcp['char']['vitals']
+        if vitals['hp'] == vitals['maxhp'] and vitals['mana'] == vitals['maxmana'] and vitals['moves'] == vitals['maxmoves']:
+            self.transition(States.lookingForFight)
+
+
+class Fighting(State):
+    def onEnter(self):
+        self.world.log("-- Entering Fighting state\n")
+        self.world.send('cast "acid arrow"')  # TODO: choose spell by current range and active cooldowns
+
+    def act(self):
+        # self.world.log("-- Act in Fighting state\n")
+        if self.world.gmcp['char']['status']['state'] != CharState.fighting:
+            self.transition(States.regen)
+
+
+class LookingForFight(State):
+    def onEnter(self):
+        self.world.log("-- Entering LookingForFight state\n")
+        self.world.send('look')  # TODO: triggers to trigger actual fighting
+
+    def act(self):
+        # self.world.log("-- Act in LookingForFight state\n")
+        if self.world.gmcp['char']['status']['state'] == CharState.fighting:
+            self.transition(States.fighting)
+
+
 class Mage(BaseModule):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.initStates()
+
+    def initStates(self):
+        States.lookingForFight = LookingForFight(self.mud.world)
+        States.fighting = Fighting(self.mud.world)
+        States.regen = Regen(self.mud.world)
+        States.currentState = States.regen
+        self.statemachine = States
+
+    def handleGmcp(self, command, value):
+        # States.currentState.act()
+        pass
 
     def getAliases(self):
         return {

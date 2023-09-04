@@ -33,3 +33,6 @@ class BaseModule(object):
 
     def quit(self):
         pass
+
+    def handleGmcp(self, cmd, value):
+        pass
