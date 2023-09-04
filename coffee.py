@@ -104,6 +104,7 @@ ALIASES = {
         alias define uw unlock w~open w~w
         alias define uu unlock u~open u~u
         alias define ud unlock d~open d~d
+        alias define sh sleep until full
         """,
         'home': lambda mud, _: mud.modules['mapper'].go('1115504774', 'go'),
         '#hone (.+)': hone,
