@@ -144,6 +144,39 @@ class Map(object):
                     return paths[there]
             visited.add(room)
 
+    def areaConnections(self):
+        excluded = set(["Thrystryn Transportation", "Zolo`s Store"])
+        visited = set()
+        roomq = collections.deque()
+        roomq.append('496521296') # start from Midgaard recall
+        connections = set()
+        while roomq:
+            room = roomq.popleft()
+            area1 = self.m['rooms'][room]['data']['zone']
+            if room not in visited:  # A given room might end up in the queue through different paths
+                ex = self.m['rooms'][room]['exits']
+                for exDir in ex:
+                    tgt = ex[exDir]['tgt']
+                    if self.m['rooms'][tgt]['data']: # mapped?
+                        area2 = self.m['rooms'][tgt]['data']['zone']
+                        if area1 != area2:
+                            if (area2, area1) not in connections:
+                                if area1 not in excluded and area2 not in excluded:
+                                    connections.add((area1, area2))
+                        roomq.append(tgt)
+            visited.add(room)
+        # A digraph would be more accurate, but it looks very busy
+        with open("areaconnections.dot", "w") as f:
+            f.write("strict graph {\n")
+            for elem in connections:
+                f.write('"')
+                f.write(elem[0])
+                f.write('" -- "')
+                f.write(elem[1])
+                f.write('"')
+                f.write("\n")
+            f.write("}")
+
 
 def assemble(cmds1, mode="go"):
     # return ';'.join(paths)
@@ -699,6 +732,14 @@ class Mapper(BaseModule):
             self.m.delRoom(room)
         self.log(zone + " deleted")
 
+    def areaConnections(self, args):
+        try:
+            self.m.areaConnections()
+        except e:
+            self.log("Error:")
+            self.log(e)
+        self.log("Done, area connections written to areaconnections.dot - use GraphViz to visualize it: dot -Tsvg areaconnections.dot")
+
     def __init__(self, mud, drawAreas, mapfname, spacesInRun=True):
         super().__init__(mud)
         self.drawAreas = drawAreas
@@ -740,6 +781,7 @@ class Mapper(BaseModule):
                 'startroom': self.startRoom,
                 'nodraw': self.noDraw,
                 'draw': lambda args: self.show(self.draw(int(args[0]), int(args[0]))),
+                'areaconnections': self.areaConnections,
             }
 
         # for creating custom exits
