@@ -894,6 +894,8 @@ class Mapper(BaseModule):
             self.world.state['visited'].add(num)
             name = value['name']
             zone = value.get('zone') or value['area']
+            if value.get('details'):
+                self.log("GMCP details: {}".format(value.get('details')))
             self.m.addArea(zone, num)
             data = dict(zone=zone, terrain=value.get('terrain'), id=value.get('id'))
             exits = self.m.getRoomExits(num)  # retain custom exits
