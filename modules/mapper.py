@@ -144,7 +144,7 @@ class Map(object):
                     return paths[there]
             visited.add(room)
 
-    def areaConnections(self):
+    def areaConnectionsGraph(self):
         excluded = set(["Thrystryn Transportation", "Zolo`s Store"])
         visited = set()
         roomq = collections.deque()
@@ -176,6 +176,28 @@ class Map(object):
                 f.write('"')
                 f.write("\n")
             f.write("}")
+
+    def nearbyAreas(self, here):
+        here = str(here)
+        visited = set()
+        roomq = collections.deque()
+        roomq.append(here)
+        area1 = self.m['rooms'][here]['data']['zone']
+        nearbyAreas = set()
+        while roomq:
+            room = roomq.popleft()
+            if room not in visited:  # A given room might end up in the queue through different paths
+                ex = self.m['rooms'][room]['exits']
+                for exDir in ex:
+                    tgt = ex[exDir]['tgt']
+                    if self.m['rooms'][tgt]['data']: # mapped?
+                        area2 = self.m['rooms'][tgt]['data']['zone']
+                        if area1 == area2:
+                            roomq.append(tgt)
+                        else:
+                            nearbyAreas.add(area2)
+            visited.add(room)
+        return nearbyAreas
 
 
 def assemble(cmds1, mode="go"):
@@ -700,7 +722,6 @@ class Mapper(BaseModule):
             self.world.state['autoMapWalk'] = 'go'
         if args:
             for arg in args:
-                self.log(arg)
                 if arg == 'go=run':
                     self.world.state['autoMapWalk'] = 'run'
                 # Bard mode - visit all rooms of this area regardless of mapped status
@@ -748,13 +769,21 @@ class Mapper(BaseModule):
             self.m.delRoom(room)
         self.log(zone + " deleted")
 
-    def areaConnections(self, args):
+    def areaConnectionsGraph(self, args):
         try:
-            self.m.areaConnections()
+            self.m.areaConnectionsGraph()
         except e:
             self.log("Error:")
             self.log(e)
         self.log("Done, area connections written to areaconnections.dot - use GraphViz to visualize it: dot -Tsvg areaconnections.dot")
+
+    def nearbyAreas(self, args):
+        try:
+            self.log(self.m.nearbyAreas(self.current()))
+        except Exception as e:
+            self.log("Error:")
+            self.log(e)
+
 
     def __init__(self, mud, drawAreas, mapfname, spacesInRun=True):
         super().__init__(mud)
@@ -799,7 +828,8 @@ class Mapper(BaseModule):
                 'startroom': self.startRoom,
                 'nodraw': self.noDraw,
                 'draw': lambda args: self.show(self.draw(int(args[0]), int(args[0]))),
-                'areaconnections': self.areaConnections,
+                'areaconnectionsGraph': self.areaConnectionsGraph,
+                'nearby': self.nearbyAreas,
             }
 
         # for creating custom exits
