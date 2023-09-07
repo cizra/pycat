@@ -183,7 +183,7 @@ class Map(object):
         roomq = collections.deque()
         roomq.append(here)
         area1 = self.m['rooms'][here]['data']['zone']
-        nearbyAreas = set()
+        nearbyAreas = {}
         while roomq:
             room = roomq.popleft()
             if room not in visited:  # A given room might end up in the queue through different paths
@@ -194,10 +194,12 @@ class Map(object):
                         area2 = self.m['rooms'][tgt]['data']['zone']
                         if area1 == area2:
                             roomq.append(tgt)
-                        else:
-                            nearbyAreas.add(area2)
+                        elif area2 not in nearbyAreas:
+                            path = self.findPath(here, tgt)
+                            steps = len(path)
+                            nearbyAreas[area2] = (steps, assemble(path, 'go'))
             visited.add(room)
-        return nearbyAreas
+        return list(map(lambda kvp: "{}: {}".format(kvp[0], kvp[1][1]), sorted(nearbyAreas.items(), key=lambda x: x[1][0])))
 
 
 def assemble(cmds1, mode="go"):
@@ -779,7 +781,7 @@ class Mapper(BaseModule):
 
     def nearbyAreas(self, args):
         try:
-            self.log(self.m.nearbyAreas(self.current()))
+            self.log('\n'.join(map(lambda x: x.replace('\n', '~'), self.m.nearbyAreas(self.current()))))
         except Exception as e:
             self.log("Error:")
             self.log(e)
