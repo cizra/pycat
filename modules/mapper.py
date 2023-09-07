@@ -195,10 +195,13 @@ class Map(object):
                         if area1 == area2:
                             roomq.append(tgt)
                         elif area2 not in nearbyAreas:
-                            path = self.findPath(here, tgt)
-                            steps = len(path)
-                            nearbyAreas[area2] = (steps, assemble(path, 'go'))
+                            path = self.findPath(here, tgt, bypassLocks=True)
+                            if path:
+                                steps = len(path)
+                                nearbyAreas[area2] = (steps, assemble(path, 'go'))
             visited.add(room)
+        if not nearbyAreas:
+            return ['None', (0, '')]
         return list(map(lambda kvp: "{}: {}".format(kvp[0], kvp[1][1]), sorted(nearbyAreas.items(), key=lambda x: x[1][0])))
 
 
@@ -784,7 +787,8 @@ class Mapper(BaseModule):
             self.log('\n'.join(map(lambda x: x.replace('\n', '~'), self.m.nearbyAreas(self.current()))))
         except Exception as e:
             self.log("Error:")
-            self.log(e)
+            import traceback
+            self.log(traceback.format_exc())
 
 
     def __init__(self, mud, drawAreas, mapfname, spacesInRun=True):
