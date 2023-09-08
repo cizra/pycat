@@ -89,7 +89,10 @@ class Map(object):
         return self.m['rooms'][num]['exits']
 
     def setExitData(self, source, direction, data):
-        self.m['rooms'][source]['exits'][direction]['data'] = data
+        if data:
+            self.m['rooms'][source]['exits'][direction]['data'] = data
+        else:
+            del self.m['rooms'][source]['exits'][direction]['data']
 
     def getExitData(self, num, direction):
         num = str(num)
@@ -606,6 +609,22 @@ class Mapper(BaseModule):
         self.addExitData(self.current(), direction, {'hardLock' if hard else 'lock': int(level)})
         return self.here([self.current()])
 
+    def unlockExit(self, args, hard=False):
+        direction, level = args if len(args) > 1 else (args[0], -1)
+        tgt = self.getRoomByDirection(direction)
+        if not tgt:
+            self.mud.log("Exit doesn't exist")
+            return
+        exitData = self.getExitData(self.current(), direction)
+        key = 'hardLock' if hard else 'lock'
+        if key in exitData:
+            del exitData[key]
+            self.m.setExitData(self.current(), direction, exitData)
+            self.log("Deleted {}".format(key))
+        else:
+            self.log("{} not found here".format(key))
+        return self.here([self.current()])
+
     def lockExitHard(self, args):
         return self.lockExit(args, hard=True)
 
@@ -799,6 +818,7 @@ class Mapper(BaseModule):
 
         self.commands = {
                 'lock': self.lockExit,
+                'unlock': self.unlockExit,
                 'lock!': self.lockExitHard,
                 'unmapped': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(unvisited=False, inArea=True, one=False)])),
                 'unvisited': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(unvisited=True, inArea=True, one=False)])),
@@ -903,8 +923,32 @@ class Mapper(BaseModule):
             if value.get('details'):
                 self.log("GMCP details: {}".format(value.get('details')))
             self.m.addArea(zone, num)
-            data = dict(zone=zone, terrain=value.get('terrain'), id=value.get('id'))
-            exits = self.m.getRoomExits(num)  # retain custom exits
+            id = value.get('id')
+            data = dict(zone=zone, terrain=value.get('terrain'), id=id)
+            maze = re.match(r'[^#]+#\d+#\(\d+,\d+\)$', id) != None  # CoffeeMUD mazes are described with just one room ID + coords: Sewers#7019#(9,5)
+            if maze:
+                data['maze'] = True
+
+            # We wish to retain hidden exits (openable / detectable by some chars)
+            # and also custom exits.
+            # Therefore, by default, don't purge exits.
+            # Except, in CoffeeMUD, mazes change layout every now and then, so don't retain those exits.
+            exits = self.m.getRoomExits(num)
+            if maze:
+                def rm(n):
+                    if n in exits:
+                        del exits[n]
+                rm('n')
+                rm('e')
+                rm('s')
+                rm('w')
+                rm('u')
+                rm('d')
+                rm('ne')
+                rm('nw')
+                rm('se')
+                rm('sw')
+
             for direction, target in value['exits'].items():
                 tgt = roomnr(target)
                 dir = direction.lower()
@@ -912,9 +956,11 @@ class Mapper(BaseModule):
                     exits[dir] = {'tgt': tgt}
                 if not self.m.roomExists(tgt):  # doesn't exist yet, insert stub for easy pathfinding
                     self.m.addRoom(tgt, None, {}, {})
-            if 'exit_kw' in value:
+
+            if 'exit_kw' in value:  # SneezyMUD
                 for direction, door in value['exit_kw'].items():
                     exits['open {door} {direction};{direction}'.format(door=door, direction=direction)] = exits[direction.lower()]
+
             self.m.addRoom(num, name, data, exits)
 
             if 'autoMapTarget' in self.world.state and self.world.state['autoMapTarget'] == num:
