@@ -91,6 +91,9 @@ ALIASES = {
         'newcharsetup': """prompt %T ^N^h%h/%Hh^q ^m%m/%Mm^q ^v%v/%Vv^q %aa %-LEVELL %Xtnl %z^N %E %B\ny
         colorset\nclantalk\npurple\nwhite\n\ncolorset\n14\ngrey\n
         colorset\n16\nblue\nwhite\n
+        colorset\n3\ngrey\n
+        colorset\n4\nbrown\n
+        colorset\n5\ndarkgrey\n
         config copy grumpy\ny
         alias define on open n~n
         alias define oe open e~e
