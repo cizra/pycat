@@ -12,6 +12,9 @@ def roomnr(x):
     # CoffeeMud, Mob Factory exits are negative but room IDs are positive
     return str(abs(x))
 
+def nothing(*args, **kwargs):
+    pass
+
 reverse = {
         'n': 's',
         'e': 'w',
@@ -63,6 +66,16 @@ class Map(object):
         if num not in self.m['rooms']:
             return {}
         return self.m['rooms'][num]['data']
+
+    def getRoomArea(self, num):
+        num = str(num)
+        room = self.m['rooms'].get(num)
+        if not room:
+            return None
+        data = room.get('data')
+        if not data:
+            return None
+        return data.get('zone')
 
     def addArea(self, area, room):
         if area not in self.m['areas']:
@@ -139,11 +152,10 @@ class Map(object):
             return False
         return True  # TODO: check level
 
-    def findPath(self, here, there, bypassLocks=False):
-        here = str(here)
-        there = str(there)
+    # visitRoom returs None to continue search, a value for end condition (like path to desired room).
+    # visitExit returns True if we should stop BFSing after this exit.
+    def bfs(self, here, visitRoom, visitExit, bypassLocks):
         visited = set()
-        paths = {here: []}
         roomq = collections.deque()
         roomq.append(here)
         while roomq:
@@ -154,33 +166,42 @@ class Map(object):
                     if not bypassLocks and self.isLocked(ex[exDir]):
                         continue
                     tgt = ex[exDir]['tgt']
-                    paths[tgt] = paths[room] + [exDir]
-                    roomq.append(tgt)
-                if room == there:
-                    return paths[there]
-            visited.add(room)
+                    if not visitExit(room, exDir, tgt):
+                        roomq.append(tgt)
+                res = visitRoom(room)
+                if res is not None:
+                    return res
+                visited.add(room)
+
+    def findPath(self, here, there, bypassLocks=False):
+        here = str(here)
+        there = str(there)
+        paths = {here: []}
+
+        def visitRoom(room):
+            if room == there:
+                return paths[there]
+
+        def visitExit(room, exDir, tgt):
+            paths[tgt] = paths[room] + [exDir]
+
+        return self.bfs(here, visitRoom, visitExit, bypassLocks)
 
     def areaConnectionsGraph(self):
         excluded = set(["Thrystryn Transportation", "Zolo`s Store"])
-        visited = set()
-        roomq = collections.deque()
-        roomq.append('496521296') # start from Midgaard recall
+        here = '496521296' # start from Midgaard recall
+        area1 = self.m['rooms'][here]['data']['zone']  # Midgaard
         connections = set()
-        while roomq:
-            room = roomq.popleft()
-            area1 = self.m['rooms'][room]['data']['zone']
-            if room not in visited:  # A given room might end up in the queue through different paths
-                ex = self.m['rooms'][room]['exits']
-                for exDir in ex:
-                    tgt = ex[exDir]['tgt']
-                    if self.m['rooms'][tgt]['data']: # mapped?
-                        area2 = self.m['rooms'][tgt]['data']['zone']
-                        if area1 != area2:
-                            if (area2, area1) not in connections:
-                                if area1 not in excluded and area2 not in excluded:
-                                    connections.add((area1, area2))
-                        roomq.append(tgt)
-            visited.add(room)
+
+        def visitRoom(room):
+            area2 = self.getRoomArea(room)
+            if area2 and area1 != area2:
+                if (area2, area1) not in connections:
+                    if area1 not in excluded and area2 not in excluded:
+                        connections.add((area1, area2))
+
+        return self.bfs(here, visitRoom, nothing, bypassLocks=True)
+
         # A digraph would be more accurate, but it looks very busy
         with open("areaconnections.dot", "w") as f:
             f.write("strict graph {\n")
@@ -194,28 +215,22 @@ class Map(object):
             f.write("}")
 
     def nearbyAreas(self, here, withPath):
-        here = str(here)
-        visited = set()
-        roomq = collections.deque()
-        roomq.append(here)
-        area1 = self.m['rooms'][here]['data']['zone']
+        area1 = self.getRoomArea(here)
         nearbyAreas = {}
-        while roomq:
-            room = roomq.popleft()
-            if room not in visited:  # A given room might end up in the queue through different paths
-                ex = self.m['rooms'][room]['exits']
-                for exDir in ex:
-                    tgt = ex[exDir]['tgt']
-                    if self.m['rooms'][tgt]['data']: # mapped?
-                        area2 = self.m['rooms'][tgt]['data']['zone']
-                        if area1 == area2:
-                            roomq.append(tgt)
-                        elif area2 not in nearbyAreas:
-                            path = self.findPath(here, tgt, bypassLocks=True)
-                            if path:
-                                steps = len(path)
-                                nearbyAreas[area2] = (steps, assemble(path, 'go'))
-            visited.add(room)
+        paths = {here: []}
+
+        def visitExit(room, exDir, tgt):
+            paths[tgt] = path = paths[room] + [exDir]
+            area2 = self.getRoomArea(tgt)
+            if not area2: # unmapped
+                return True
+            if area1 != area2:
+                if area2 not in nearbyAreas:
+                    nearbyAreas[area2] = len(path), assemble(path, 'go')
+                return True
+
+        self.bfs(here, nothing, visitExit, bypassLocks=True)
+
         if not nearbyAreas:
             return ['None', (0, '')]
         if withPath:
@@ -729,45 +744,35 @@ class Mapper(BaseModule):
     def currentArea(self):
         return self.m.getRoomData(self.current())['zone']
 
-    # TODO: refactor, we have around 1 million of implementations of BFS by now.
     def unmapped(self, unvisited: bool, inArea: bool, one: bool, bypassLocks: bool):
-        if 'visited' not in self.world.state:
+        if unvisited and 'visited' not in self.world.state:
             self.world.state['visited'] = set()
-        out = []  # A set would probably be smaller, but a list is in the order of closeness.
-        visited = set()
-        roomq = collections.deque()
-        roomq_check = set([self.current()])  # prevent enqueuing the same room a zillon times
-        roomq.append(self.current())
-        visited.add(self.current())
-        startArea = self.currentArea()
-        paths = {self.current(): []}
-        while roomq:
-            room = roomq.popleft()
-            roomq_check.remove(room)
-            visited.add(room)
-            exits = self.m.getRoomExits(room)
-            for d, tgt in exits.items():
-                tgt = tgt['tgt']
-                edata = self.m.getExitData(room, d)
-                rdata = self.m.getRoomData(tgt)
-                if (bypassLocks or 'lock' not in edata) and 'hardLock' not in edata:
-                    if not rdata:  # unexplored
-                        if one:
-                            return (tgt, paths[room] + [d])
-                        else:
-                            out.append(tgt)
-                    else:
-                        sameZone = not inArea or rdata['zone'] == startArea
-                        if (unvisited and tgt not in self.world.state['visited'] and sameZone):
-                            out.append(tgt)
-                        else:
-                            if tgt not in visited and sameZone and tgt not in roomq_check:
-                                roomq_check.add(tgt)
-                                paths[tgt] = paths[room] + [d]
-                                roomq.append(tgt)
-        if one:
-            return (None, None)
-        return list(dict.fromkeys(out))  # dedupe
+        here = self.current()
+        area1 = self.currentArea()
+        unmappedRoom = None
+        paths = {here: []}
+
+        def visitExit(room, exDir, tgt):
+            nonlocal unmappedRoom
+            path = paths[room] + [exDir]
+            paths[tgt] = path
+            area2 = self.m.getRoomArea(tgt)
+            if not area2: # unmapped
+                unmappedRoom = tgt
+                return True
+            if inArea and area1 != area2:
+                return True
+            if unvisited and tgt not in self.world.state['visited']:
+                unmappedRoom = tgt
+                return True
+            return unmappedRoom
+
+        def visitRoom(room):
+            nonlocal unmappedRoom
+            return unmappedRoom  # Hack: stop search if we found any unmapped room
+
+        self.m.bfs(here, visitRoom, visitExit, bypassLocks=bypassLocks)
+        return unmappedRoom, paths.get(unmappedRoom)
 
     def autoMap(self, args=None):
         if 'autoMapMode' not in self.world.state:
@@ -801,7 +806,7 @@ class Mapper(BaseModule):
             path = assemble(path, self.world.state['autoMapWalk'])
             self.send(path.replace(';', '\n'))
         else:
-            self.log("Done!")
+            self.log("Done! ({})".format(self.world.state.get('autoMapMode')))
             self.autoMap(['stop']) # cleanup
 
     def areas(self, args):
@@ -832,15 +837,17 @@ class Mapper(BaseModule):
     def areaConnectionsGraph(self, args):
         try:
             self.m.areaConnectionsGraph()
-        except e:
-            self.log("Error:")
-            self.log(e)
-        self.log("Done, area connections written to areaconnections.dot - use GraphViz to visualize it: dot -Tsvg areaconnections.dot")
+        except:
+            import traceback
+            self.log(traceback.format_exc())
+        else:
+            self.log("Done, area connections written to areaconnections.dot - use GraphViz to visualize it: dot -Tsvg areaconnections.dot")
 
     def nearbyAreas(self, args):
         withPath = args and args[0] == 'path'
         try:
-            self.log('\n'.join(map(lambda x: x.replace('\n', '~'), self.m.nearbyAreas(self.current(), withPath))))
+            nearby = self.m.nearbyAreas(self.current(), withPath)
+            self.log('\n'.join(map(lambda x: x.replace('\n', '~'), nearby)))
         except Exception as e:
             self.log("Error:")
             import traceback
