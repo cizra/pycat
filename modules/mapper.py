@@ -193,7 +193,7 @@ class Map(object):
                 f.write("\n")
             f.write("}")
 
-    def nearbyAreas(self, here):
+    def nearbyAreas(self, here, withPath):
         here = str(here)
         visited = set()
         roomq = collections.deque()
@@ -218,7 +218,10 @@ class Map(object):
             visited.add(room)
         if not nearbyAreas:
             return ['None', (0, '')]
-        return list(map(lambda kvp: "{}: {}".format(kvp[0], kvp[1][1]), sorted(nearbyAreas.items(), key=lambda x: x[1][0])))
+        if withPath:
+            return list(map(lambda kvp: "{}: {}".format(kvp[0], kvp[1][1]), sorted(nearbyAreas.items(), key=lambda x: x[1][0])))
+        else:
+            return list(map(lambda kvp: kvp[0], sorted(nearbyAreas.items(), key=lambda x: x[1][0])))
 
 
 def assemble(cmds1, mode="go"):
@@ -726,6 +729,7 @@ class Mapper(BaseModule):
     def currentArea(self):
         return self.m.getRoomData(self.current())['zone']
 
+    # TODO: refactor, we have around 1 million of implementations of BFS by now.
     def unmapped(self, unvisited: bool, inArea: bool, one: bool, bypassLocks: bool):
         if 'visited' not in self.world.state:
             self.world.state['visited'] = set()
@@ -736,6 +740,7 @@ class Mapper(BaseModule):
         roomq.append(self.current())
         visited.add(self.current())
         startArea = self.currentArea()
+        paths = {self.current(): []}
         while roomq:
             room = roomq.popleft()
             roomq_check.remove(room)
@@ -748,7 +753,7 @@ class Mapper(BaseModule):
                 if (bypassLocks or 'lock' not in edata) and 'hardLock' not in edata:
                     if not rdata:  # unexplored
                         if one:
-                            return [tgt]
+                            return (tgt, paths[room] + [d])
                         else:
                             out.append(tgt)
                     else:
@@ -758,7 +763,10 @@ class Mapper(BaseModule):
                         else:
                             if tgt not in visited and sameZone and tgt not in roomq_check:
                                 roomq_check.add(tgt)
+                                paths[tgt] = paths[room] + [d]
                                 roomq.append(tgt)
+        if one:
+            return (None, None)
         return list(dict.fromkeys(out))  # dedupe
 
     def autoMap(self, args=None):
@@ -770,22 +778,28 @@ class Mapper(BaseModule):
             for arg in args:
                 if arg == 'go=run':
                     self.world.state['autoMapWalk'] = 'run'
+                elif arg == 'go=go':
+                    self.world.state['autoMapWalk'] = 'go'
                 # Bard mode - visit all rooms of this area regardless of mapped status
-                if arg == 'mode=visit':
+                elif arg == 'mode=visit':
                     self.world.state['autoMapMode'] = 'visit'
         if args and args[0] == 'stop':
             del self.world.state['autoMapTarget']
+            del self.world.state['autoMapSource']
             del self.world.state['autoMapArea']
             del self.world.state['autoMapMode']
             self.log("Stopped autoMap")
             return
         if not args or args[0] != 'exit':
             self.world.state['autoMapArea'] = self.currentArea()
-        unmapped = self.unmapped(unvisited=self.world.state['autoMapMode'] == 'visit', inArea='autoMapArea' in self.world.state, one=True, bypassLocks=self.world.state['autoMapMode'] == 'visit')
-        if unmapped:
-            self.world.state['autoMapTarget'] = unmapped[0]
-            self.log("{} to {}".format(self.world.state['autoMapWalk'], unmapped[0]))
-            self.go(self.world.state['autoMapTarget'], self.world.state['autoMapWalk'], bypassLocks=self.world.state['autoMapMode'] == 'visit')
+        unmappedRoomNr, path = self.unmapped(unvisited=self.world.state['autoMapMode'] == 'visit', inArea='autoMapArea' in self.world.state, one=True, bypassLocks=self.world.state['autoMapMode'] == 'visit')
+        if unmappedRoomNr:
+            self.world.state['autoMapTarget'] = unmappedRoomNr
+            self.world.state['autoMapSource'] = self.current()
+            self.log("{} to {}: {}".format(self.world.state['autoMapWalk'], unmappedRoomNr, path))
+            # self.go(self.world.state['autoMapTarget'], self.world.state['autoMapWalk'], bypassLocks=self.world.state['autoMapMode'] == 'visit')
+            path = assemble(path, self.world.state['autoMapWalk'])
+            self.send(path.replace(';', '\n'))
         else:
             self.log("Done!")
             self.autoMap(['stop']) # cleanup
@@ -824,8 +838,9 @@ class Mapper(BaseModule):
         self.log("Done, area connections written to areaconnections.dot - use GraphViz to visualize it: dot -Tsvg areaconnections.dot")
 
     def nearbyAreas(self, args):
+        withPath = args and args[0] == 'path'
         try:
-            self.log('\n'.join(map(lambda x: x.replace('\n', '~'), self.m.nearbyAreas(self.current()))))
+            self.log('\n'.join(map(lambda x: x.replace('\n', '~'), self.m.nearbyAreas(self.current(), withPath))))
         except Exception as e:
             self.log("Error:")
             import traceback
@@ -841,10 +856,10 @@ class Mapper(BaseModule):
                 'lock': self.lockExit,
                 'unlock': self.unlockExit,
                 'lock!': self.lockExitHard,
-                'unmapped': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(unvisited=False, inArea=True, one=False)])),
-                'unvisited': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(unvisited=True, inArea=True, one=False)])),
-                'gounmapped': lambda args: self.go(self.unmapped(unvisited=False, inArea=True, one=True)[0], 'go'),
-                'goanyunmapped': lambda args: self.go((self.unmapped(unvisited=False, inArea=True, one=True) or self.unmapped(unvisited=False, inArea=False, one=True))[0], 'go'),
+                'unmapped': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(unvisited=False, inArea=True, one=False, bypassLocks=False)])),
+                'unvisited': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(unvisited=True, inArea=True, one=False, bypassLocks=False)])),
+                # TODO use the path 'gounmapped': lambda args: self.go(self.unmapped(unvisited=False, inArea=True, one=True, bypassLocks=False)[0], 'go'),
+                # 'TODO use the path goanyunmapped': lambda args: self.go((self.unmapped(unvisited=False, inArea=True, one=True) or self.unmapped(unvisited=False, inArea=False, one=True, bypassLocks=False))[0], 'go'),
                 'av': self.autoMap,
                 'areas': self.areas,
                 'find': self.find,
@@ -861,7 +876,9 @@ class Mapper(BaseModule):
                 'path': lambda args: self.path(' '.join(args), 'go'),
                 'path!': lambda args: self.path(' '.join(args), 'go', bypassLocks=True),
                 'go': lambda args: self.go(' '.join(args), 'go'),
+                'go!': lambda args: self.go(' '.join(args), 'go', bypassLocks=True),
                 'run': lambda args: self.go(' '.join(args), 'run'),
+                'run!': lambda args: self.go(' '.join(args), 'run', bypassLocks=True),
                 'save': self.save,
                 'write': self.save,
                 'door': self.door,
@@ -958,9 +975,12 @@ class Mapper(BaseModule):
             # Therefore, by default, don't purge exits.
             # Except, in CoffeeMUD, mazes change layout every now and then, so don't retain those exits.
             exits = self.m.getRoomExits(num)
+            mazeDataBackup = {}
             if maze:
                 def rm(n):
                     if n in exits:
+                        if 'data' in exits[n]:
+                            mazeDataBackup[n] = exits[n]['data']
                         del exits[n]
                 rm('n')
                 rm('e')
@@ -977,7 +997,10 @@ class Mapper(BaseModule):
                 tgt = roomnr(target)
                 dir = direction.lower()
                 if dir not in exits:
-                    exits[dir] = {'tgt': tgt}
+                    exits[dir] = {}
+                exits[dir]['tgt'] = tgt  # sometimes they change, so let's overwrite
+                if dir in mazeDataBackup:
+                    exits[dir]['data'] = mazeDataBackup[dir]
                 if not self.m.roomExists(tgt):  # doesn't exist yet, insert stub for easy pathfinding
                     self.m.addRoom(tgt, None, {}, {})
 
@@ -991,7 +1014,9 @@ class Mapper(BaseModule):
                 if 'char' in self.world.gmcp and self.world.gmcp['char']['vitals']['moves'] < 60:
                     self.log("Automapping, but near out of moves")
                 elif 'autoMapArea' in self.world.state and self.world.state['autoMapArea'] != self.currentArea():
-                    self.log("Automapping, but changed areas")
+                    self.log("Automapping, but changed areas. Trying to walk back...")
+                    self.world.state['autoMapTarget'] = self.world.state['autoMapSource']
+                    self.go(self.world.state['autoMapSource'], self.world.state['autoMapWalk'], bypassLocks=self.world.state['autoMapMode'] == 'visit')
                 else:
                     self.autoMap(['exit'] if 'autoMapArea' not in self.world.state else None)
 
