@@ -8,9 +8,6 @@ import shutil
 import time
 
 
-def log(*args, **kwargs):
-    print(*args, **kwargs)
-
 def roomnr(x):
     # CoffeeMud, Mob Factory exits are negative but room IDs are positive
     return str(abs(x))
@@ -79,7 +76,6 @@ class Map(object):
 
     def getRoomCoords(self, num):
         num = str(num)
-        # log("Warning: room coords not impl")
         return (0, 0, 0)
 
     def getRoomExits(self, num):
@@ -101,10 +97,27 @@ class Map(object):
         return self.m['rooms'][num]['exits'][direction]['data']
 
     def findRoomsByName(self, name, zone=None):
+        return self.findRoomsBy(lambda x: x.get('name'), name, zone)
+
+    def findRoomsById(self, desiredId, desiredZone=None):
+        return self.findRoomsBy(lambda x: x['data'].get('id') if 'data' in x else None, desiredId, desiredZone)
+
+    def findRoomsBy(self, keySelector, desiredValue, desiredZone=None):
         out = []
-        for num in self.m['rooms']:
-            if 'name' in self.m['rooms'][num] and self.m['rooms'][num]['name'] and self.m['rooms'][num]['name'].find(name) != -1 and (not zone or self.m['rooms'][num]['data']['zone'] and zone == self.m['rooms'][num]['data']['zone'] == zone):
-                out.append((num, self.m['rooms'][num]['name'], self.m['rooms'][num]['data']['zone']))
+        for num, room in self.m['rooms'].items():
+            data = room.get('data')
+            if not data:
+                continue
+            value = keySelector(room)
+            if not value:
+                continue
+            if value.find(desiredValue) == -1:
+                continue
+            zone = data.get('zone')
+            if desiredZone:
+                if zone != desiredZone:
+                    continue
+            out.append((num, "{}:\t{}".format(data.get('id', 'no-id'), room.get('name')), zone))
         return out
 
     def findRoomsByZone(self, zone):
@@ -701,6 +714,15 @@ class Mapper(BaseModule):
             self.show("{count}\t{nr}\t{name}\t\t{area}\n".format(count=count, nr=nr, name=name, area=area))
             count += 1
 
+    def findById(self, args, inArea=True):
+        res = self.world.state['map-find-result'] = self.m.findRoomsById(' '.join(args), self.currentArea() if inArea else None)
+        res.sort(key=lambda x: x[1])
+        res.sort(key=lambda x: x[2])
+        count = 1
+        for nr, name, area in res:
+            self.show("{count}\t{nr}\t{name}\t\t{area}\n".format(count=count, nr=nr, name=name, area=area))
+            count += 1
+
     def currentArea(self):
         return self.m.getRoomData(self.current())['zone']
 
@@ -809,7 +831,6 @@ class Mapper(BaseModule):
             import traceback
             self.log(traceback.format_exc())
 
-
     def __init__(self, mud, drawAreas, mapfname, spacesInRun=True):
         super().__init__(mud)
         self.drawAreas = drawAreas
@@ -856,6 +877,8 @@ class Mapper(BaseModule):
                 'draw': lambda args: self.show(self.draw(int(args[0]), int(args[0]))),
                 'areaconnectionsGraph': self.areaConnectionsGraph,
                 'nearby': self.nearbyAreas,
+                'id': self.findById,
+                'id!': lambda args: self.findById(args, inArea=False),
             }
 
         # for creating custom exits
@@ -924,6 +947,7 @@ class Mapper(BaseModule):
                 self.log("GMCP details: {}".format(value.get('details')))
             self.m.addArea(zone, num)
             id = value.get('id')
+            self.mud.logNoMarker(id)
             data = dict(zone=zone, terrain=value.get('terrain'), id=id)
             maze = re.match(r'[^#]+#\d+#\(\d+,\d+\)$', id) != None  # CoffeeMUD mazes are described with just one room ID + coords: Sewers#7019#(9,5)
             if maze:
