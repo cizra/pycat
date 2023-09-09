@@ -50,9 +50,18 @@ class Session(object):
         else:
             line = pprint.pformat(args)
         print(line)
-        self.pipeToSocketW.write("---------\n".encode(self.client_encoding))
+        self.pipeToSocketW.write("-- ".encode(self.client_encoding))
         self.pipeToSocketW.write(line.encode(self.client_encoding))
         self.pipeToSocketW.write(b"\n")
+        self.pipeToSocketW.flush()
+
+    def logNoMarker(self, *args, **kwargs):
+        if len(args) == 1 and type(args[0]) == str:
+            line = args[0]
+        else:
+            line = pprint.pformat(args)
+        print(line)
+        self.pipeToSocketW.write(line.encode(self.client_encoding))
         self.pipeToSocketW.flush()
 
     def strip_ansi(self, line):
