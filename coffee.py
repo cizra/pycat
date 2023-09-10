@@ -110,6 +110,7 @@ ALIASES = {
         alias define sh sleep until full
         """,
         'home': lambda mud, _: mud.modules['mapper'].go('1115504774', 'go'),
+        'where max (\d+) (\d+)': lambda mud, matches: mud.send('areas explored {} <= $max_level and $max_level < {}'.format(matches[0], matches[1])),
         '#hone (.+)': hone,
         '#hones': showHones,
         }

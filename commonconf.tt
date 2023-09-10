@@ -52,4 +52,10 @@ $macro {\e\c;} {uu}
 $macro {\e\cq} {ud}
 $macro {\e.} {#map}
 
+$macro {\e1} {cast "fireball"}
+$macro {\e2} {cast "acid arrow"}
+$macro {\e3} {cast "frost"}
+$macro {\e4} {cast "burning hands"}
+$macro {\e5} {cast "magic missile"}
+
 $delay 1 {$split}
