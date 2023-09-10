@@ -152,6 +152,13 @@ class Map(object):
             return False
         return True  # TODO: check level
 
+    def isHardLocked(self, exit):
+        if 'data' not in exit:
+            return False
+        if 'hardLock' not in exit['data']:
+            return False
+        return True  # TODO: check level
+
     # visitRoom returs None to continue search, a value for end condition (like path to desired room).
     # visitExit returns True if we should stop BFSing after this exit.
     def bfs(self, here, visitRoom, visitExit, bypassLocks):
@@ -164,6 +171,8 @@ class Map(object):
                 ex = self.m['rooms'][room]['exits']
                 for exDir in ex:
                     if not bypassLocks and self.isLocked(ex[exDir]):
+                        continue
+                    if self.isHardLocked(ex[exDir]):
                         continue
                     tgt = ex[exDir]['tgt']
                     if not visitExit(room, exDir, tgt):
@@ -801,9 +810,8 @@ class Mapper(BaseModule):
         if unmappedRoomNr:
             self.world.state['autoMapTarget'] = unmappedRoomNr
             self.world.state['autoMapSource'] = self.current()
-            self.log("{} to {}: {}".format(self.world.state['autoMapWalk'], unmappedRoomNr, path))
-            # self.go(self.world.state['autoMapTarget'], self.world.state['autoMapWalk'], bypassLocks=self.world.state['autoMapMode'] == 'visit')
             path = assemble(path, self.world.state['autoMapWalk'])
+            self.log("{} to {}: {}".format(self.world.state['autoMapWalk'], unmappedRoomNr, path))
             self.send(path.replace(';', '\n'))
         else:
             self.log("Done! ({})".format(self.world.state.get('autoMapMode')))
@@ -862,6 +870,7 @@ class Mapper(BaseModule):
         self.commands = {
                 'lock': self.lockExit,
                 'unlock': self.unlockExit,
+                'unlock!': lambda args: self.unlockExit(args, hard=True),
                 'lock!': self.lockExitHard,
                 'unmapped': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(unvisited=False, inArea=True, one=False, bypassLocks=False)])),
                 'unvisited': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(unvisited=True, inArea=True, one=False, bypassLocks=False)])),
