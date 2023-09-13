@@ -172,6 +172,16 @@ class Map(object):
                 for exDir in ex:
                     if not bypassLocks and self.isLocked(ex[exDir]):
                         continue
+                    # TODO: add options to path through swim-only rooms, etc
+                    if True and ex[exDir].get('data', {}).get('swim'):
+                        continue
+                    if True and ex[exDir].get('data', {}).get('crawl'):
+                        continue
+                    if True and ex[exDir].get('data', {}).get('climb'):
+                        continue
+                    if True and ex[exDir].get('data', {}).get('fly'):
+                        continue
+
                     if self.isHardLocked(ex[exDir]):
                         continue
                     tgt = ex[exDir]['tgt']
@@ -401,9 +411,13 @@ class Mapper(BaseModule):
         return self.m.getExitData(source, to)
 
     def addExitData(self, source, target, data):
-        exd = self.m.getExitData(source, target)
+        try:
+            exd = self.m.getExitData(source, target)
+        except KeyError:
+            self.log("Exit not found")
         exd.update(data)
         self.m.setExitData(source, target, exd)
+        return self.here([self.current()])
 
     def draw(self, sizeX=None, sizeY=None):
         # Draw room at x,y,z. Enumerate exits. For each exit target, breadth-first, figure out its new dimensions, rinse, repeat.
@@ -869,9 +883,13 @@ class Mapper(BaseModule):
 
         self.commands = {
                 'lock': self.lockExit,
+                'swim': lambda args: self.addExitData(self.current(), args[0], {'swim': 1}),
+                'fly': lambda args: self.addExitData(self.current(), args[0], {'fly': 1}),
+                'crawl': lambda args: self.addExitData(self.current(), args[0], {'crawl': 1}),
+                'climb': lambda args: self.addExitData(self.current(), args[0], {'climb': 1}),
                 'unlock': self.unlockExit,
                 'unlock!': lambda args: self.unlockExit(args, hard=True),
-                'lock!': self.lockExitHard,
+                'lock!': lambda args: self.addExitData(self.current(), args[0], {'hardLock': -1}),
                 'unmapped': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(unvisited=False, inArea=True, one=False, bypassLocks=False)])),
                 'unvisited': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(unvisited=True, inArea=True, one=False, bypassLocks=False)])),
                 # TODO use the path 'gounmapped': lambda args: self.go(self.unmapped(unvisited=False, inArea=True, one=True, bypassLocks=False)[0], 'go'),
