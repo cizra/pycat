@@ -875,6 +875,24 @@ class Mapper(BaseModule):
             import traceback
             self.log(traceback.format_exc())
 
+    def terrains(self, args):
+        try:
+            area = self.m.getRoomArea(self.current())
+            roomsOfCurrentArea = filter(lambda kvp: self.m.getRoomArea(kvp[0]) == area, self.m.m['rooms'].items())
+            terrains = {} # terrain to count
+            for kvp in roomsOfCurrentArea:
+                room = kvp[1]
+                terrain = room.get('data', {}).get('terrain')
+                if terrain not in terrains:
+                    terrains[terrain] = 1
+                else:
+                    terrains[terrain] += 1
+            self.log("Terrains in the current area:\n{}".format(pprint.pformat(terrains)))
+        except Exception as e:
+            self.log("Error:")
+            import traceback
+            self.log(traceback.format_exc())
+
     def __init__(self, mud, drawAreas, mapfname, spacesInRun=True):
         super().__init__(mud)
         self.drawAreas = drawAreas
@@ -930,6 +948,7 @@ class Mapper(BaseModule):
                 'nearby': self.nearbyAreas,
                 'id': self.findById,
                 'id!': lambda args: self.findById(args, inArea=False),
+                'terrains': self.terrains,
             }
 
         # for creating custom exits
