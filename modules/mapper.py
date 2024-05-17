@@ -24,6 +24,9 @@ reverse = {
         'd': 'u'
         }
 
+def isMaze(roomId):
+    return re.match(r'[^#]+#\d+#\(\d+,\d+\)$', roomId) != None  # CoffeeMUD mazes are described with just one room ID + coords: Sewers#7019#(9,5)
+
 # Room IDs are strings (JSON keys must be)
 class Map(object):
     def __init__(self, serialized=None):
@@ -89,7 +92,15 @@ class Map(object):
 
     def getRoomCoords(self, num):
         num = str(num)
-        return (0, 0, 0)
+        return (
+            self.m['rooms'][num]['coords']['x'] if 'coords' in self.m['rooms'][num] else 0,
+            self.m['rooms'][num]['coords']['y'] if 'coords' in self.m['rooms'][num] else 0,
+            self.m['rooms'][num]['coords']['z'] if 'coords' in self.m['rooms'][num] else 0
+        )
+
+    def setRoomCoords(self, num, x, y, z):
+        num = str(num)
+        self.m['rooms'][num]['coords'] = dict(x=x, y=y, z=z)
 
     def getRoomExits(self, num):
         num = str(num)
@@ -161,25 +172,35 @@ class Map(object):
 
     # visitRoom returs None to continue search, a value for end condition (like path to desired room).
     # visitExit returns True if we should stop BFSing after this exit.
-    def bfs(self, here, visitRoom, visitExit, bypassLocks):
+    def bfs(self, here, visitRoom, visitExit, bypassLocks, enterMazes=False, swim=False):
         visited = set()
         roomq = collections.deque()
         roomq.append(here)
         while roomq:
             room = roomq.popleft()
+            # Some are mazes, some are grid-type rooms, pathable through. Need a better way to mark mazes - just locks?
+            # if not enterMazes and isMaze((self.m['rooms'][room].get('data', {}) or {}).get('id') or ''):
+            #     continue
+            if not bypassLocks and not swim and ((self.m['rooms'][room].get('data', {}) or {}).get('terrain') or '') == 'watersurface':
+                continue
             if room not in visited:  # A given room might end up in the queue through different paths
                 ex = self.m['rooms'][room]['exits']
                 for exDir in ex:
                     if not bypassLocks and self.isLocked(ex[exDir]):
+                        print("Bypassing {} as locked".format(room))
                         continue
                     # TODO: add options to path through swim-only rooms, etc
-                    if True and ex[exDir].get('data', {}).get('swim'):
+                    if not bypassLocks and ex[exDir].get('data', {}).get('swim'):  # rendundant with the 'watersurface' check above? Regardless, useful for softlocking unexplored exits
+                        print("Bypassing {} as swim".format(room))
                         continue
-                    if True and ex[exDir].get('data', {}).get('crawl'):
+                    if not bypassLocks and ex[exDir].get('data', {}).get('crawl'):
+                        print("Bypassing {} as crawl".format(room))
                         continue
-                    if True and ex[exDir].get('data', {}).get('climb'):
+                    if not bypassLocks and ex[exDir].get('data', {}).get('climb'):
+                        print("Bypassing {} as climb".format(room))
                         continue
-                    if True and ex[exDir].get('data', {}).get('fly'):
+                    if not bypassLocks and ex[exDir].get('data', {}).get('fly'):
+                        print("Bypassing {} as fly".format(room))
                         continue
 
                     if self.isHardLocked(ex[exDir]):
@@ -419,7 +440,7 @@ class Mapper(BaseModule):
         self.m.setExitData(source, target, exd)
         return self.here([self.current()])
 
-    def draw(self, sizeX=None, sizeY=None):
+    def draw(self, sizeX=None, sizeY=None, storeCoords=False):
         # Draw room at x,y,z. Enumerate exits. For each exit target, breadth-first, figure out its new dimensions, rinse, repeat.
         # █▓▒░
         if sizeX and sizeY:
@@ -427,28 +448,28 @@ class Mapper(BaseModule):
         else:
             columns, lines = 60, 100  # shutil.get_terminal_size((21, 22))
 
-        def adjustExit(x, y, d, prev):
+        def adjustExit(x, y, z, d, prev):
             m = re.match(r'open .+;(.+)', d)
             if m:
-                return adjustExit(x, y, m.group(1), prev)
+                return adjustExit(x, y, z, m.group(1), prev)
             if d in ['n', 'north']:
-                return x, y-1, '│', '↑', '║'
+                return x, y-1, z, '│', '↑', '║'
             if d in ['w', 'west']:
-                return x-1, y, '─', '←', '═'
+                return x-1, y, z, '─', '←', '═'
             if d in ['s', 'south']:
-                return x, y+1, '│', '↓', '║'
+                return x, y+1, z, '│', '↓', '║'
             if d in ['e', 'east']:
-                return x+1, y, '─', '→', '═'
+                return x+1, y, z, '─', '→', '═'
             if d in ['d', 'down']:
                 if prev == '▲':
-                    return x, y, '◆', '◆', '◆'
+                    return x, y, z-1, '◆', '◆', '◆'
                 else:
-                    return x, y, '▼', '▼', '▼'
+                    return x, y, z-1, '▼', '▼', '▼'
             if d in ['u', 'up']:
                 if prev == '▼':
-                    return x, y, '◆', '◆', '◆'
+                    return x, y, z+1, '◆', '◆', '◆'
                 else:
-                    return x, y, '▲', '▲', '▲'
+                    return x, y, z+1, '▲', '▲', '▲'
             if d in ['nw', 'northwest']:
                 return x-1, y-1, '\\', '\\', '\\'
             if d in ['sw', 'southwest']:
@@ -463,13 +484,13 @@ class Mapper(BaseModule):
             out.append([' '] * columns)
 
         # The only room coordinates that matter are the start room's -- the rest get calculated by tracing paths.
-        startX, startY, startZ = (0, 0, 0)  # self.m.getRoomCoords(self.current())
+        # startX, startY, startZ = (0, 0, 0)  # self.m.getRoomCoords(self.current())
         centerX, centerY = (columns-1)//2, (lines-1)//2
         data = self.m.getRoomData(self.current())
         area = data['zone']
 
         roomq = collections.deque()
-        roomq.append((centerX, centerY, self.current()))
+        roomq.append((centerX, centerY, 0, self.current()))
 
         visited = set()
 
@@ -479,16 +500,21 @@ class Mapper(BaseModule):
                 return 0
             return int(exitData['len'] * 2)
 
-        def fits(x, y):
-            return 0 <= x and x < columns and 0 <= y and y < lines-1
+        def fits(x, y, storeCoords):
+            doesFit = 0 <= x and x < columns and 0 <= y and y < lines-1
+            if not doesFit and storeCoords:
+                self.log("Warning, area is bigger than fits into the output. Retry with a larger size lest some rooms remain uncoordinated.")
+            return doesFit
 
         # TODO: one-way exits
         # TODO: draw doors
-        coordCache = {}  # Remember where we drew each room, to search for broken-looking exits
+        coordCache = {}  # Remember where we drew each room, to search for broken-looking exits. Buggy, it still sometimes looks weird on map :(
         while roomq:
-            drawX, drawY, room = roomq.popleft()
+            drawX, drawY, drawZ, room = roomq.popleft()
             if room not in visited:  # A given room might end up in the queue through different paths
-                mapX, mapY, mapZ = self.m.getRoomCoords(room)
+                # mapX, mapY, mapZ = self.m.getRoomCoords(room)
+                if storeCoords:
+                    self.m.setRoomCoords(room, drawX // 2, drawY // 2, drawZ // 2)
                 visited.add(room)
                 # It's possible to keep walking through z layers and end up back on z=initial, which might produce nicer maps -- but we'll have to walk the _whole_ map, or bound by some range.
                 out[drawY][drawX] = '█'
@@ -514,15 +540,16 @@ class Mapper(BaseModule):
 
                         exX = drawX
                         exY = drawY
+                        exZ = drawZ
 
-                        roomX, roomY = exX, exY
+                        roomX, roomY, roomZ = exX, exY, exZ
                         # Figure out the coordinates of the target room
                         for _ in range(exitLen + 1):  # exitlen for the exit, +1 for the target room
-                            roomX, roomY, _, _, _ = adjustExit(roomX, roomY, d, ' ')
+                            roomX, roomY, roomZ, _, _, _ = adjustExit(roomX, roomY, roomZ, d, ' ')
 
                         exitData = self.m.getExitData(room, d)
                         if 'draw' in exitData and not exitData['draw']:
-                            nexX, nexY, _, _, _ = adjustExit(exX, exY, d, out[drawY][drawX])
+                            nexX, nexY, nexZ, _, _, _ = adjustExit(exX, exY, exZ, d, out[drawY][drawX])
                             if nexY < len(out) and nexX < len(out[nexY]):
                                 out[nexY][nexX] = '.'
                         else:
@@ -536,12 +563,12 @@ class Mapper(BaseModule):
 
                             # draw a long exit for beautification
                             for _ in range(exitLen):
-                                exX, exY, regularExit, hiddenExit, markedExit = adjustExit(exX, exY, d, out[drawY][drawX])
-                                if fits(exX, exY):
+                                exX, exY, exZ, regularExit, hiddenExit, markedExit = adjustExit(exX, exY, exZ, d, out[drawY][drawX])
+                                if fits(exX, exY, storeCoords):
                                     # If the map grid element we'd occupy is already occupied, don't go there
-                                    nextX, nextY, _, _, _ = adjustExit(exX, exY, d, ' ')  # Adjust again, ie. go one step further in the same direction for the target room
+                                    nextX, nextY, nextZ, _, _, _ = adjustExit(exX, exY, exZ, d, ' ')  # Adjust again, ie. go one step further in the same direction for the target room
                                     # Don't overwrite already drawn areas
-                                    free = fits(exX, exY) and (not fits(nextX, nextY) or out[nextY][nextX] == ' ') or tgt in visited
+                                    free = fits(exX, exY, storeCoords) and (not fits(nextX, nextY, storeCoords) or out[nextY][nextX] == ' ') or tgt in visited
 
                                     if mark:
                                         out[exY][exX] = markedExit
@@ -553,12 +580,12 @@ class Mapper(BaseModule):
                             visit = (exists
                                     and tgt not in visited
                                     and sameAreas
-                                    and d not in ['u', 'd']
-                                    and fits(roomX, roomY)
-                                    and out[roomY][roomX] == ' '
+                                    and (storeCoords or d not in ['u', 'd'])
+                                    and fits(roomX, roomY, storeCoords)
+                                    and (storeCoords or out[roomY][roomX] == ' ')
                                     )
                             if visit:
-                                roomq.append((roomX, roomY, tgt))
+                                roomq.append((roomX, roomY, roomZ, tgt))
 
         # Special marking for start room:
         if out[centerY][centerX] == '▼':
@@ -794,8 +821,14 @@ class Mapper(BaseModule):
             nonlocal unmappedRoom
             return unmappedRoom  # Hack: stop search if we found any unmapped room
 
-        self.m.bfs(here, visitRoom, visitExit, bypassLocks=bypassLocks)
+        self.m.bfs(here, visitRoom, visitExit, bypassLocks=bypassLocks, enterMazes=True, swim=False)
         return unmappedRoom, paths.get(unmappedRoom)
+
+    def goUnvisited(self, args):
+        unvisitedRoomNr, path = self.unmapped(unvisited=True, inArea=True, one=True, bypassLocks=False)
+        path = assemble(path, 'go')
+        self.log("Visiting {}: {}".format(unvisitedRoomNr, path))
+        self.send(path.replace(';', '\n'))
 
     def autoMap(self, args=None):
         if 'autoMapMode' not in self.world.state:
@@ -912,6 +945,7 @@ class Mapper(BaseModule):
                 'unvisited': lambda args: self.log('\n' + '\n'.join([str(i) for i in self.unmapped(unvisited=True, inArea=True, one=False, bypassLocks=False)])),
                 # TODO use the path 'gounmapped': lambda args: self.go(self.unmapped(unvisited=False, inArea=True, one=True, bypassLocks=False)[0], 'go'),
                 # 'TODO use the path goanyunmapped': lambda args: self.go((self.unmapped(unvisited=False, inArea=True, one=True) or self.unmapped(unvisited=False, inArea=False, one=True, bypassLocks=False))[0], 'go'),
+                'gounvisited': self.goUnvisited,
                 'av': self.autoMap,
                 'areas': self.areas,
                 'find': self.find,
@@ -944,6 +978,7 @@ class Mapper(BaseModule):
                 'startroom': self.startRoom,
                 'nodraw': self.noDraw,
                 'draw': lambda args: self.show(self.draw(int(args[0]), int(args[0]))),
+                'coords': lambda args: self.show(self.draw(int(args[0]), int(args[0]), storeCoords=True)),
                 'areaconnectionsGraph': self.areaConnectionsGraph,
                 'nearby': self.nearbyAreas,
                 'id': self.findById,
@@ -1019,7 +1054,7 @@ class Mapper(BaseModule):
             id = value.get('id')
             self.mud.logNoMarker(id)
             data = dict(zone=zone, terrain=value.get('terrain'), id=id)
-            maze = re.match(r'[^#]+#\d+#\(\d+,\d+\)$', id) != None  # CoffeeMUD mazes are described with just one room ID + coords: Sewers#7019#(9,5)
+            maze = isMaze(id)
             if maze:
                 data['maze'] = True
 
@@ -1028,6 +1063,7 @@ class Mapper(BaseModule):
             # Therefore, by default, don't purge exits.
             # Except, in CoffeeMUD, mazes change layout every now and then, so don't retain those exits.
             exits = self.m.getRoomExits(num)
+            coords = self.m.getRoomCoords(num)
             mazeDataBackup = {}
             if maze:
                 def rm(n):
@@ -1062,6 +1098,7 @@ class Mapper(BaseModule):
                     exits['open {door} {direction};{direction}'.format(door=door, direction=direction)] = exits[direction.lower()]
 
             self.m.addRoom(num, name, data, exits)
+            self.m.setRoomCoords(num, coords[0], coords[1], coords[2])
 
             if 'autoMapTarget' in self.world.state and self.world.state['autoMapTarget'] == num:
                 if 'char' in self.world.gmcp and self.world.gmcp['char']['vitals']['moves'] < 60:
