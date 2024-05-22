@@ -440,7 +440,12 @@ class Mapper(BaseModule):
         self.m.setExitData(source, target, exd)
         return self.here([self.current()])
 
-    def draw(self, sizeX=None, sizeY=None, storeCoords=False):
+    def allCoords(self, args):
+        for area, startRoom in self.m.getAreas().items():
+            self.log("Coordinatifying {} at {}".format(area, startRoom))
+            self.draw(200, 200, True, startRoom)
+
+    def draw(self, sizeX=None, sizeY=None, storeCoords=False, at=None):
         # Draw room at x,y,z. Enumerate exits. For each exit target, breadth-first, figure out its new dimensions, rinse, repeat.
         # █▓▒░
         if sizeX and sizeY:
@@ -486,11 +491,11 @@ class Mapper(BaseModule):
         # The only room coordinates that matter are the start room's -- the rest get calculated by tracing paths.
         # startX, startY, startZ = (0, 0, 0)  # self.m.getRoomCoords(self.current())
         centerX, centerY = (columns-1)//2, (lines-1)//2
-        data = self.m.getRoomData(self.current())
+        data = self.m.getRoomData(at or self.current())
         area = data['zone']
 
         roomq = collections.deque()
-        roomq.append((centerX, centerY, 0, self.current()))
+        roomq.append((centerX, centerY, 0, at or self.current()))
 
         visited = set()
 
@@ -979,6 +984,7 @@ class Mapper(BaseModule):
                 'nodraw': self.noDraw,
                 'draw': lambda args: self.show(self.draw(int(args[0]), int(args[0]))),
                 'coords': lambda args: self.show(self.draw(int(args[0]), int(args[0]), storeCoords=True)),
+                'allcoords': self.allCoords,
                 'areaconnectionsGraph': self.areaConnectionsGraph,
                 'nearby': self.nearbyAreas,
                 'id': self.findById,
