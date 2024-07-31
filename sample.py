@@ -49,7 +49,7 @@ class Sample(modular.ModularClient):
         self.triggers.update(TRIGGERS)
 
     def getHostPort(self):
-        return 'sneezymud.org', 7900
+        return 'sneezy-mud.com', 7900
 
 def getClass():
     return Sample
