@@ -22,7 +22,7 @@ class FileEdit(BaseModule):
         elif line.startswith("#edit "):
             self.send_file(line[6:])
             return True
-        elif line.startswith('#write-file '):
+        elif line.startswith(self.mud.cmd_char + 'write-file '):
             self.write_file(line[12:])
             return True
         return False

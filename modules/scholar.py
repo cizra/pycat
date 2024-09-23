@@ -148,7 +148,7 @@ def doneTeaching(world, matches):
 class Scholar(BaseModule):
     def getAliases(self):
         return {
-                '#learnfrom (.+)': learnFrom,
+                self.mud.cmd_char + 'learnfrom (.+)': learnFrom,
                 }
 
     def getTriggers(self):

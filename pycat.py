@@ -26,6 +26,8 @@ class Session(object):
         self.world_module = world_module
         self.arg = arg
         self.world = world_module.getClass()(self, self.arg)
+        self.cmd_char = '#'  # The prefix for pycat commands
+
         try:
             self.socketToPipeR, self.pipeToSocketW, self.stopFlag, runProxy = proxy('::1', port)
             self.pipeToSocketW = os.fdopen(self.pipeToSocketW, 'wb')
@@ -202,7 +204,7 @@ class Session(object):
 
     def handle_output_line(self, data):
         pprint.pprint(data)
-        if data == '#reload' and self.world:
+        if data == self.cmd_char + 'reload' and self.world:
             self.log('Reloading world')
             try:
                 state = self.world.state
